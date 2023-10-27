@@ -1,0 +1,10 @@
+config.yml
+private_key.pem
+public_key.pem
+*.log
+/logs
+/test
+/temp
+/.idea
+/go.mod
+/go.sum
