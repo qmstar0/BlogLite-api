@@ -2,14 +2,10 @@ package event
 
 import (
 	"sync"
+	"time"
 )
 
 var BusMap = make(map[string]*Bus)
-
-type DataEvent struct {
-	Data  interface{}
-	Topic string
-}
 
 // DataChan 是一个能接收 DataEvent 的 channel
 type DataChan chan DataEvent
@@ -19,6 +15,7 @@ type DataChanList []DataChan
 
 // Bus 存储有关订阅者感兴趣的特定主题的信息
 type Bus struct {
+	Id          string
 	subscribers map[string]DataChanList
 	rm          sync.RWMutex
 }
@@ -28,7 +25,11 @@ func GetBus(id string) *Bus {
 	if BusMap[id] != nil {
 		return BusMap[id]
 	}
-	BusMap[id] = new(Bus)
+	BusMap[id] = &Bus{
+		Id:          id,
+		subscribers: map[string]DataChanList{},
+		rm:          sync.RWMutex{},
+	}
 	return BusMap[id]
 }
 
@@ -40,7 +41,12 @@ func (b *Bus) Publish(topic string, data interface{}) {
 			for _, ch := range dataChannelSlices {
 				ch <- data
 			}
-		}(DataEvent{Data: data, Topic: topic}, channels)
+		}(DataEvent{
+			Bus:   b.Id,
+			Time:  time.Now().Unix(),
+			Data:  data,
+			Topic: topic,
+		}, channels)
 	}
 	b.rm.RUnlock()
 }

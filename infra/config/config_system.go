@@ -28,7 +28,3 @@ type System struct {
 	Description  string `yaml:"Description"`
 	RecordNumber string `yaml:"RecordNumber"`
 }
-
-type Event struct {
-	DelCache string `yaml:"DelCache"`
-}

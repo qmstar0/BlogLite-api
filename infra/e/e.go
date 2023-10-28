@@ -52,6 +52,12 @@ const (
 	EmailSendErr
 )
 
+// 领域服务或事件错误
+const (
+	DomainErr = iota + 60010
+	DomainEventDataTypeErr
+)
+
 // 数据持久化错误
 const (
 	DataPersistenceErr = iota + 80010
@@ -74,6 +80,7 @@ var errMsg = map[uint32]string{
 	SafeErr:            "SafeErr",
 	InputErr:           "InputErr",
 	DataPersistenceErr: "DB Err",
+	DomainErr:          "Domain Err",
 
 	InvalidParam:             "Invalid Param",
 	MissingParam:             "Missing Param",
@@ -96,6 +103,8 @@ var errMsg = map[uint32]string{
 	PwdEncryptionErr:  "password encrytion err",
 
 	EmailSendErr: "Email Send Err",
+
+	DomainEventDataTypeErr: "Domain Event Data Type Err",
 
 	DBCreateErr:     "DB CreateArticle Err",
 	DBUpdateErr:     "DB UpdateArticle Err",

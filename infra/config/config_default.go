@@ -28,9 +28,6 @@ func InitDefaultConfig() {
 		PrivateKeyPath: "system/private_key.pem",
 		PublicKeyPath:  "system/public_key.pem",
 	}
-	Conf.Event = &Event{
-		DelCache: "<delete.cache>",
-	}
 	Conf.Logger = &logger{
 		Level:      "Info",
 		OutputPath: "logs",

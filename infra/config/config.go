@@ -23,7 +23,6 @@ type Config struct {
 	System  *System  `yaml:"System"`
 	Article *Article `yaml:"Article"`
 	User    *User    `yaml:"User"`
-	Event   *Event   `yaml:"Event"`
 }
 
 func init() {

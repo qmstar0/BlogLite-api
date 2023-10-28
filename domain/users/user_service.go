@@ -5,7 +5,7 @@ import (
 	"blog/domain/users/token"
 	"blog/domain/users/valueobject"
 	"blog/infra/e"
-	"blog/infra/mail"
+	"blog/infra/event"
 	"context"
 )
 
@@ -38,15 +38,20 @@ func (s ServiceUser) GenCaptchaToken(email, captcha string) (string, error) {
 }
 
 func (s ServiceUser) SendCaptchaEmail(email, captcha string) error {
-	html := mail.NewTemplateForVerifyCode(email, captcha)
-	m := mail.PostMan.NewMail()
-	m.SetHeader("Subject", EmailSubject)
-	m.SetHeader("To", email)
-	m.SetBody("text/html", html.ToString())
-	dialer := mail.PostMan.NewDialer()
-	if err := dialer.DialAndSend(m); err != nil {
-		return e.NewError(e.EmailSendErr, err)
-	}
+	//html := mail.NewTemplateForVerifyCode(email, captcha)
+	//m := mail.PostMan.NewMail()
+	//m.SetHeader("Subject", EmailSubject)
+	//m.SetHeader("To", email)
+	//m.SetBody("text/html", html.ToString())
+	//dialer := mail.PostMan.NewDialer()
+	//if err := dialer.DialAndSend(m); err != nil {
+	//	return e.NewError(e.EmailSendErr, err)
+	//}
+	//return nil
+	bus.Publish(event.SendMail, event.SendEmailED{
+		Email:   email,
+		Captcha: captcha,
+	})
 	return nil
 }
 
