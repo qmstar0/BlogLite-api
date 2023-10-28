@@ -4,7 +4,7 @@ package dto
 
 // Captcha 验证请求
 type Captcha struct {
-	Email   string `form:"email"  validate:"required,email"`
-	Captcha string `form:"captcha" validate:"required"`
-	Token   string `form:"token" validate:"required"`
+	Email   string `json:"email" form:"email"  validate:"required,email"`
+	Captcha string `json:"captcha" form:"captcha" validate:"required"`
+	Token   string `json:"token" form:"token" validate:"required"`
 }

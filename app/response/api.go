@@ -51,9 +51,9 @@ func (a Api) ForbiddenFailResp(err error) {
 	a.failResponse(http.StatusForbidden, err)
 }
 
-// NotFoundFailResp 404 没有找到
+// NotFoundFailResp 200 没有找到
 func (a Api) NotFoundFailResp(err error) {
-	a.failResponse(http.StatusNotFound, err)
+	a.failResponse(http.StatusOK, err)
 }
 
 // NotAcceptableFailResp 406 不允许的方法

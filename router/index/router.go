@@ -10,9 +10,9 @@ import (
 // Router 配置路由
 func Router() *gin.Engine {
 	router := gin.Default()
+	router.Use(middleware.CORSMiddleware())
 
 	r := router.Group("/api")
-	r.Use(middleware.CORSMiddleware())
 
 	V := validate.NewValidate()
 	handlerArticle := handlers.NewArticle()

@@ -13,22 +13,22 @@ type ArticleStore struct {
 
 // CateStore 文章分类仓储模型
 type CateStore struct {
-	Name        string `form:"name" validate:"required"`
-	DisplayName string `form:"displayName" validate:""`
-	ParentId    int    `form:"parentId" validate:""`
-	SeoDesc     string `form:"seoDesc" validate:"required"`
+	Name        string `json:"name" form:"name" validate:"required"`
+	DisplayName string `json:"display" form:"display"`
+	ParentId    int    `json:"parentId" form:"parentId"`
+	SeoDesc     string `json:"seoDesc" form:"seoDesc" validate:"required"`
 }
 
 // TagStore 标签仓储模型
 type TagStore struct {
-	Name        string `form:"name" validate:"required"`
-	DisplayName string `form:"displayName"`
-	SeoDesc     string `form:"seoDesc" validate:"required"`
+	Name        string `json:"name" form:"name" validate:"required"`
+	DisplayName string `json:"display" form:"display"`
+	SeoDesc     string `json:"seoDesc" form:"seoDesc" validate:"required"`
 }
 
 // UserStore 用户仓储模型
 type UserStore struct {
-	UserName string `form:"name" validate:"required"`
+	UserName string `json:"name" form:"name" validate:"required"`
 	//Password string
 	//Email    string
 }
