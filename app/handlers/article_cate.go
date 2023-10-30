@@ -29,7 +29,7 @@ func (ac Category) Index(c *gin.Context) {
 	var apiC = response.Api{C: c}
 	allCate, err := ac.Srv.AllCate(c)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -46,16 +46,16 @@ func (ac Category) Store(c *gin.Context) {
 	var apiC = response.Api{C: c}
 	store, exists := c.Get("store")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	cateStore, ok := store.(dto.CateStore)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := ac.Srv.NewCate(c, cateStore); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -66,12 +66,12 @@ func (ac Category) Edit(c *gin.Context) {
 	cid := c.Param("cid")
 	cIntId, err := strconv.Atoi(cid)
 	if err != nil {
-		apiC.ValidateFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	cate, err := ac.Srv.GetCate(c, cIntId)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(cate)
@@ -82,21 +82,21 @@ func (ac Category) Update(c *gin.Context) {
 	cid := c.Param("cid")
 	cIntId, err := strconv.Atoi(cid)
 	if err != nil {
-		apiC.ValidateFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	store, exists := c.Get("store")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	cateStore, ok := store.(dto.CateStore)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := ac.Srv.UpdateCate(c, cIntId, cateStore); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -107,21 +107,21 @@ func (ac Category) Destroy(c *gin.Context) {
 	cid := c.Param("cid")
 	cIntId, err := strconv.Atoi(cid)
 	if err != nil {
-		apiC.ValidateFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	_, err = ac.Srv.GetCate(c, cIntId)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	_, err = ac.Srv.GetCateByParentId(c, cIntId)
 	if !e.Compare(err, e.ItemNotExist) {
-		apiC.ConflictFailResp(e.NewError(e.InvalidDelete, err))
+		apiC.Response(e.NewError(e.InvalidDelete, err))
 		return
 	}
 	if err := ac.Srv.DeleteCate(c, cIntId); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)

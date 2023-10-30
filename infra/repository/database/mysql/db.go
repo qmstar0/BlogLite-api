@@ -31,11 +31,10 @@ func init() {
 	if pwd == "" {
 		panic("mysql is not configured: see env:BLOG_MYSQL_PASSWORD")
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True&loc=Local",
 		config.Conf.Database.User,
 		pwd,
-		config.Conf.Database.Host,
-		config.Conf.Database.Port,
+		config.Conf.Database.Addr,
 		config.Conf.Database.Name,
 		config.Conf.Database.Charset,
 	)

@@ -1,9 +1,5 @@
 package articles
 
-const (
-	defaultCategory = "默认分类"
-)
-
 // ArticleCategory 文章分类
 type ArticleCategory struct {
 	Id          int    `json:"-" gorm:"primaryKey"`

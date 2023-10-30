@@ -60,7 +60,7 @@ func (a Article) Index(c *gin.Context) {
 			apiC.Success(resp)
 			return
 		}
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	for _, art := range artList {
@@ -81,12 +81,12 @@ func (a Article) Create(c *gin.Context) {
 	)
 	allTag, err := a.Srv.AllTag(c)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	allCate, err := a.Srv.AllCate(c)
 	if err != nil {
-		apiC.ValidateFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp.Tag, resp.Cate, resp.ImgUploadUrl = allTag, allCate, "ImgUploadURL"
@@ -99,27 +99,27 @@ func (a Article) Store(c *gin.Context) {
 	)
 	userId := c.GetString("userId")
 	if userId == "" {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	user, err := a.Srv.GetUserByUid(c, userId)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	store, exists := c.Get("store")
 	if !exists {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	articleStore, ok := store.(dto.ArticleStore)
 	if !ok {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	err = a.Srv.NewArticle(c, user.Uid, articleStore)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -133,27 +133,27 @@ func (a Article) Edit(c *gin.Context) {
 	artId := c.Param("aid")
 	userId := c.GetString("userId")
 	if userId == "" {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	user, err := a.Srv.GetUser(c, userId)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	artDetail, err := a.Srv.GetArticleDetail(c, artId)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	allTag, err := a.Srv.AllTag(c)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	allCate, err := a.Srv.AllCate(c)
 	if err != nil {
-		apiC.ValidateFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp.Tags, resp.Cate, resp.ImgUploadUrl = allTag, allCate, "ImgUploadURL"
@@ -169,17 +169,17 @@ func (a Article) Update(c *gin.Context) {
 	artId := c.Param("aid")
 	store, exists := c.Get("store")
 	if !exists {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	articleStore, ok := store.(dto.ArticleStore)
 	if !ok {
-		apiC.UnavailableFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	err := a.Srv.UpdateArticle(c, artId, articleStore)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -190,7 +190,7 @@ func (a Article) Destroy(c *gin.Context) {
 	artId := c.Param("aid")
 	err := a.Srv.DeleteArtcle(c, artId)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -206,7 +206,7 @@ func (a Article) TrashIndex(c *gin.Context) {
 	limit, offset := utils.Offset(queryPage, queryLimit)
 	artTrashList, err := a.Srv.GetArticleDetailList(c, limit, offset, false, true)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp.Items = artTrashList
@@ -217,7 +217,7 @@ func (a Article) UnTrash(c *gin.Context) {
 	var apiC = response.Api{C: c}
 	artId := c.Param("aid")
 	if err := a.Srv.PublishArticle(c, artId); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -233,7 +233,7 @@ func (a Article) DraftIndex(c *gin.Context) {
 	limit, offset := utils.Offset(queryPage, queryLimit)
 	artDraftList, err := a.Srv.GetArticleDetailList(c, limit, offset, true, false)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp.Items = artDraftList
@@ -244,7 +244,7 @@ func (a Article) Publish(c *gin.Context) {
 	var apiC = response.Api{C: c}
 	artId := c.Param("aid")
 	if err := a.Srv.PublishArticle(c, artId); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)

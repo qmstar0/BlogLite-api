@@ -32,7 +32,7 @@ func init() {
 	}
 	CC = &CacheClient{
 		redis.NewClient(&redis.Options{
-			Addr: config.Conf.Redis.Host + ":" + config.Conf.Redis.Port, // Redis 服务器的地址和端口
+			Addr: config.Conf.Redis.Addr, // Redis 服务器的地址和端口
 			//Password: pwd,
 		}),
 	}

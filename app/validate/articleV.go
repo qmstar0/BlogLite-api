@@ -17,11 +17,11 @@ func (a ArticleV) Validate() gin.HandlerFunc {
 			req  = dto.ArticleStore{}
 		)
 		if err := c.ShouldBind(&req); err != nil {
-			apiC.ValidateFailResp(err)
+			apiC.Response(err)
 			return
 		}
 		if err := validate.Struct(&req); err != nil {
-			apiC.ValidateFailResp(e.NewError(e.InvalidParam, err))
+			apiC.Response(e.NewError(e.InvalidParam, err))
 			return
 		}
 		c.Set("store", req)

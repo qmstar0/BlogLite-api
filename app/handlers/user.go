@@ -36,21 +36,21 @@ func (u User) AuthRegister(c *gin.Context) {
 	)
 	email := c.Query("email")
 	if email == "" {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if _, err = u.Srv.GetUser(c, email); err == nil {
-		apiC.ConflictFailResp(e.NewError(e.UserDuplicateCreationErr, nil))
+		apiC.Response(e.NewError(e.UserDuplicateCreationErr, nil))
 		return
 	}
 	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := u.Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -66,21 +66,21 @@ func (u User) AuthLogin(c *gin.Context) {
 	)
 	email := c.Query("email")
 	if email == "" {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if _, err = u.Srv.GetUser(c, email); err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := u.Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -96,17 +96,17 @@ func (u User) AuthResetPwd(c *gin.Context) {
 	)
 	email := c.GetString("email")
 	if email == "" {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := u.Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -121,26 +121,26 @@ func (u User) Login(c *gin.Context) {
 	)
 	auth, exists := c.Get("captcha")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	Captcha, ok := auth.(dto.Captcha)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := u.Srv.VaildateCaptcha(Captcha); err != nil {
-		apiC.TokenFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	user, err := u.Srv.GetUser(c, Captcha.Email)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	token, err := u.Srv.GenAuthToken(user)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -155,26 +155,26 @@ func (u User) Register(c *gin.Context) {
 	)
 	auth, exists := c.Get("captcha")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	authDTO, ok := auth.(dto.Captcha)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := u.Srv.VaildateCaptcha(authDTO); err != nil {
-		apiC.TokenFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	user, err := u.Srv.NewUser(c, authDTO.Email)
 	if err != nil {
-		apiC.NotFoundFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	token, err := u.Srv.GenAuthToken(user)
 	if err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	resp := make(map[string]any)
@@ -189,26 +189,26 @@ func (u User) Update(c *gin.Context) {
 	)
 	email, exists := c.Get("email")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	userEmail := email.(string)
 	if userEmail == "" {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	store, exists := c.Get("store")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	userStore, ok := store.(dto.UserStore)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := u.Srv.UpdateUser(c, userEmail, userStore); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
@@ -220,25 +220,25 @@ func (u User) ResetPwd(c *gin.Context) {
 	)
 	auth, exists := c.Get("captcha")
 	if !exists {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	captcha, ok := auth.(dto.Captcha)
 	if !ok {
-		apiC.ValidateFailResp(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
 	if err := u.Srv.VaildateCaptcha(captcha); err != nil {
-		apiC.TokenFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	newPwd := c.PostForm("newPwd")
 	if newPwd == "" {
-		apiC.ValidateFailResp(e.NewError(e.MissingParam, nil))
+		apiC.Response(e.NewError(e.MissingParam, nil))
 		return
 	}
 	if err := u.Srv.ResetPwd(c, captcha.Email, newPwd); err != nil {
-		apiC.UnavailableFailResp(err)
+		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)

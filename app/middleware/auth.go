@@ -15,12 +15,12 @@ func AuthenticateMiddleware() func(ctx *gin.Context) {
 		)
 		authToken := getAuthTokenFromHeader(c)
 		if authToken == "" {
-			apiC.TokenFailResp(e.NewError(e.PermissionDenied, nil))
+			apiC.Response(e.NewError(e.PermissionDenied, nil))
 			return
 		}
 		authVerified, err := Srv.VaildateAuth(authToken)
 		if err != nil {
-			apiC.TokenFailResp(e.NewError(e.TokenVerifyErr, err))
+			apiC.Response(e.NewError(e.TokenVerifyErr, err))
 			return
 		}
 		c.Set("userId", authVerified.Uid)
