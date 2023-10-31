@@ -4,15 +4,13 @@ Service:
   Version: "1.0"
 
 Database:
-  Host: 10.10.10.74
-  Port: 3306
+  Addr: ""
   User: "qmstar"
   Name: user_db
   Charset: utf8mb4
 
 Redis:
-  Host: 10.10.10.74
-  Port: 6379
+  Addr: ""
 
 Mail:
   Email: ""
@@ -37,3 +35,6 @@ User:
   HashCaptchaSalt: "example-salt"
   JwtAuthTokenLifeDay: 180
   JwtCaptchaTokenLifeSec: 180
+
+SSR:
+  Addr: ""
