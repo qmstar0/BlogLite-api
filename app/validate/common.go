@@ -1,12 +1,15 @@
 package validate
 
 import (
+	"blog/app/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
-// var Srv = service.GetSrv()
-var validate = validator.New()
+var (
+	validate = validator.New()
+	Srv      = service.GetSrv()
+)
 
 type V interface {
 	Validate() gin.HandlerFunc

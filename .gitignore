@@ -8,4 +8,5 @@ public_key.pem
 /.idea
 /go.mod
 /go.sums
+/go.sum
 /build
