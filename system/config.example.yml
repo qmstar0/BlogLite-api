@@ -1,0 +1,39 @@
+Service:
+  Addr: "127.0.0.1:8080"
+  Name: blog
+  Version: "1.0"
+
+Database:
+  Host: 10.10.10.74
+  Port: 3306
+  User: "qmstar"
+  Name: user_db
+  Charset: utf8mb4
+
+Redis:
+  Host: 10.10.10.74
+  Port: 6379
+
+Mail:
+  Email: ""
+  Name: ""
+
+Smtp:
+  Host: ""
+  Port: 465
+
+Logger:
+  Level: info
+
+System:
+  Theme: ""
+  Title: ""
+  Keywords: ""
+  Description: ""
+  RecordNumber: ""
+
+User:
+  CaptchaLength: 6
+  HashCaptchaSalt: "example-salt"
+  JwtAuthTokenLifeDay: 180
+  JwtCaptchaTokenLifeSec: 180
