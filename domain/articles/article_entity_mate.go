@@ -12,6 +12,7 @@ type ArticleMate struct {
 	Aid       string `json:"aid" gorm:"column:aid; uniqueIndex; not null"`
 	Uid       string `json:"uid" gorm:"column:uid; not null"`
 	Title     string `json:"title" gorm:"column:title; type:varchar(255)"`
+	TiTleSlug string `json:"title_slug" gorm:"column:title_slug; uniqueIndex; type:varchar(255)"`
 	Summary   string `json:"summary" gorm:"column:summary"`
 	Content   string `json:"content" gorm:"column:content; type:longtext"`
 	Original  string `json:"original_content" gorm:"column:original_content; type:longtext"`
