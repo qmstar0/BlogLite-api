@@ -24,7 +24,7 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
-	authM := middleware.AuthenticateMiddleware()
+	authM := V.NewAuthV.Validate()
 	a := r.Group("/article")
 	a.Use(authM)
 	{
