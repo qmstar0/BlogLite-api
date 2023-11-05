@@ -15,12 +15,14 @@ type ArticleDisplay struct {
 	Id        int    `json:"id,omitempty"`
 	Aid       string `json:"aid,omitempty"`
 	Uid       string `json:"uid,omitempty"`
+	TitleSlug string `json:"titleSlug,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Summary   string `json:"summary,omitempty"`
 	Content   string `json:"content,omitempty"`
-	PublishAt uint   `json:"deletedAt,omitempty"`
-	CreatedAt uint   `json:"createdAt,omitempty"`
-	UpdatedAt uint   `json:"updatedAt,omitempty"`
+	PublishAt uint   `json:"publishAt,omitempty"`
+	CreateAt  uint   `json:"createAt,omitempty"`
+	UpdateAt  uint   `json:"updateAt,omitempty"`
+	DeleteAt  uint   `json:"deleteAt,omitempty"`
 	Views     uint   `json:"views,omitempty"`
 }
 

@@ -19,6 +19,7 @@ type ArticleMate struct {
 	CreateAt  uint   `json:"create_at" gorm:"column:create_at"`
 	UpdateAt  uint   `json:"update_at" gorm:"column:update_at; default:0"`
 	PublishAt uint   `json:"publish_at" gorm:"column:publish_at; default:0"`
+	DeleteAt  uint   `json:"delete_at" gorm:"column:delete_at; default:0"`
 
 	CategoryId int                `json:"category_id" gorm:"column:category_id; type:TINYINT UNSIGNED"`
 	Views      uint               `json:"views" gorm:"column:views; default:0"`

@@ -4,11 +4,12 @@ package dto
 
 // ArticleStore 文化仓储模型
 type ArticleStore struct {
-	Title    string `json:"title" validate:"required"`
-	Category int    `json:"category" validate:"required"`
-	Tags     []int  `json:"tags" validate:"required"`
-	Summary  string `json:"summary" validate:"required"`
-	Content  string `json:"content" validate:"required"`
+	Title     string `json:"title" validate:"required"`
+	TitleSlug string `json:"titleSlug" validate:"required"`
+	Category  int    `json:"category" validate:"required"`
+	Tags      []int  `json:"tags" validate:"required"`
+	Summary   string `json:"summary" validate:"required"`
+	Content   string `json:"content" validate:"required"`
 }
 
 // CateStore 文章分类仓储模型

@@ -38,12 +38,14 @@ func (s ServiceArticle) GetArticleDetailList(c context.Context, limit int, offse
 			Id:        0,
 			Aid:       art.Aid,
 			Uid:       art.Uid,
+			TitleSlug: art.TiTleSlug,
 			Title:     art.Title,
 			Summary:   art.Summary,
 			Content:   art.Content,
 			PublishAt: art.PublishAt,
-			CreatedAt: art.CreateAt,
-			UpdatedAt: art.UpdateAt,
+			CreateAt:  art.CreateAt,
+			UpdateAt:  art.UpdateAt,
+			DeleteAt:  art.DeleteAt,
 		}
 		tags, err := s.repo.GetTag(c, art.TagIds)
 		if err != nil {
@@ -95,8 +97,8 @@ func (s ServiceArticle) GetArticleDetail(c context.Context, aid string) (dto.Art
 		Summary:   art.Summary,
 		Content:   art.Content,
 		PublishAt: art.PublishAt,
-		CreatedAt: art.CreateAt,
-		UpdatedAt: art.UpdateAt,
+		CreateAt:  art.CreateAt,
+		UpdateAt:  art.UpdateAt,
 	}
 	tags, err := s.repo.GetTag(c, art.TagIds)
 	if err != nil {
@@ -144,8 +146,8 @@ func (s ServiceArticle) GetArticle(c context.Context, aid string) (dto.ArticleDi
 		Summary:   art.Summary,
 		Content:   art.Content,
 		PublishAt: art.PublishAt,
-		CreatedAt: art.CreateAt,
-		UpdatedAt: art.UpdateAt,
+		CreateAt:  art.CreateAt,
+		UpdateAt:  art.UpdateAt,
 	}, nil
 }
 
