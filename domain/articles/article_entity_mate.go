@@ -57,7 +57,9 @@ func (a *ArticleMate) SetSummary(summary string) {
 func (a *ArticleMate) SetTitle(title string) {
 	a.Title = title
 }
-
+func (a *ArticleMate) SetTitleSlug(title string) {
+	a.TiTleSlug = title
+}
 func (a *ArticleMate) SetContent(content string) error {
 	a.Original = content
 	html, err := utils.MarkdownToHTML(content)

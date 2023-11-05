@@ -93,12 +93,14 @@ func (s ServiceArticle) GetArticleDetail(c context.Context, aid string) (dto.Art
 		Id:        art.Id,
 		Aid:       art.Aid,
 		Uid:       art.Uid,
+		TitleSlug: art.TiTleSlug,
 		Title:     art.Title,
 		Summary:   art.Summary,
 		Content:   art.Content,
 		PublishAt: art.PublishAt,
 		CreateAt:  art.CreateAt,
 		UpdateAt:  art.UpdateAt,
+		DeleteAt:  art.DeleteAt,
 	}
 	tags, err := s.repo.GetTag(c, art.TagIds)
 	if err != nil {
@@ -142,12 +144,14 @@ func (s ServiceArticle) GetArticle(c context.Context, aid string) (dto.ArticleDi
 		Id:        art.Id,
 		Aid:       art.Aid,
 		Uid:       art.Uid,
+		TitleSlug: art.TiTleSlug,
 		Title:     art.Title,
 		Summary:   art.Summary,
 		Content:   art.Content,
 		PublishAt: art.PublishAt,
 		CreateAt:  art.CreateAt,
 		UpdateAt:  art.UpdateAt,
+		DeleteAt:  art.DeleteAt,
 	}, nil
 }
 
@@ -234,6 +238,7 @@ func (s ServiceArticle) AllCate(c context.Context) ([]dto.CateDisplay, error) {
 func (s ServiceArticle) NewArticle(c context.Context, uid string, store dto.ArticleStore) error {
 	art := NewArticleMate(uid)
 	art.SetTitle(store.Title)
+	art.SetTitleSlug(store.TitleSlug)
 	art.SetSummary(store.Summary)
 	art.SetStatus(valueobject.Draft)
 	art.SetCategory(store.Category)
@@ -250,6 +255,7 @@ func (s ServiceArticle) NewArticle(c context.Context, uid string, store dto.Arti
 func (s ServiceArticle) UpdateArticle(c context.Context, aid string, store dto.ArticleStore) error {
 	art := &ArticleMate{Aid: aid}
 	art.SetTitle(store.Title)
+	art.SetTitleSlug(store.TitleSlug)
 	art.SetSummary(store.Summary)
 	art.SetStatus(valueobject.Draft)
 	art.SetCategory(store.Category)
