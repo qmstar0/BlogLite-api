@@ -3,6 +3,7 @@ package index
 import (
 	"blog/app/handlers"
 	"blog/app/middleware"
+	"blog/app/permissions"
 	"blog/app/validate"
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +14,11 @@ func Router() *gin.Engine {
 	router.Use(middleware.CORSMiddleware())
 
 	r := router.Group("/api")
+	r.Use(middleware.AuthorizerMiddleware())
 
 	V := validate.NewValidate()
+	P := permissions.NewPermission()
+
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
 	handlerTags := handlers.NewTags()
@@ -24,34 +28,33 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
-	authM := V.NewAuthV.Validate()
 	a := r.Group("/article")
-	a.Use(authM)
 	{
 		artV := V.NewArticleV.Validate()
-		a.GET("/", handlerArticle.Index)
-		a.GET("/create", handlerArticle.Create)
-		a.POST("/create", artV, handlerArticle.Store)
-		a.GET("/:aid/edit", handlerArticle.Edit)
-		a.PUT("/:aid", artV, handlerArticle.Update)
-		a.DELETE("/:aid", handlerArticle.Destroy)
+		authP := P.NewAuthP.Permission()
+		a.GET("", handlerArticle.Index)
 
-		a.GET("/trash", handlerTrash.TrashIndex)
-		a.PUT("/:aid/trash", handlerTrash.UnTrash)
+		a.GET("/create", authP, handlerArticle.Create)
+		a.POST("/create", authP, artV, handlerArticle.Store)
+		a.GET("/:aid/edit", authP, handlerArticle.Edit)
+		a.PUT("/:aid", authP, artV, handlerArticle.Update)
+		a.DELETE("/:aid", authP, handlerArticle.Destroy)
 
-		a.GET("/draft", handlerDraft.DraftIndex)
-		a.PUT("/:aid/draft", handlerDraft.Publish)
+		a.GET("/trash", authP, handlerTrash.TrashIndex)
+		a.PUT("/:aid/trash", authP, handlerTrash.UnTrash)
+
+		a.GET("/draft", authP, handlerDraft.DraftIndex)
+		a.PUT("/:aid/publish", authP, handlerDraft.Publish)
 
 		upload := a.Group("/upload")
 		{
-			upload.POST("/img", handlerImgUpload.ImgUpload)
+			upload.POST("/img", authP, handlerImgUpload.ImgUpload)
 		}
 	}
 	c := r.Group("/cate")
-	c.Use(authM)
 	{
 		cateV := V.NewCateV.Validate()
-		c.GET("/", handlerCate.Index)
+		c.GET("", handlerCate.Index)
 		c.POST("/create", cateV, handlerCate.Store)
 		c.GET("/:cid/edit", handlerCate.Edit)
 		c.PUT("/:cid", cateV, handlerCate.Update)
@@ -59,10 +62,9 @@ func Router() *gin.Engine {
 		//c.GET("/create", handlerCate.Create)
 	}
 	t := r.Group("/tags")
-	t.Use(authM)
 	{
 		tagV := V.NewTagsV.Validate()
-		t.GET("/", handlerTags.Index)
+		t.GET("", handlerTags.Index)
 		t.POST("/create", tagV, handlerTags.Store)
 		t.GET("/:tid/edit", handlerTags.Edit)
 		t.PUT("/:tid", tagV, handlerTags.Update)
@@ -70,7 +72,6 @@ func Router() *gin.Engine {
 		//t.GET("/create", handlerTags.Create)
 	}
 	u := r.Group("/user")
-	u.Use(authM)
 	captchaV := V.NewCaptchaV.Validate()
 	{
 		userV := V.NewUserV.Validate()

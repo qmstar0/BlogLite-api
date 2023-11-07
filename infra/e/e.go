@@ -26,6 +26,7 @@ const (
 	DuplicatePasswordErr
 	EmailFormatErr
 	PermissionDenied
+	LoginRequired
 )
 
 // 安全和鉴权错误
@@ -91,6 +92,7 @@ var errMsg = map[uint32]string{
 	DuplicatePasswordErr:     "Duplicate password",
 	EmailFormatErr:           "email format error",
 	PermissionDenied:         "Permission Denied",
+	LoginRequired:            "Login Required",
 
 	JwtSignErr:        "sign tokens err",
 	JwtParseErr:       "tokens parse err",

@@ -20,7 +20,6 @@ type Validate struct {
 	NewCateV    V
 	NewTagsV    V
 	NewUserV    V
-	NewAuthV    V
 	NewCaptchaV V
 }
 
@@ -30,7 +29,6 @@ func NewValidate() *Validate {
 		NewCateV:    CateV{},
 		NewTagsV:    TagV{},
 		NewUserV:    UserV{},
-		NewAuthV:    AuthV{},
 		NewCaptchaV: CaptchaV{},
 	}
 }
