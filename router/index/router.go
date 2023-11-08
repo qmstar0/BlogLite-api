@@ -3,7 +3,7 @@ package index
 import (
 	"blog/app/handlers"
 	"blog/app/middleware"
-	"blog/app/permissions"
+	p "blog/app/permissions"
 	"blog/app/validate"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +17,7 @@ func Router() *gin.Engine {
 	r.Use(middleware.AuthorizerMiddleware())
 
 	V := validate.NewValidate()
-	P := permissions.NewPermissioner()
+	P := p.NewPermissioner()
 
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
@@ -28,8 +28,8 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
-	authP := P.Permission(P.AuthP)
-	PublishP := P.Permission(P.PublishP)
+	authP := p.Permission(P.AuthP)
+	PublishP := p.Permission(P.PublishP)
 	a := r.Group("/article")
 	{
 		artV := V.NewArticleV.Validate()

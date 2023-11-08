@@ -15,6 +15,10 @@ type Permissioner struct {
 	PublishP P
 }
 
+type PP struct {
+	list map[string]P
+}
+
 func NewPermissioner() *Permissioner {
 	return &Permissioner{
 		AuthP:    AuthP{},
@@ -22,7 +26,7 @@ func NewPermissioner() *Permissioner {
 	}
 }
 
-func (P Permissioner) Permission(p P) gin.HandlerFunc {
+func Permission(p P) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		if !p.Check(context) {
 			var apiC = response.Api{C: context}
