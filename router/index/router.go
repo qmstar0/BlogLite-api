@@ -17,7 +17,7 @@ func Router() *gin.Engine {
 	r.Use(middleware.AuthorizerMiddleware())
 
 	V := validate.NewValidate()
-	P := permissions.NewPermission()
+	P := permissions.NewPermissioner()
 
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
@@ -28,47 +28,55 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
+	authP := P.Permission(P.AuthP)
+	PublishP := P.Permission(P.PublishP)
 	a := r.Group("/article")
 	{
 		artV := V.NewArticleV.Validate()
-		authP := P.NewAuthP.Permission()
 		a.GET("", handlerArticle.Index)
-
-		a.GET("/create", authP, handlerArticle.Create)
-		a.POST("/create", authP, artV, handlerArticle.Store)
-		a.GET("/:aid/edit", authP, handlerArticle.Edit)
-		a.PUT("/:aid", authP, artV, handlerArticle.Update)
-		a.DELETE("/:aid", authP, handlerArticle.Destroy)
-
-		a.GET("/trash", authP, handlerTrash.TrashIndex)
-		a.PUT("/:aid/trash", authP, handlerTrash.UnTrash)
-
-		a.GET("/draft", authP, handlerDraft.DraftIndex)
-		a.PUT("/:aid/publish", authP, handlerDraft.Publish)
-
-		upload := a.Group("/upload")
+		pa := a.Group("").Use(authP).Use(PublishP)
 		{
-			upload.POST("/img", authP, handlerImgUpload.ImgUpload)
+			pa.GET("/create", handlerArticle.Create)
+			pa.POST("/create", artV, handlerArticle.Store)
+			pa.GET("/:aid/edit", handlerArticle.Edit)
+			pa.PUT("/:aid", artV, handlerArticle.Update)
+			pa.DELETE("/:aid", handlerArticle.Destroy)
+
+			pa.GET("/trash", handlerTrash.TrashIndex)
+			pa.PUT("/:aid/trash", handlerTrash.UnTrash)
+
+			pa.GET("/draft", handlerDraft.DraftIndex)
+			pa.PUT("/:aid/publish", handlerDraft.Publish)
+		}
+		upload := a.Group("/upload").Use(authP).Use(PublishP)
+		{
+			upload.POST("/img", handlerImgUpload.ImgUpload)
 		}
 	}
 	c := r.Group("/cate")
 	{
 		cateV := V.NewCateV.Validate()
 		c.GET("", handlerCate.Index)
-		c.POST("/create", cateV, handlerCate.Store)
-		c.GET("/:cid/edit", handlerCate.Edit)
-		c.PUT("/:cid", cateV, handlerCate.Update)
-		c.DELETE("/:cid", handlerCate.Destroy)
+		pc := c.Group("").Use(authP).Use(PublishP)
+		{
+			pc.POST("/create", cateV, handlerCate.Store)
+			pc.GET("/:cid/edit", handlerCate.Edit)
+			pc.PUT("/:cid", cateV, handlerCate.Update)
+			pc.DELETE("/:cid", handlerCate.Destroy)
+		}
 		//c.GET("/create", handlerCate.Create)
 	}
 	t := r.Group("/tags")
 	{
 		tagV := V.NewTagsV.Validate()
 		t.GET("", handlerTags.Index)
-		t.POST("/create", tagV, handlerTags.Store)
-		t.GET("/:tid/edit", handlerTags.Edit)
-		t.PUT("/:tid", tagV, handlerTags.Update)
-		t.DELETE("/:tid", handlerTags.Destroy)
+		pt := t.Group("").Use(authP).Use(PublishP)
+		{
+			pt.POST("/create", tagV, handlerTags.Store)
+			pt.GET("/:tid/edit", handlerTags.Edit)
+			pt.PUT("/:tid", tagV, handlerTags.Update)
+			pt.DELETE("/:tid", handlerTags.Destroy)
+		}
 		//t.GET("/create", handlerTags.Create)
 	}
 	u := r.Group("/user")

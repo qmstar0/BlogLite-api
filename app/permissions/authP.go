@@ -22,3 +22,7 @@ func (a AuthP) Permission() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func (a AuthP) Check(c *gin.Context) bool {
+	return c.GetString("userId") != ""
+}
