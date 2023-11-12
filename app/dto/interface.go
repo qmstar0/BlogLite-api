@@ -16,7 +16,7 @@ type Authorizer interface {
 
 // ArticleR 文章读取接口
 type ArticleR interface {
-	GetArticleDetailList(c context.Context, limit int, offset int, isDraft bool, isTrash bool) ([]ArticleListDisplay, error)
+	GetArticleDetailList(c context.Context, limit int, offset int, status uint) ([]ArticleListDisplay, error)
 	GetArticleDetail(c context.Context, aid string) (ArticleListDisplay, error)
 	GetArticle(c context.Context, aid string) (ArticleDisplay, error)
 }

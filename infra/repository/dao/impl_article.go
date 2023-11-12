@@ -51,16 +51,26 @@ func (d *Dao) GetArticle(c context.Context, art *articles.ArticleMate) (*article
 	return artMateModel.ArticleMate, nil
 }
 
-func (d *Dao) AllArticle(c context.Context, limit int, offset int, isDraft, isTrash bool) ([]*articles.ArticleMate, error) {
+func (d *Dao) AllArticle(c context.Context, limit int, offset int, status uint) ([]*articles.ArticleMate, error) {
 	var (
 		articleModels = make([]*model.ArticleMate, 0)
 		tx            = d.db.WithContext(c).Model(&model.ArticleMate{})
 	)
 	tx.Limit(limit).Offset(offset)
-	if isTrash {
-		tx.Where("status = ?", valueobject.Deleted)
-	} else if isDraft {
-		tx.Where("status = ?", valueobject.Draft)
+	if status > 0 {
+		newStatus := valueobject.NewStatus(status)
+		if newStatus.IsDeleted() {
+			tx.Or("status = ?", valueobject.Deleted)
+		}
+		if newStatus.IsDraft() {
+			tx.Or("status = ?", valueobject.Draft)
+		}
+		if newStatus.IsSinglePage() {
+			tx.Or("status = ?", valueobject.SinglePage)
+		}
+		if newStatus.IsPublished() {
+			tx.Or("status = ?", valueobject.Published)
+		}
 	} else {
 		tx.Where("status = ?", valueobject.Published)
 	}

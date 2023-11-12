@@ -10,7 +10,7 @@ type RepoArticleMate interface {
 	UptArticle(c context.Context, art *ArticleMate) error
 	DelArticle(c context.Context, art *ArticleMate) error
 	GetArticle(c context.Context, art *ArticleMate) (*ArticleMate, error)
-	AllArticle(c context.Context, limit int, offset int, isDraft, isTrash bool) ([]*ArticleMate, error)
+	AllArticle(c context.Context, limit int, offset int, status uint) ([]*ArticleMate, error)
 }
 
 // RepoTags 文章标签仓储

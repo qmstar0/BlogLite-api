@@ -22,9 +22,9 @@ func NewServiceArticle(d RepoArticle) *ServiceArticle {
 	return &ServiceArticle{repo: d}
 }
 
-func (s ServiceArticle) GetArticleDetailList(c context.Context, limit int, offset int, isDraft bool, isTrash bool) ([]dto.ArticleListDisplay, error) {
+func (s ServiceArticle) GetArticleDetailList(c context.Context, limit int, offset int, status uint) ([]dto.ArticleListDisplay, error) {
 	var err error
-	arts, err := s.repo.AllArticle(c, limit, offset, isDraft, isTrash)
+	arts, err := s.repo.AllArticle(c, limit, offset, status)
 	if err != nil {
 		return nil, err
 	}

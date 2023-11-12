@@ -54,7 +54,7 @@ func (a Article) Index(c *gin.Context) {
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
 	limit, offset := utils.Offset(queryPage, queryLimit)
-	artList, err := a.Srv.GetArticleDetailList(c, limit, offset, false, false)
+	artList, err := a.Srv.GetArticleDetailList(c, limit, offset, 0b0010)
 	if err != nil {
 		if e.Compare(err, e.ItemNotExist) {
 			apiC.Success(resp)
@@ -204,7 +204,7 @@ func (a Article) TrashIndex(c *gin.Context) {
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
 	limit, offset := utils.Offset(queryPage, queryLimit)
-	artTrashList, err := a.Srv.GetArticleDetailList(c, limit, offset, false, true)
+	artTrashList, err := a.Srv.GetArticleDetailList(c, limit, offset, 0b0100)
 	if err != nil {
 		apiC.Response(err)
 		return
@@ -231,7 +231,7 @@ func (a Article) DraftIndex(c *gin.Context) {
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
 	limit, offset := utils.Offset(queryPage, queryLimit)
-	artDraftList, err := a.Srv.GetArticleDetailList(c, limit, offset, true, false)
+	artDraftList, err := a.Srv.GetArticleDetailList(c, limit, offset, 0b0001)
 	if err != nil {
 		apiC.Response(err)
 		return
