@@ -28,18 +28,14 @@ type ArticleMate struct {
 }
 
 func NewArticleMate(uid string) *ArticleMate {
-	return &ArticleMate{Uid: uid}
+	return &ArticleMate{
+		Uid:    uid,
+		Status: valueobject.NewStatus(valueobject.Draft),
+	}
 }
 
-func (a *ArticleMate) SetStatus(status int64) {
-	switch status {
-	case valueobject.Draft:
-		a.Status.SetDraft()
-	case valueobject.Deleted:
-		a.Status.SetDeleted()
-	case valueobject.Published:
-		a.Status.SetPublished()
-	}
+func (a *ArticleMate) SetStatus(status uint) {
+	a.Status = valueobject.NewStatus(status)
 }
 
 func (a *ArticleMate) SetCategory(cateId int) {

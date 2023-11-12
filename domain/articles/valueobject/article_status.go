@@ -6,15 +6,21 @@ const (
 	Draft = 1 << iota
 	Published
 	Deleted
+	SinglePage
 )
 
 var statuMap = map[Status]string{
-	Draft:     "Draft",
-	Published: "Published",
-	Deleted:   "Deleted",
+	Draft:      "Draft",
+	Published:  "Published",
+	Deleted:    "Deleted",
+	SinglePage: "SinglePage",
 }
 
 type Status uint
+
+func NewStatus(status uint) Status {
+	return Status(status)
+}
 
 // Scan Scanner接口 用于将数据库数据写入结构体
 func (s *Status) Scan(src any) error {
@@ -48,6 +54,11 @@ func (s *Status) IsDeleted() bool {
 	return Deleted&(*s) == Deleted
 }
 
+// IsSinglePage 是单页
+func (s *Status) IsSinglePage() bool {
+	return SinglePage&(*s) == SinglePage
+}
+
 // SetDraft 设置草稿
 func (s *Status) SetDraft() {
 	*s = Draft
@@ -61,4 +72,9 @@ func (s *Status) SetPublished() {
 // SetDeleted 设置已删除
 func (s *Status) SetDeleted() {
 	*s = Deleted
+}
+
+// SetSinglePage 设置单页
+func (s *Status) SetSinglePage() {
+	*s = SinglePage
 }
