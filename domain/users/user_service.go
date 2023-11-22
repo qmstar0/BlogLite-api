@@ -2,10 +2,7 @@ package users
 
 import (
 	"blog/app/dto"
-	"blog/domain/users/token"
 	"blog/domain/users/valueobject"
-	"blog/infra/e"
-	"blog/infra/event"
 	"context"
 )
 
@@ -33,48 +30,6 @@ func (s ServiceUser) GetUserByUid(c context.Context, uid string) (dto.UserDispla
 	}, nil
 }
 
-func (s ServiceUser) GenCaptchaToken(email, captcha string) (string, error) {
-	return token.NewCaptchaToken(email, captcha)
-}
-
-func (s ServiceUser) SendCaptchaEmail(email, captcha string) error {
-	//html := mail.NewTemplateForVerifyCode(email, captcha)
-	//m := mail.PostMan.NewMail()
-	//m.SetHeader("Subject", EmailSubject)
-	//m.SetHeader("To", email)
-	//m.SetBody("text/html", html.ToString())
-	//dialer := mail.PostMan.NewDialer()
-	//if err := dialer.DialAndSend(m); err != nil {
-	//	return e.NewError(e.EmailSendErr, err)
-	//}
-	//return nil
-	bus.Publish(event.SendMail, event.SendEmailED{
-		Email:   email,
-		Captcha: captcha,
-	})
-	return nil
-}
-
-func (s ServiceUser) VaildateCaptcha(cap dto.Captcha) error {
-	cc, err := token.ParseCaptchaToken(cap.Token)
-	if err != nil {
-		return err
-	}
-	return cc.Verify(cap.Email, cap.Captcha)
-}
-
-func (s ServiceUser) GenAuthToken(user dto.UserDisplay) (string, error) {
-	return token.NewAuthToken(user.Uid, user.Email, user.Name, user.Role)
-}
-
-func (s ServiceUser) VaildateAuth(authToken string) (*token.AuthClaims, error) {
-	authClaims, err := token.ParseAuthToken(authToken)
-	if err != nil {
-		return nil, e.NewError(e.TokenVerifyErr, err)
-	}
-	return authClaims, nil
-}
-
 func (s ServiceUser) GetUser(c context.Context, email string) (dto.UserDisplay, error) {
 	newEmail, err := valueobject.NewEmail(email)
 	if err != nil {
@@ -97,15 +52,14 @@ func (s ServiceUser) NewUser(c context.Context, email string) (dto.UserDisplay, 
 	if err != nil {
 		return dto.UserDisplay{}, err
 	}
-	user, err := s.repo.GetUser(c, u)
-	if err != nil {
+	if err = s.repo.NewUser(c, u); err != nil {
 		return dto.UserDisplay{}, err
 	}
 	return dto.UserDisplay{
-		Uid:   user.Uid,
-		Name:  user.UserName,
-		Email: user.Email.ToString(),
-		Role:  user.Role.ToUint(),
+		Uid:   u.Uid,
+		Name:  u.UserName,
+		Email: u.Email.ToString(),
+		Role:  u.Role.ToUint(),
 	}, nil
 }
 
