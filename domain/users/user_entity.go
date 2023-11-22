@@ -1,7 +1,6 @@
 package users
 
 import (
-	"blog/domain/users/token"
 	"blog/domain/users/valueobject"
 	"blog/infra/e"
 	"github.com/google/uuid"
@@ -60,9 +59,4 @@ func (u *User) UpdateUserName(newName string) error {
 		u.UserName = newName
 	}
 	return nil
-}
-
-// GenUserAuthToken 生成用户认证的token
-func (u *User) GenUserAuthToken() (string, error) {
-	return token.NewAuthToken(u.Uid, u.Email.ToString(), u.UserName, u.Role.ToUint())
 }

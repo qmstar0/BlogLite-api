@@ -187,13 +187,8 @@ func (u User) Update(c *gin.Context) {
 	var (
 		apiC = response.Api{C: c}
 	)
-	email, exists := c.Get("email")
-	if !exists {
-		apiC.Response(e.NewError(e.InvalidParam, nil))
-		return
-	}
-	userEmail := email.(string)
-	if userEmail == "" {
+	email := c.GetString("email")
+	if email == "" {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
@@ -207,7 +202,7 @@ func (u User) Update(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := u.Srv.UpdateUser(c, userEmail, userStore); err != nil {
+	if err := u.Srv.UpdateUser(c, email, userStore); err != nil {
 		apiC.Response(err)
 		return
 	}

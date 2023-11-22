@@ -1,4 +1,4 @@
-package token
+package valueobject
 
 import (
 	"blog/infra/e"

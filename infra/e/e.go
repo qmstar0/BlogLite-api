@@ -86,7 +86,7 @@ var errMsg = map[uint32]string{
 	InvalidParam:             "Invalid Param",
 	MissingParam:             "Missing Param",
 	InvalidDelete:            "Invalid Delete",
-	InvalidUpdate:            "Invalid InsertArticleVersion",
+	InvalidUpdate:            "Invalid Update",
 	ItemNotExist:             "Item not exist",
 	UserDuplicateCreationErr: "User Duplicate Creation Err",
 	DuplicatePasswordErr:     "Duplicate password",

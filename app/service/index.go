@@ -15,10 +15,14 @@ type articleDTO interface {
 type userDTO interface {
 	dto.UserR
 	dto.UserW
+}
+
+type authDTO interface {
 	dto.Authorizer
 }
 
 type DomainService struct {
 	articleDTO
 	userDTO
+	authDTO
 }

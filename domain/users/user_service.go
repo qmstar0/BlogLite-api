@@ -6,8 +6,6 @@ import (
 	"context"
 )
 
-const EmailSubject = "Please Confirm Your email"
-
 // ServiceUser 用户领域服务
 type ServiceUser struct {
 	repo RepoUser

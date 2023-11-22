@@ -83,22 +83,16 @@ func Router() *gin.Engine {
 	captchaV := V.NewCaptchaV.Validate()
 	{
 		userV := V.NewUserV.Validate()
-		reset := u.Group("/reset")
-		{
-			reset.POST("/pwd", captchaV, handlerUser.ResetPwd)
-			reset.GET("/pwd", handlerAuth.AuthResetPwd)
-		}
 		u.PUT("/update", userV, handlerUser.Update)
+		u.PUT("/reset/pwd", captchaV, handlerUser.ResetPwd)
+		u.POST("/login", captchaV, handlerUser.Login)
+		u.POST("/register", captchaV, handlerUser.Register)
 	}
-	login := r.Group("/login")
+	auth := r.Group("auth")
 	{
-		login.POST("", captchaV, handlerUser.Login)
-		login.GET("", handlerAuth.AuthLogin)
-	}
-	register := r.Group("/register")
-	{
-		register.POST("", captchaV, handlerUser.Register)
-		register.GET("", handlerAuth.AuthRegister)
+		auth.GET("/login", handlerAuth.AuthLogin)
+		auth.GET("/register", handlerAuth.AuthRegister)
+		auth.GET("/reset/pwd", handlerAuth.AuthResetPwd)
 	}
 	return router
 }

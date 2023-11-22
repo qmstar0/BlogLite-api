@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"blog/domain/users/token"
+	"blog/domain/auth/valueobject"
 	"context"
 )
 
@@ -11,7 +11,7 @@ type Authorizer interface {
 	SendCaptchaEmail(email, captcha string) error
 	VaildateCaptcha(cap Captcha) error
 	GenAuthToken(user UserDisplay) (string, error)
-	VaildateAuth(authToken string) (*token.AuthClaims, error)
+	VaildateAuth(authToken string) (*valueobject.AuthClaims, error)
 }
 
 // ArticleR 文章读取接口
