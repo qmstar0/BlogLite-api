@@ -96,7 +96,7 @@ func (u User) AuthResetPwd(c *gin.Context) {
 	)
 	email := c.GetString("email")
 	if email == "" {
-		apiC.Response(e.NewError(e.InvalidParam, nil))
+		apiC.Response(e.NewError(e.PermissionDenied, nil))
 		return
 	}
 	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)

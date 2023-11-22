@@ -2,7 +2,7 @@ package index
 
 import (
 	"blog/app/handlers"
-	"blog/app/middleware"
+	m "blog/app/middleware"
 	"blog/app/validate"
 	"github.com/gin-gonic/gin"
 )
@@ -10,10 +10,11 @@ import (
 // Router 配置路由
 func Router() *gin.Engine {
 	router := gin.Default()
-	router.Use(middleware.CORSMiddleware())
+	router.Use(m.CORSMiddleware())
 
 	r := router.Group("/api")
-	r.Use(middleware.AuthorizerMiddleware())
+	r.Use(m.AuthorizerMiddleware())
+	V := validate.NewValidate()
 
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
@@ -23,8 +24,6 @@ func Router() *gin.Engine {
 	handlerImgUpload := handlers.NewImgUpload()
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
-
-	V := validate.NewValidate()
 
 	a := r.Group("/article")
 	{
@@ -67,7 +66,7 @@ func Router() *gin.Engine {
 	{
 		tagV := V.NewTagsV.Validate()
 		t.GET("", handlerTags.Index)
-		pt := t.Group("")
+		pt := t.Group("").Use()
 		{
 			pt.POST("/create", tagV, handlerTags.Store)
 			pt.GET("/:tid/edit", handlerTags.Edit)
@@ -76,16 +75,19 @@ func Router() *gin.Engine {
 		}
 		//t.GET("/create", handlerTags.Create)
 	}
-	u := r.Group("/user")
+	u := router.Group("/user")
 	captchaV := V.NewCaptchaV.Validate()
 	{
-		userV := V.NewUserV.Validate()
-		u.PUT("/update", userV, handlerUser.Update)
-		u.PUT("/reset/pwd", captchaV, handlerUser.ResetPwd)
 		u.POST("/login", captchaV, handlerUser.Login)
 		u.POST("/register", captchaV, handlerUser.Register)
 	}
-	auth := r.Group("auth")
+	u2 := r.Group("/user")
+	{
+		userV := V.NewUserV.Validate()
+		u2.PUT("/update", userV, handlerUser.Update)
+		u2.PUT("/reset/pwd", captchaV, handlerUser.ResetPwd)
+	}
+	auth := router.Group("auth")
 	{
 		auth.GET("/login", handlerAuth.AuthLogin)
 		auth.GET("/register", handlerAuth.AuthRegister)

@@ -1,20 +1,28 @@
 package middleware
 
 import (
+	"blog/app/response"
+	"blog/infra/e"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 func AuthorizerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var apiC = response.Api{C: c}
 		authToken := getAuthTokenFromHeader(c)
-		if authToken != "" {
-			if authVerified, err := Srv.VaildateAuth(authToken); err == nil {
-				c.Set("userId", authVerified.Uid)
-				c.Set("email", authVerified.Email)
-				c.Set("role", authVerified.Role)
-			}
+		if authToken == "" {
+			apiC.Response(e.NewError(e.PermissionDenied, nil))
+			return
 		}
+		authVerified, err := Srv.VaildateAuth(authToken)
+		if err != nil {
+			apiC.Response(e.NewError(e.PermissionDenied, err))
+			return
+		}
+		c.Set("userId", authVerified.Uid)
+		c.Set("email", authVerified.Email)
+		c.Set("role", authVerified.Role)
 		c.Next()
 	}
 }
