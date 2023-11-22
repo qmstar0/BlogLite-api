@@ -3,7 +3,6 @@ package index
 import (
 	"blog/app/handlers"
 	"blog/app/middleware"
-	p "blog/app/permissions"
 	"blog/app/validate"
 	"github.com/gin-gonic/gin"
 )
@@ -16,9 +15,6 @@ func Router() *gin.Engine {
 	r := router.Group("/api")
 	r.Use(middleware.AuthorizerMiddleware())
 
-	V := validate.NewValidate()
-	P := p.NewPermissioner()
-
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
 	handlerTags := handlers.NewTags()
@@ -28,13 +24,14 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
-	authP := p.Permission(P.AuthP)
-	PublishP := p.Permission(P.PublishP)
+	V := validate.NewValidate()
+
 	a := r.Group("/article")
 	{
 		artV := V.NewArticleV.Validate()
 		a.GET("", handlerArticle.Index)
-		pa := a.Group("").Use(authP).Use(PublishP)
+
+		pa := a.Group("")
 		{
 			pa.GET("/create", handlerArticle.Create)
 			pa.POST("/create", artV, handlerArticle.Store)
@@ -48,7 +45,7 @@ func Router() *gin.Engine {
 			pa.GET("/draft", handlerDraft.DraftIndex)
 			pa.PUT("/:aid/publish", handlerDraft.Publish)
 		}
-		upload := a.Group("/upload").Use(authP).Use(PublishP)
+		upload := a.Group("/upload")
 		{
 			upload.POST("/img", handlerImgUpload.ImgUpload)
 		}
@@ -57,7 +54,7 @@ func Router() *gin.Engine {
 	{
 		cateV := V.NewCateV.Validate()
 		c.GET("", handlerCate.Index)
-		pc := c.Group("").Use(authP).Use(PublishP)
+		pc := c.Group("")
 		{
 			pc.POST("/create", cateV, handlerCate.Store)
 			pc.GET("/:cid/edit", handlerCate.Edit)
@@ -70,7 +67,7 @@ func Router() *gin.Engine {
 	{
 		tagV := V.NewTagsV.Validate()
 		t.GET("", handlerTags.Index)
-		pt := t.Group("").Use(authP).Use(PublishP)
+		pt := t.Group("")
 		{
 			pt.POST("/create", tagV, handlerTags.Store)
 			pt.GET("/:tid/edit", handlerTags.Edit)
