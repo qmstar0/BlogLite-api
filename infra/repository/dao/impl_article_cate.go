@@ -41,7 +41,9 @@ func (d *Dao) GetCate(c context.Context, cate *articles.ArticleCategory) (*artic
 	var (
 		cateModel = &model.ArticleCate{ArticleCategory: cate}
 	)
-	result := d.db.WithContext(c).Model(&model.ArticleCate{}).Where("id = ?", cateModel.Id).Limit(1).Find(cateModel)
+	result := d.db.WithContext(c).Model(&model.ArticleCate{}).
+		Select("id,name,display_name,seo_desc,parent_id,create_at,update_at").
+		Where(cateModel).Limit(1).Find(cateModel)
 	if result.RowsAffected == 0 {
 		return nil, e.NewError(e.ItemNotExist, nil)
 	} else if result.Error != nil {
@@ -54,7 +56,9 @@ func (d *Dao) AllCate(c context.Context) ([]*articles.ArticleCategory, error) {
 	var (
 		cateModels = make([]*model.ArticleCate, 0)
 	)
-	if err := d.db.WithContext(c).Model(&model.ArticleCate{}).Find(&cateModels).Error; err != nil {
+	if err := d.db.WithContext(c).Model(&model.ArticleCate{}).
+		Select("id,name,display_name,seo_desc,parent_id,create_at,update_at").
+		Find(&cateModels).Error; err != nil {
 		return nil, e.NewError(e.DBFindErr, err)
 	}
 	var cateVos = make([]*articles.ArticleCategory, len(cateModels))

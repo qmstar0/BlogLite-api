@@ -4,6 +4,6 @@ type User struct {
 	CaptchaLength   int
 	HashCaptchaSalt string
 
-	JwtAuthTokenLifeDay    uint
-	JwtCaptchaTokenLifeSec uint
+	JwtAuthTokenLifeDay    int64
+	JwtCaptchaTokenLifeSec int64
 }

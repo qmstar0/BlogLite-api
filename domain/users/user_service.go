@@ -2,91 +2,54 @@ package users
 
 import (
 	"blog/app/dto"
-	"blog/domain/users/valueobject"
-	"context"
+	"blog/infra/e"
+	"blog/infra/event"
+	"blog/infra/jwt"
+	"blog/utils"
 )
 
 // ServiceUser 用户领域服务
 type ServiceUser struct {
-	repo RepoUser
 }
 
-func NewServiceUser(repo RepoUser) *ServiceUser {
-	return &ServiceUser{repo: repo}
+func NewServiceUser() *ServiceUser {
+	return &ServiceUser{}
 }
-
-func (s ServiceUser) GetUserByUid(c context.Context, uid string) (dto.UserDisplay, error) {
-	user, err := s.repo.GetUser(c, &User{Uid: uid})
-	if err != nil {
-		return dto.UserDisplay{}, err
-	}
-	return dto.UserDisplay{
-		Uid:   user.Uid,
-		Name:  user.UserName,
-		Email: user.Email.ToString(),
-		Role:  user.Role.ToUint(),
-	}, nil
-}
-
-func (s ServiceUser) GetUser(c context.Context, email string) (dto.UserDisplay, error) {
-	newEmail, err := valueobject.NewEmail(email)
-	if err != nil {
-		return dto.UserDisplay{}, err
-	}
-	user, err := s.repo.GetUser(c, &User{Email: newEmail})
-	if err != nil {
-		return dto.UserDisplay{}, err
-	}
-	return dto.UserDisplay{
-		Uid:   user.Uid,
-		Name:  user.UserName,
-		Email: user.Email.ToString(),
-		Role:  user.Role.ToUint(),
-	}, nil
-}
-
-func (s ServiceUser) NewUser(c context.Context, email string) (dto.UserDisplay, error) {
-	u, err := NewUser(email, valueobject.CommonUserTag)
-	if err != nil {
-		return dto.UserDisplay{}, err
-	}
-	if err = s.repo.NewUser(c, u); err != nil {
-		return dto.UserDisplay{}, err
-	}
-	return dto.UserDisplay{
-		Uid:   u.Uid,
-		Name:  u.UserName,
-		Email: u.Email.ToString(),
-		Role:  u.Role.ToUint(),
-	}, nil
-}
-
-func (s ServiceUser) UpdateUser(c context.Context, email string, store dto.UserStore) error {
-	newEmail, err := valueobject.NewEmail(email)
-	if err != nil {
-		return err
-	}
-	user, err := s.repo.GetUser(c, &User{Email: newEmail})
-	if err = user.UpdateUserName(store.UserName); err != nil {
-		return err
-	}
-	if err = s.repo.UptUser(c, user); err != nil {
-		return err
-	}
+func (s ServiceUser) SendCaptchaEmail(email, captcha string) error {
+	bus.Publish(event.SendMail, event.SendEmailED{
+		Email:   email,
+		Captcha: captcha,
+	})
 	return nil
 }
 
-func (s ServiceUser) ResetPwd(c context.Context, email, newPwd string) error {
-	newEmail, err := valueobject.NewEmail(email)
+func (s ServiceUser) VaildateAuth(authToken string) (jwt.MapClaims, error) {
+	return jwt.ParseToken(authToken)
+}
+func (s ServiceUser) GenCaptchaToken(email, captcha string) (string, error) {
+	saltHashCaptcha, err := utils.GetSaltHash(captcha)
 	if err != nil {
-		return err
+		return "", err
 	}
-	user, err := s.repo.GetUser(c, &User{Email: newEmail})
-	if err = user.ResetPassword(newPwd); err != nil {
-		return err
+	data := map[string]any{
+		"email":       email,
+		"hashCaptcha": saltHashCaptcha,
 	}
-	if err = s.repo.UptUser(c, user); err != nil {
-		return err
+	signStr, err := jwt.Sign(data, userAuthTokenLifeTime)
+	if err != nil {
+		return "", e.NewError(e.JwtSignErr, err)
+	}
+	return signStr, nil
+}
+func (s ServiceUser) VaildateCaptcha(cap dto.Captcha) error {
+	mapClaims, err := jwt.ParseToken(cap.Token)
+	if err != nil {
+		return e.NewError(e.JwtParseErr, err)
+	}
+	saltHashCaptcha, err := utils.GetSaltHash(cap.Email)
+
+	if mapClaims["email"] != cap.Email && mapClaims["hashCaptcha"] != saltHashCaptcha {
+		return e.NewError(e.TokenVerifyErr, err)
 	}
 	return nil
 }

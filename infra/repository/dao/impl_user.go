@@ -43,7 +43,9 @@ func (d *Dao) GetUser(c context.Context, user *users.User) (*users.User, error) 
 	var (
 		userModel = &model.User{User: user}
 	)
-	result := d.db.WithContext(c).Model(&model.User{}).Where(userModel).Limit(1).Find(userModel)
+	result := d.db.WithContext(c).Model(&model.User{}).
+		Select("id,uid,user_name,former_user_name,user_email,role,password,create_at,update_at,delete_at").
+		Where(userModel).Limit(1).Find(userModel)
 	if result.Error != nil {
 		return nil, e.NewError(e.DBFindErr, result.Error)
 	} else if result.RowsAffected == 0 {

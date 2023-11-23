@@ -43,7 +43,9 @@ func (d *Dao) GetArticle(c context.Context, art *articles.ArticleMate) (*article
 	var (
 		artMateModel = &model.ArticleMate{ArticleMate: art}
 	)
-	if result := d.db.WithContext(c).Model(&model.ArticleMate{}).Where(artMateModel).Limit(1).Find(artMateModel); result.Error != nil {
+	if result := d.db.WithContext(c).Model(&model.ArticleMate{}).
+		Select("id,aid,uid,title,title_slug,summary,content,original_content,create_at,update_at,publish_at,delete_at,category_id,views,tag_ids,status").
+		Where(artMateModel).Limit(1).Find(artMateModel); result.Error != nil {
 		return nil, e.NewError(e.DBFindErr, result.Error)
 	} else if result.RowsAffected == 0 {
 		return nil, e.NewError(e.ItemNotExist, nil)
@@ -56,7 +58,8 @@ func (d *Dao) AllArticle(c context.Context, limit int, offset int, status uint) 
 		articleModels = make([]*model.ArticleMate, 0)
 		tx            = d.db.WithContext(c).Model(&model.ArticleMate{})
 	)
-	tx.Limit(limit).Offset(offset)
+	tx.Limit(limit).Offset(offset).
+		Select("id,aid,uid,title,title_slug,summary,content,original_content,create_at,update_at,publish_at,delete_at,category_id,views,tag_ids,status")
 	if status > 0 {
 		newStatus := valueobject.NewStatus(status)
 		if newStatus.IsDeleted() {

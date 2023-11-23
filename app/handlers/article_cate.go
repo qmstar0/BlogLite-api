@@ -3,37 +3,40 @@ package handlers
 import (
 	"blog/app/dto"
 	"blog/app/response"
-	"blog/app/service"
+	"blog/domain/articles"
 	"blog/infra/e"
 	"blog/router"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
-type cateDTO interface {
-	dto.CateW
-	dto.CateR
-}
-
 // Category 分类
 type Category struct {
-	Srv cateDTO
 }
 
 // NewCate 文章分类相关
 func NewCate() router.Control {
-	return &Category{Srv: service.GetSrv()}
+	return &Category{}
 }
 
 func (ac Category) Index(c *gin.Context) {
 	var apiC = response.Api{C: c}
-	allCate, err := ac.Srv.AllCate(c)
+	allCate, err := Dao.AllCate(c)
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
+	var allCateD = make([]dto.CateDisplay, len(allCate))
+	for i, cate := range allCate {
+		allCateD[i] = dto.CateDisplay{
+			Id:          cate.Id,
+			Name:        cate.Name,
+			DisplayName: cate.DisplayName,
+			SeoDesc:     cate.SeoDesc,
+		}
+	}
 	resp := make(map[string]any)
-	resp["items"] = allCate
+	resp["items"] = allCateD
 	apiC.Success(resp)
 }
 
@@ -54,7 +57,11 @@ func (ac Category) Store(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := ac.Srv.NewCate(c, cateStore); err != nil {
+	category := articles.NewArticleCategory(cateStore.Name, cateStore.DisplayName, cateStore.SeoDesc)
+	if category.ParentId != 0 {
+		category.SetParentId(category.ParentId)
+	}
+	if err := Dao.NewCate(c, category); err != nil {
 		apiC.Response(err)
 		return
 	}
@@ -69,7 +76,7 @@ func (ac Category) Edit(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	cate, err := ac.Srv.GetCate(c, cIntId)
+	cate, err := Dao.GetCate(c, &articles.ArticleCategory{Id: cIntId})
 	if err != nil {
 		apiC.Response(err)
 		return
@@ -78,7 +85,10 @@ func (ac Category) Edit(c *gin.Context) {
 }
 
 func (ac Category) Update(c *gin.Context) {
-	var apiC = response.Api{C: c}
+	var (
+		err  error
+		apiC = response.Api{C: c}
+	)
 	cid := c.Param("cid")
 	cIntId, err := strconv.Atoi(cid)
 	if err != nil {
@@ -95,7 +105,13 @@ func (ac Category) Update(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := ac.Srv.UpdateCate(c, cIntId, cateStore); err != nil {
+	if err = Dao.UptCate(c, &articles.ArticleCategory{
+		Id:          cIntId,
+		Name:        cateStore.Name,
+		DisplayName: cateStore.DisplayName,
+		SeoDesc:     cateStore.SeoDesc,
+		ParentId:    cateStore.ParentId,
+	}); err != nil {
 		apiC.Response(err)
 		return
 	}
@@ -110,17 +126,17 @@ func (ac Category) Destroy(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	_, err = ac.Srv.GetCate(c, cIntId)
+	_, err = Dao.GetCate(c, &articles.ArticleCategory{Id: cIntId})
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
-	_, err = ac.Srv.GetCateByParentId(c, cIntId)
+	_, err = Dao.GetCate(c, &articles.ArticleCategory{ParentId: cIntId})
 	if !e.Compare(err, e.ItemNotExist) {
 		apiC.Response(e.NewError(e.InvalidDelete, err))
 		return
 	}
-	if err := ac.Srv.DeleteCate(c, cIntId); err != nil {
+	if err := Dao.DelCate(c, &articles.ArticleCategory{Id: cIntId}); err != nil {
 		apiC.Response(err)
 		return
 	}

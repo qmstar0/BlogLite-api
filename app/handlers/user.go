@@ -3,119 +3,22 @@ package handlers
 import (
 	"blog/app/dto"
 	"blog/app/response"
-	"blog/app/service"
+	"blog/domain/users"
+	"blog/domain/users/valueobject"
 	"blog/infra/config"
 	"blog/infra/e"
 	"blog/router"
-	"blog/utils"
 	"github.com/gin-gonic/gin"
 )
 
-type userDTO interface {
-	dto.UserR
-	dto.UserW
-	dto.Authorizer
-}
-
-type User struct {
-	Srv userDTO
+type UserHandler struct {
 }
 
 func NewUser() router.User {
-	return &User{Srv: service.GetSrv()}
+	return &UserHandler{}
 }
 
-func NewAuth() router.Auth {
-	return &User{Srv: service.GetSrv()}
-}
-
-func (u User) AuthRegister(c *gin.Context) {
-	var (
-		err  error
-		apiC = response.Api{C: c}
-	)
-	email := c.Query("email")
-	if email == "" {
-		apiC.Response(e.NewError(e.InvalidParam, nil))
-		return
-	}
-	if _, err = u.Srv.GetUser(c, email); err == nil {
-		apiC.Response(e.NewError(e.UserDuplicateCreationErr, nil))
-		return
-	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
-	token, err := u.Srv.GenCaptchaToken(email, codeNum)
-	if err != nil {
-		apiC.Response(err)
-		return
-	}
-	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.Response(err)
-		return
-	}
-	resp := make(map[string]any)
-	resp["token"] = token
-	resp["expTime"] = config.Conf.User.JwtCaptchaTokenLifeSec
-	apiC.Success(resp)
-}
-
-func (u User) AuthLogin(c *gin.Context) {
-	var (
-		err  error
-		apiC = response.Api{C: c}
-	)
-	email := c.Query("email")
-	if email == "" {
-		apiC.Response(e.NewError(e.InvalidParam, nil))
-		return
-	}
-	if _, err = u.Srv.GetUser(c, email); err != nil {
-		apiC.Response(err)
-		return
-	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
-	token, err := u.Srv.GenCaptchaToken(email, codeNum)
-	if err != nil {
-		apiC.Response(err)
-		return
-	}
-	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.Response(err)
-		return
-	}
-	resp := make(map[string]any)
-	resp["token"] = token
-	resp["expTime"] = config.Conf.User.JwtCaptchaTokenLifeSec
-	apiC.Success(resp)
-}
-
-func (u User) AuthResetPwd(c *gin.Context) {
-	var (
-		err  error
-		apiC = response.Api{C: c}
-	)
-	email := c.GetString("email")
-	if email == "" {
-		apiC.Response(e.NewError(e.PermissionDenied, nil))
-		return
-	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
-	token, err := u.Srv.GenCaptchaToken(email, codeNum)
-	if err != nil {
-		apiC.Response(err)
-		return
-	}
-	if err = u.Srv.SendCaptchaEmail(email, codeNum); err != nil {
-		apiC.Response(err)
-		return
-	}
-	resp := make(map[string]any)
-	resp["token"] = token
-	resp["expTime"] = config.Conf.User.JwtCaptchaTokenLifeSec
-	apiC.Success(resp)
-}
-
-func (u User) Login(c *gin.Context) {
+func (u UserHandler) Login(c *gin.Context) {
 	var (
 		apiC = response.Api{C: c}
 	)
@@ -129,16 +32,21 @@ func (u User) Login(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := u.Srv.VaildateCaptcha(Captcha); err != nil {
+	if err := Srv.VaildateCaptcha(Captcha); err != nil {
 		apiC.Response(err)
 		return
 	}
-	user, err := u.Srv.GetUser(c, Captcha.Email)
+	email, err := valueobject.NewEmail(Captcha.Email)
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
-	token, err := u.Srv.GenAuthToken(user)
+	user, err := Dao.GetUser(c, &users.User{Email: email})
+	if err != nil {
+		apiC.Response(err)
+		return
+	}
+	token, err := user.GenUserAuthToken()
 	if err != nil {
 		apiC.Response(err)
 		return
@@ -149,8 +57,9 @@ func (u User) Login(c *gin.Context) {
 	apiC.Success(resp)
 }
 
-func (u User) Register(c *gin.Context) {
+func (u UserHandler) Register(c *gin.Context) {
 	var (
+		err  error
 		apiC = response.Api{C: c}
 	)
 	auth, exists := c.Get("captcha")
@@ -158,21 +67,26 @@ func (u User) Register(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	authDTO, ok := auth.(dto.Captcha)
+	Captcha, ok := auth.(dto.Captcha)
 	if !ok {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := u.Srv.VaildateCaptcha(authDTO); err != nil {
+	if err := Srv.VaildateCaptcha(Captcha); err != nil {
 		apiC.Response(err)
 		return
 	}
-	user, err := u.Srv.NewUser(c, authDTO.Email)
+	newUser, err := users.NewUser(Captcha.Email, 1)
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
-	token, err := u.Srv.GenAuthToken(user)
+	err = Dao.NewUser(c, newUser)
+	if err != nil {
+		apiC.Response(err)
+		return
+	}
+	token, err := newUser.GenUserAuthToken()
 	if err != nil {
 		apiC.Response(err)
 		return
@@ -183,12 +97,12 @@ func (u User) Register(c *gin.Context) {
 	apiC.Success(resp)
 }
 
-func (u User) Update(c *gin.Context) {
+func (u UserHandler) Update(c *gin.Context) {
 	var (
 		apiC = response.Api{C: c}
 	)
-	email := c.GetString("email")
-	if email == "" {
+	emailStr := c.GetString("email")
+	if emailStr == "" {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
@@ -202,14 +116,22 @@ func (u User) Update(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := u.Srv.UpdateUser(c, email, userStore); err != nil {
+	email, err := valueobject.NewEmail(emailStr)
+	if err != nil {
+		apiC.Response(err)
+		return
+	}
+	if err := Dao.UptUser(c, &users.User{
+		Email:    email,
+		UserName: userStore.UserName,
+	}); err != nil {
 		apiC.Response(err)
 		return
 	}
 	apiC.Success(nil)
 }
 
-func (u User) ResetPwd(c *gin.Context) {
+func (u UserHandler) ResetPwd(c *gin.Context) {
 	var (
 		apiC = response.Api{C: c}
 	)
@@ -218,12 +140,12 @@ func (u User) ResetPwd(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	captcha, ok := auth.(dto.Captcha)
+	Captcha, ok := auth.(dto.Captcha)
 	if !ok {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := u.Srv.VaildateCaptcha(captcha); err != nil {
+	if err := Srv.VaildateCaptcha(Captcha); err != nil {
 		apiC.Response(err)
 		return
 	}
@@ -232,7 +154,17 @@ func (u User) ResetPwd(c *gin.Context) {
 		apiC.Response(e.NewError(e.MissingParam, nil))
 		return
 	}
-	if err := u.Srv.ResetPwd(c, captcha.Email, newPwd); err != nil {
+	email, err := valueobject.NewEmail(Captcha.Email)
+	if err != nil {
+		apiC.Response(err)
+		return
+	}
+	user := &users.User{Email: email}
+	if err = user.ResetPassword(newPwd); err != nil {
+		apiC.Response(err)
+		return
+	}
+	if err := Dao.UptUser(c, user); err != nil {
 		apiC.Response(err)
 		return
 	}

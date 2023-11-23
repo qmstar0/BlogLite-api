@@ -19,8 +19,7 @@ func Router() *gin.Engine {
 	handlerArticle := handlers.NewArticle()
 	handlerCate := handlers.NewCate()
 	handlerTags := handlers.NewTags()
-	handlerDraft := handlers.NewDraft()
-	handlerTrash := handlers.NewTrash()
+	handlerStatus := handlers.NewStatus()
 	handlerImgUpload := handlers.NewImgUpload()
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
@@ -29,7 +28,6 @@ func Router() *gin.Engine {
 	{
 		artV := V.NewArticleV.Validate()
 		a.GET("", handlerArticle.Index)
-
 		pa := a.Group("")
 		{
 			pa.GET("/create", handlerArticle.Create)
@@ -38,11 +36,9 @@ func Router() *gin.Engine {
 			pa.PUT("/:aid", artV, handlerArticle.Update)
 			pa.DELETE("/:aid", handlerArticle.Destroy)
 
-			pa.GET("/trash", handlerTrash.TrashIndex)
-			pa.PUT("/:aid/trash", handlerTrash.UnTrash)
-
-			pa.GET("/draft", handlerDraft.DraftIndex)
-			pa.PUT("/:aid/publish", handlerDraft.Publish)
+			pa.GET("/trash", handlerStatus.TrashIndex)
+			pa.GET("/draft", handlerStatus.DraftIndex)
+			pa.PUT("/:aid/publish", handlerStatus.Publish)
 		}
 		upload := a.Group("/upload")
 		{
@@ -91,7 +87,7 @@ func Router() *gin.Engine {
 	{
 		auth.GET("/login", handlerAuth.AuthLogin)
 		auth.GET("/register", handlerAuth.AuthRegister)
-		auth.GET("/reset/pwd", handlerAuth.AuthResetPwd)
+		auth.Use(m.AuthorizerMiddleware()).GET("/reset/pwd", handlerAuth.AuthResetPwd)
 	}
 	return router
 }

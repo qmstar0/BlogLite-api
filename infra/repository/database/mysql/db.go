@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"fmt"
+	"gorm.io/gorm/logger"
+	"log"
 	"os"
 	"time"
 
@@ -47,14 +49,14 @@ func init() {
 func connectDataBase(dsn string) error {
 	var err error
 	db_, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		// Logger: logger.New(
-		// 	log.New(os.Stdout, "\r\n", log.LstdFlags), // 使用标准输出作为日志输出
-		// 	logger.Config{
-		// 		SlowThreshold: time.Second, // 慢查询阈值，设为0以便捕获所有查询
-		// 		LogLevel:      logger.Info, // 设置日志级别为 Info 或更高级别
-		// 		Colorful:      true,        // 在终端中启用彩色输出
-		// 	},
-		// ),
+		Logger: logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // 使用标准输出作为日志输出
+			logger.Config{
+				SlowThreshold: time.Second, // 慢查询阈值，设为0以便捕获所有查询
+				LogLevel:      logger.Info, // 设置日志级别为 Info 或更高级别
+				Colorful:      true,        // 在终端中启用彩色输出
+			},
+		),
 		SkipDefaultTransaction: true,
 		PrepareStmt:            true,
 	})

@@ -1,17 +1,16 @@
 package dto
 
 import (
-	"blog/domain/auth/valueobject"
 	"context"
 )
 
-// Authorizer 验证器
-type Authorizer interface {
-	GenCaptchaToken(email, captcha string) (string, error)
-	SendCaptchaEmail(email, captcha string) error
-	VaildateCaptcha(cap Captcha) error
-	GenAuthToken(user UserDisplay) (string, error)
-	VaildateAuth(authToken string) (*valueobject.AuthClaims, error)
+type DTO interface {
+	ArticleR
+	ArticleW
+	CateR
+	CateW
+	TagsR
+	TagsW
 }
 
 // ArticleR 文章读取接口
@@ -34,25 +33,12 @@ type CateR interface {
 	AllCate(c context.Context) ([]CateDisplay, error)
 }
 
-// UserR 用户数据读取接口
-type UserR interface {
-	GetUser(c context.Context, email string) (UserDisplay, error)
-	GetUserByUid(c context.Context, uid string) (UserDisplay, error)
-}
-
 // ArticleW 文章写入接口
 type ArticleW interface {
 	NewArticle(c context.Context, uid string, store ArticleStore) error
 	UpdateArticle(c context.Context, aid string, store ArticleStore) error
 	DeleteArtcle(c context.Context, aid string) error
 	PublishArticle(c context.Context, aid string) error
-}
-
-// UserW 用户写入接口
-type UserW interface {
-	NewUser(c context.Context, email string) (UserDisplay, error)
-	UpdateUser(c context.Context, email string, store UserStore) error
-	ResetPwd(c context.Context, email, newPwd string) error
 }
 
 // TagsW 标签写入接口

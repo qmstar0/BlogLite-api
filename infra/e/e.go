@@ -70,6 +70,8 @@ const (
 	CacheUpdateErr
 	CacheDeleteErr
 	CacheFindECache
+	ScanSetErr
+	ValueGetErr
 )
 
 var errMsg = map[uint32]string{
@@ -116,6 +118,8 @@ var errMsg = map[uint32]string{
 	CacheUpdateErr:  "Cache UpdateArticle Err",
 	CacheDeleteErr:  "Cache DeleteArticle Err",
 	CacheFindECache: "Cache Find Err",
+	ScanSetErr:      "Set Scan Err",
+	ValueGetErr:     "Value Get Err",
 }
 
 func init() {

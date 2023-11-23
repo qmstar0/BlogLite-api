@@ -1,60 +1,47 @@
 package valueobject
 
 import (
-	er "blog/infra/e"
+	"blog/infra/e"
 	"database/sql/driver"
 	"strings"
 )
 
-type Email struct {
-	Data            string `json:"Data"`
-	NickName        string `json:"nick_name"`
-	EmailDomainName string `json:"email_domain_name"`
-}
+type Email string
 
 // NewEmail 新建email
 func NewEmail(email string) (Email, error) {
-	s := strings.Split(email, "@")
-	if len(s) != 2 {
-		return Email{}, er.NewError(er.EmailFormatErr, nil)
+	if len(strings.Split(email, "@")) != 2 {
+		return "", nil
 	}
-
-	return Email{
-		Data:            email,
-		NickName:        s[0],
-		EmailDomainName: s[1],
-	}, nil
+	return Email(email), nil
 }
 
 // Scan Scanner接口 用于将数据库数据写入结构体
-func (e Email) Scan(src any) error {
-	email := string(src.([]byte))
-	s := strings.Split(email, "@")
-	if len(s) != 2 {
-		return er.NewError(er.EmailFormatErr, nil)
+func (em *Email) Scan(src any) error {
+	email, ok := src.([]byte)
+	if !ok {
+		return e.NewError(e.ScanSetErr, nil)
 	}
-	e.Data = email
-	e.NickName = s[0]
-	e.EmailDomainName = s[1]
+	*em = Email(email)
 	return nil
 }
 
 // Value Valuer接口 用于结构体数据写入数据库
-func (e Email) Value() (driver.Value, error) {
-	return e.ToString(), nil
+func (em *Email) Value() (driver.Value, error) {
+	return em, nil
 }
 
 // ToString 获取email
-func (e Email) ToString() string {
-	return e.Data
+func (em *Email) ToString() string {
+	return string(*em)
 }
 
 // GetNickName 获取email前半部分
-func (e Email) GetNickName() string {
-	return e.NickName
+func (em *Email) GetNickName() string {
+	return strings.Split(string(*em), "@")[0]
 }
 
 // GetEmailDomainName 获取email域名
-func (e Email) GetEmailDomainName() string {
-	return e.EmailDomainName
+func (em *Email) GetEmailDomainName() string {
+	return strings.Split(string(*em), "@")[1]
 }

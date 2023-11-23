@@ -3,37 +3,41 @@ package handlers
 import (
 	"blog/app/dto"
 	"blog/app/response"
-	"blog/app/service"
+	"blog/domain/articles"
 	"blog/infra/e"
 	"blog/router"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
 
-type tagDTO interface {
-	dto.TagsR
-	dto.TagsW
-}
-
 // Tags 标签
 type Tags struct {
-	Srv tagDTO
 }
 
 // NewTags 文章标签相关
 func NewTags() router.Control {
-	return &Tags{Srv: service.GetSrv()}
+	return &Tags{}
 }
 
 func (t Tags) Index(c *gin.Context) {
 	var apiC = response.Api{C: c}
-	allTag, err := t.Srv.AllTag(c)
+	allTag, err := Dao.AllTag(c)
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
+	var allTagD = make([]dto.TagDisplay, len(allTag))
+	for i, tag := range allTag {
+		allTagD[i] = dto.TagDisplay{
+			Id:          tag.Id,
+			Name:        tag.Name,
+			DisplayName: tag.DisplayName,
+			SeoDesc:     tag.SeoDesc,
+			Num:         tag.Num,
+		}
+	}
 	resp := make(map[string]any)
-	resp["items"] = allTag
+	resp["items"] = allTagD
 	apiC.Success(resp)
 }
 
@@ -53,7 +57,8 @@ func (t Tags) Store(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := t.Srv.NewTag(c, tagStore); err != nil {
+	tag := articles.NewArticleTags(tagStore.Name, tagStore.DisplayName, tagStore.SeoDesc)
+	if err := Dao.NewTag(c, tag); err != nil {
 		apiC.Response(err)
 		return
 	}
@@ -68,12 +73,22 @@ func (t Tags) Edit(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	tag, err := t.Srv.GetTag(c, []int{tIntId})
+	tags, err := Dao.GetTag(c, []int{tIntId})
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
-	apiC.Success(tag)
+	var allTagD = make([]dto.TagDisplay, len(tags))
+	for i, tag := range tags {
+		allTagD[i] = dto.TagDisplay{
+			Id:          tag.Id,
+			Name:        tag.Name,
+			DisplayName: tag.DisplayName,
+			SeoDesc:     tag.SeoDesc,
+			Num:         tag.Num,
+		}
+	}
+	apiC.Success(allTagD)
 }
 
 func (t Tags) Update(c *gin.Context) {
@@ -94,7 +109,12 @@ func (t Tags) Update(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	if err := t.Srv.UpdateTag(c, tIntId, tagStore); err != nil {
+	if err := Dao.UptTag(c, &articles.ArticleTags{
+		Id:          tIntId,
+		Name:        tagStore.Name,
+		DisplayName: tagStore.DisplayName,
+		SeoDesc:     tagStore.SeoDesc,
+	}); err != nil {
 		apiC.Response(err)
 		return
 	}
@@ -109,12 +129,12 @@ func (t Tags) Destroy(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	_, err = t.Srv.GetTag(c, []int{tIntId})
+	_, err = Dao.GetTag(c, []int{tIntId})
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
-	if err := t.Srv.DeleteTag(c, tIntId); err != nil {
+	if err := Dao.DelTag(c, &articles.ArticleTags{Id: tIntId}); err != nil {
 		apiC.Response(err)
 		return
 	}

@@ -40,7 +40,9 @@ func (d *Dao) GetTag(c context.Context, tags []int) ([]*articles.ArticleTags, er
 	var (
 		tagModel = make([]*model.ArticleTags, len(tags))
 	)
-	result := d.db.WithContext(c).Model(&model.ArticleTags{}).Find(tagModel, &tags)
+	result := d.db.WithContext(c).Model(&model.ArticleTags{}).
+		Select("id,name,display_name,seo_desc,num,create_at,update_at").
+		Find(&tagModel, &tags)
 	if result.RowsAffected == 0 {
 		return nil, e.NewError(e.ItemNotExist, nil)
 	} else if result.Error != nil {
@@ -57,7 +59,9 @@ func (d *Dao) AllTag(c context.Context) ([]*articles.ArticleTags, error) {
 	var (
 		tagModels = make([]*model.ArticleTags, 0)
 	)
-	if err := d.db.WithContext(c).Model(&model.ArticleTags{}).Find(&tagModels).Error; err != nil {
+	if err := d.db.WithContext(c).Model(&model.ArticleTags{}).
+		Select("id,name,display_name,seo_desc,num,create_at,update_at").
+		Find(&tagModels).Error; err != nil {
 		return nil, e.NewError(e.DBFindErr, err)
 	}
 	var tags = make([]*articles.ArticleTags, len(tagModels))

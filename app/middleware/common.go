@@ -1,5 +1,5 @@
 package middleware
 
-import "blog/app/service"
+import "blog/domain/users"
 
-var Srv = service.GetSrv()
+var Srv = users.NewServiceUser()

@@ -11,14 +11,10 @@ type Control interface {
 	Destroy(c *gin.Context)
 }
 
-type Draft interface {
+type Statue interface {
+	TrashIndex(c *gin.Context)
 	DraftIndex(c *gin.Context)
 	Publish(c *gin.Context)
-}
-
-type Trash interface {
-	TrashIndex(c *gin.Context)
-	UnTrash(c *gin.Context)
 }
 
 type Img interface {

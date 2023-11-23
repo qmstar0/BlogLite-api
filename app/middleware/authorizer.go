@@ -20,9 +20,9 @@ func AuthorizerMiddleware() gin.HandlerFunc {
 			apiC.Response(e.NewError(e.PermissionDenied, err))
 			return
 		}
-		c.Set("userId", authVerified.Uid)
-		c.Set("email", authVerified.Email)
-		c.Set("role", authVerified.Role)
+		c.Set("userId", authVerified["userId"])
+		c.Set("email", authVerified["email"])
+		c.Set("role", authVerified["role"])
 		c.Next()
 	}
 }

@@ -2,9 +2,14 @@ package users
 
 import (
 	"blog/domain/users/valueobject"
+	"blog/infra/config"
 	"blog/infra/e"
+	"blog/infra/jwt"
 	"github.com/google/uuid"
+	"time"
 )
+
+var userAuthTokenLifeTime = time.Duration(config.Conf.User.JwtAuthTokenLifeDay) * time.Hour * 24
 
 type User struct {
 	Id             uint                 `json:"-" gorm:"primaryKey"`
@@ -25,7 +30,7 @@ func NewUser(email string, role uint) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	password := valueobject.NewPassword("")
+	password, _ := valueobject.NewPassword("")
 	return &User{
 		Uid:      uuid.New().String(),
 		UserName: newEmail.GetNickName(),
@@ -40,11 +45,11 @@ func (u *User) ResetPassword(newpwd string) error {
 	var (
 		err error
 	)
-	if !u.Password.VerifyPassword(newpwd) {
-		u.Password, _ = valueobject.NewSafePassword(newpwd)
-	}
-	if err != nil {
-		return e.NewError(e.PwdEncryptionErr, nil)
+	if !u.Password.Check(newpwd) {
+		u.Password, err = valueobject.NewPassword(newpwd)
+		if err != nil {
+			return e.NewError(e.PwdEncryptionErr, nil)
+		}
 	}
 	return nil
 }
@@ -59,4 +64,14 @@ func (u *User) UpdateUserName(newName string) error {
 		u.UserName = newName
 	}
 	return nil
+}
+
+func (u *User) GenUserAuthToken() (string, error) {
+	data := map[string]any{
+		"userId": u.Uid,
+		"name":   u.UserName,
+		"role":   u.Role.ToUint(),
+		"email":  u.Email.ToString(),
+	}
+	return jwt.Sign(data, userAuthTokenLifeTime)
 }

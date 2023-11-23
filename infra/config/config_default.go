@@ -11,12 +11,12 @@ func InitDefaultConfig() {
 		SystemIndexKey:        "index:system",
 		ArticleDetailIndexKey: "index:articleDetail",
 	}
-	//Conf.User = &User{
-	//	CaptchaLength:          6,
-	//	HashCaptchaSalt:        "hash-captcha-salt-180",
-	//	JwtAuthTokenLifeDay:    180,
-	//	JwtCaptchaTokenLifeSec: 180,
-	//}
+	Conf.User = &User{
+		CaptchaLength:          6,
+		HashCaptchaSalt:        "hash-captcha-salt-180",
+		JwtAuthTokenLifeDay:    180,
+		JwtCaptchaTokenLifeSec: 180,
+	}
 	//Conf.System = &System{
 	//	Theme:        "",
 	//	Title:        "blog",
