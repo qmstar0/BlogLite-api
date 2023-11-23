@@ -7,7 +7,7 @@ type ArticleStore struct {
 	Title     string `json:"title" validate:"required"`
 	TitleSlug string `json:"titleSlug" validate:"required"`
 	Category  int    `json:"category" validate:"required"`
-	Tags      []int  `json:"tags" validate:"required"`
+	Tags      []int  `json:"tags"`
 	Summary   string `json:"summary" validate:"required"`
 	Content   string `json:"content" validate:"required"`
 }
@@ -15,7 +15,7 @@ type ArticleStore struct {
 // CateStore 文章分类仓储模型
 type CateStore struct {
 	Name        string `json:"name" form:"name" validate:"required"`
-	DisplayName string `json:"display" form:"display"`
+	DisplayName string `json:"displayName" form:"displayName"`
 	ParentId    int    `json:"parentId" form:"parentId"`
 	SeoDesc     string `json:"seoDesc" form:"seoDesc" validate:"required"`
 }
@@ -23,7 +23,7 @@ type CateStore struct {
 // TagStore 标签仓储模型
 type TagStore struct {
 	Name        string `json:"name" form:"name" validate:"required"`
-	DisplayName string `json:"display" form:"display"`
+	DisplayName string `json:"displayName" form:"displayName"`
 	SeoDesc     string `json:"seoDesc" form:"seoDesc" validate:"required"`
 }
 
