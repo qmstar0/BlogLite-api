@@ -48,7 +48,7 @@ func (s ServiceUser) VaildateCaptcha(cap dto.Captcha) error {
 	}
 	saltHashCaptcha, err := utils.GetSaltHash(cap.Email)
 
-	if mapClaims["email"] != cap.Email && mapClaims["hashCaptcha"] != saltHashCaptcha {
+	if mapClaims["email"] != cap.Email || mapClaims["hashCaptcha"] != saltHashCaptcha {
 		return e.NewError(e.TokenVerifyErr, err)
 	}
 	return nil

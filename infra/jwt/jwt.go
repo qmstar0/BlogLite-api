@@ -81,10 +81,12 @@ func ParseToken(tokenString string) (jwt.MapClaims, error) {
 	if !parsedToken.Valid {
 		return jwt.MapClaims{}, errors.New("token is invalid")
 	}
-
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
 		return jwt.MapClaims{}, errors.New("an error occurred in claims, ok := parsedToken.Claims.(jwt.MapClaims)")
+	}
+	if !claims.VerifyExpiresAt(time.Now().Unix(), true) {
+		return jwt.MapClaims{}, errors.New("token is Expired")
 	}
 	return claims, nil
 }
