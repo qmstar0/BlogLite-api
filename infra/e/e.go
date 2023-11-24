@@ -24,6 +24,7 @@ const (
 	ItemNotExist
 	UserDuplicateCreationErr
 	DuplicatePasswordErr
+	ArticleDuplicateCreationErr
 	EmailFormatErr
 	PermissionDenied
 	LoginRequired
@@ -85,16 +86,17 @@ var errMsg = map[uint32]string{
 	DataPersistenceErr: "DB Err",
 	DomainErr:          "Domain Err",
 
-	InvalidParam:             "Invalid Param",
-	MissingParam:             "Missing Param",
-	InvalidDelete:            "Invalid Delete",
-	InvalidUpdate:            "Invalid Update",
-	ItemNotExist:             "Item not exist",
-	UserDuplicateCreationErr: "User Duplicate Creation Err",
-	DuplicatePasswordErr:     "Duplicate password",
-	EmailFormatErr:           "email format error",
-	PermissionDenied:         "Permission Denied",
-	LoginRequired:            "Login Required",
+	InvalidParam:                "Invalid Param",
+	MissingParam:                "Missing Param",
+	InvalidDelete:               "Invalid Delete",
+	InvalidUpdate:               "Invalid Update",
+	ItemNotExist:                "Item not exist",
+	UserDuplicateCreationErr:    "User Duplicate Creation Err",
+	ArticleDuplicateCreationErr: "Article Duplicate Creation Err",
+	DuplicatePasswordErr:        "Duplicate password",
+	EmailFormatErr:              "email format error",
+	PermissionDenied:            "Permission Denied",
+	LoginRequired:               "Login Required",
 
 	JwtSignErr:        "sign tokens err",
 	JwtParseErr:       "tokens parse err",

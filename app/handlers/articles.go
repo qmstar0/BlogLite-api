@@ -171,12 +171,19 @@ func (a Article) Store(c *gin.Context) {
 		apiC.Response(e.NewError(e.InvalidParam, nil))
 		return
 	}
-	articleMate := articles.NewArticleMate(user.Uid)
-	err = articleMate.SetTitleSlug(articleStore.TitleSlug)
+	_art := &articles.ArticleMate{}
+	err = _art.SetTitleSlug(articleStore.TitleSlug)
+	if !e.Compare(err, e.ItemNotExist) {
+		apiC.Response(e.NewError(e.ArticleDuplicateCreationErr, err))
+		return
+	}
+	_, err = Dao.GetArticle(c, _art)
 	if err != nil {
 		apiC.Response(err)
 		return
 	}
+	articleMate := articles.NewArticleMate(user.Uid)
+	_ = articleMate.SetTitleSlug(articleStore.TitleSlug)
 	articleMate.SetTitle(articleStore.Title)
 	articleMate.SetSummary(articleStore.Summary)
 	articleMate.SetStatus(valueobject.Draft)
