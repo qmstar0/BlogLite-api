@@ -27,8 +27,6 @@ func NewStatus() router.Statue {
 	return &Article{}
 }
 
-// NewTrash 回收站相关
-
 // NewImgUpload 图片上传相关
 func NewImgUpload() router.Img {
 	return &Article{}

@@ -62,7 +62,7 @@ func Router() *gin.Engine {
 	{
 		tagV := V.NewTagsV.Validate()
 		t.GET("", handlerTags.Index)
-		pt := t.Group("").Use()
+		pt := t.Group("")
 		{
 			pt.POST("/create", tagV, handlerTags.Store)
 			pt.GET("/:tid/edit", handlerTags.Edit)
