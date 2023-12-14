@@ -4,7 +4,7 @@ package dto
 
 // ArticleListDisplay 文章详情列表
 type ArticleListDisplay struct {
-	Article  ArticleDisplay `json:"post,omitempty"`
+	Article  ArticleDisplay `json:"article,omitempty"`
 	Tags     []TagDisplay   `json:"tags,omitempty"`
 	Category CateDisplay    `json:"category,omitempty"`
 	Author   UserDisplay    `json:"author,omitempty"`
@@ -12,18 +12,18 @@ type ArticleListDisplay struct {
 
 // ArticleDisplay 文章内容
 type ArticleDisplay struct {
-	Id        int    `json:"id,omitempty"`
+	Id        int    `json:"id"`
 	Aid       string `json:"aid,omitempty"`
 	Uid       string `json:"uid,omitempty"`
 	TitleSlug string `json:"titleSlug,omitempty"`
 	Title     string `json:"title,omitempty"`
 	Summary   string `json:"summary,omitempty"`
 	Content   string `json:"content,omitempty"`
-	PublishAt uint   `json:"publishAt,omitempty"`
-	CreateAt  uint   `json:"createAt,omitempty"`
-	UpdateAt  uint   `json:"updateAt,omitempty"`
-	DeleteAt  uint   `json:"deleteAt,omitempty"`
-	Views     uint   `json:"views,omitempty"`
+	PublishAt uint   `json:"publishAt"`
+	CreateAt  uint   `json:"createAt"`
+	UpdateAt  uint   `json:"updateAt"`
+	DeleteAt  uint   `json:"deleteAt"`
+	Views     uint   `json:"views"`
 }
 
 // TagDisplay 标签

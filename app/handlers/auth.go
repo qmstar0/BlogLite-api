@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"blog/app/dto"
 	"blog/app/response"
 	"blog/domain/users"
 	"blog/domain/users/valueobject"
@@ -13,7 +12,6 @@ import (
 )
 
 type Auth struct {
-	Srv dto.DTO
 }
 
 func NewAuth() router.Auth {

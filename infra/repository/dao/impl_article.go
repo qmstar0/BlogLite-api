@@ -86,3 +86,30 @@ func (d *Dao) AllArticle(c context.Context, limit int, offset int, status uint) 
 	}
 	return articlesEntity, nil
 }
+func (d *Dao) ArticleTotal(c context.Context, status uint) (int64, error) {
+	var (
+		count int64
+		tx    = d.db.WithContext(c).Model(&model.ArticleMate{})
+	)
+	if status > 0 {
+		newStatus := valueobject.NewStatus(status)
+		if newStatus.IsDeleted() {
+			tx.Or("status = ?", valueobject.Deleted)
+		}
+		if newStatus.IsDraft() {
+			tx.Or("status = ?", valueobject.Draft)
+		}
+		if newStatus.IsSinglePage() {
+			tx.Or("status = ?", valueobject.SinglePage)
+		}
+		if newStatus.IsPublished() {
+			tx.Or("status = ?", valueobject.Published)
+		}
+	} else {
+		tx.Where("status = ?", valueobject.Published)
+	}
+	if err := tx.Count(&count).Error; err != nil {
+		return 0, e.NewError(e.DBFindErr, err)
+	}
+	return count, nil
+}

@@ -11,6 +11,7 @@ type RepoArticleMate interface {
 	DelArticle(c context.Context, art *ArticleMate) error
 	GetArticle(c context.Context, art *ArticleMate) (*ArticleMate, error)
 	AllArticle(c context.Context, limit int, offset int, status uint) ([]*ArticleMate, error)
+	ArticleTotal(c context.Context, status uint) (int64, error)
 }
 
 // RepoTags 文章标签仓储

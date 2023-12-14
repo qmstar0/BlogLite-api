@@ -102,8 +102,30 @@ func (a Article) Index(c *gin.Context) {
 			Author:   dto.UserDisplay{},
 		}
 	}
+	total, err := Dao.ArticleTotal(c, 0b0010)
+	if err != nil {
+		apiC.Response(err)
+		return
+	}
 	resp.Items = artDetails
-
+	pages := (int(total) + limit - 1) / limit
+	current := (offset / limit) + 1
+	last := current - 1
+	next := current + 1
+	if last < 1 {
+		last = 1
+	}
+	if current >= pages {
+		next = 0
+	}
+	resp.Paginate = dto.Paginate{
+		Limit:   limit,
+		Count:   len(artDetails),
+		Total:   pages,
+		Last:    last,
+		Current: current,
+		Next:    next,
+	}
 	apiC.Success(resp)
 }
 

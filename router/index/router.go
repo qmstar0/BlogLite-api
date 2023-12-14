@@ -13,7 +13,7 @@ func Router() *gin.Engine {
 	router.Use(m.CORSMiddleware())
 
 	r := router.Group("/api")
-	r.Use(m.AuthorizerMiddleware())
+	//r.Use(m.AuthorizerMiddleware())
 	V := validate.NewValidate()
 
 	handlerArticle := handlers.NewArticle()
@@ -24,7 +24,7 @@ func Router() *gin.Engine {
 	handlerUser := handlers.NewUser()
 	handlerAuth := handlers.NewAuth()
 
-	a := r.Group("/article")
+	a := r.Group("/articles")
 	{
 		artV := V.NewArticleV.Validate()
 		a.GET("", handlerArticle.Index)
