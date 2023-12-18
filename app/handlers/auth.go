@@ -7,7 +7,7 @@ import (
 	"blog/infra/config"
 	"blog/infra/e"
 	"blog/router"
-	"blog/utils"
+	"blog/utils/rand"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +32,7 @@ func (a Auth) AuthRegister(c *gin.Context) {
 		apiC.Response(e.NewError(e.UserDuplicateCreationErr, nil))
 		return
 	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
+	codeNum := rand.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
 		apiC.Response(err)
@@ -63,7 +63,7 @@ func (a Auth) AuthLogin(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
+	codeNum := rand.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
 		apiC.Response(err)
@@ -89,7 +89,7 @@ func (a Auth) AuthResetPwd(c *gin.Context) {
 		apiC.Response(e.NewError(e.PermissionDenied, nil))
 		return
 	}
-	codeNum := utils.RandomNum(config.Conf.User.CaptchaLength)
+	codeNum := rand.RandomNum(config.Conf.User.CaptchaLength)
 	token, err := Srv.GenCaptchaToken(email, codeNum)
 	if err != nil {
 		apiC.Response(err)

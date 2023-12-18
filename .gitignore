@@ -10,3 +10,4 @@ public_key.pem
 /go.sums
 /go.sum
 /build
+*.exe

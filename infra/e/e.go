@@ -1,7 +1,7 @@
 package e
 
 import (
-	"blog/infra/logging"
+	"blog/utils/logging"
 	"errors"
 	"fmt"
 )

@@ -1,4 +1,4 @@
-package utils
+package salthash
 
 import (
 	"blog/infra/config"

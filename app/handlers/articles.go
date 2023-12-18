@@ -8,8 +8,8 @@ import (
 	"blog/domain/users"
 	"blog/infra/config"
 	"blog/infra/e"
+	"blog/infra/paginate"
 	"blog/router"
-	"blog/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,7 +40,7 @@ func (a Article) Index(c *gin.Context) {
 	)
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
-	limit, offset := utils.Offset(queryPage, queryLimit)
+	limit, offset := paginate.Offset(queryPage, queryLimit)
 	Articles, err := Dao.AllArticle(c, limit, offset, 0b0010)
 	if err != nil {
 		if e.Compare(err, e.ItemNotExist) {
@@ -202,7 +202,7 @@ func (a Article) Store(c *gin.Context) {
 		apiC.Response(err)
 		return
 	}
-	articleMate := articles.NewArticleMate(user.Uid)
+	articleMate := articles.CreateArticleMate(user.Uid)
 	_ = articleMate.SetTitleSlug(articleStore.TitleSlug)
 	articleMate.SetTitle(articleStore.Title)
 	articleMate.SetSummary(articleStore.Summary)
@@ -370,7 +370,7 @@ func (a Article) TrashIndex(c *gin.Context) {
 	)
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
-	limit, offset := utils.Offset(queryPage, queryLimit)
+	limit, offset := paginate.Offset(queryPage, queryLimit)
 	Articles, err := Dao.AllArticle(c, limit, offset, 0b0100)
 	if err != nil {
 		if e.Compare(err, e.ItemNotExist) {
@@ -444,7 +444,7 @@ func (a Article) DraftIndex(c *gin.Context) {
 	)
 	queryLimit := c.DefaultQuery("n", config.Conf.Article.DefaultLimit)
 	queryPage := c.DefaultQuery("p", "1")
-	limit, offset := utils.Offset(queryPage, queryLimit)
+	limit, offset := paginate.Offset(queryPage, queryLimit)
 	Articles, err := Dao.AllArticle(c, limit, offset, 0b0001)
 	if err != nil {
 		if e.Compare(err, e.ItemNotExist) {

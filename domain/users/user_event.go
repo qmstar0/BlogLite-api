@@ -3,9 +3,9 @@ package users
 import (
 	"blog/infra/e"
 	"blog/infra/event"
-	"blog/infra/logging"
-	"blog/infra/mail"
-	"blog/utils"
+	"blog/infra/shutdown"
+	"blog/utils/logging"
+	mail2 "blog/utils/mail"
 	"context"
 	"fmt"
 )
@@ -21,7 +21,7 @@ func init() {
 	var sendEmailEventChan = make(event.DataChan)
 	bus.Subscribe(event.SendMail, sendEmailEventChan)
 	ctx, cc := context.WithCancel(context.Background())
-	utils.WaitForShutdown().Add(func() {
+	shutdown.WaitForShutdown().Add(func() {
 		cc()
 	})
 	go func(c context.Context) {
@@ -47,12 +47,12 @@ func SendCaptcpaEmail(data any) error {
 	if !ok {
 		return e.NewError(e.DomainEventDataTypeErr, nil)
 	}
-	html := mail.NewTemplateForVerifyCode(ed.Email, ed.Captcha)
-	m := mail.PostMan.NewMail()
+	html := mail2.NewTemplateForVerifyCode(ed.Email, ed.Captcha)
+	m := mail2.PostMan.NewMail()
 	m.SetHeader("Subject", EmailSubject)
 	m.SetHeader("To", ed.Email)
 	m.SetBody("text/html", html.ToString())
-	dialer := mail.PostMan.NewDialer()
+	dialer := mail2.PostMan.NewDialer()
 	if err := dialer.DialAndSend(m); err != nil {
 		return e.NewError(e.EmailSendErr, err)
 	}

@@ -3,8 +3,8 @@ package main
 import (
 	"blog/infra/config"
 	"blog/infra/repository/database/redis"
+	"blog/infra/shutdown"
 	"blog/router/index"
-	shutdown "blog/utils"
 )
 
 func init() {

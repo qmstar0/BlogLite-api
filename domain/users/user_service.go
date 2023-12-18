@@ -5,7 +5,7 @@ import (
 	"blog/infra/e"
 	"blog/infra/event"
 	"blog/infra/jwt"
-	"blog/utils"
+	"blog/utils/salthash"
 )
 
 // ServiceUser 用户领域服务
@@ -27,7 +27,7 @@ func (s ServiceUser) VaildateAuth(authToken string) (jwt.MapClaims, error) {
 	return jwt.ParseToken(authToken)
 }
 func (s ServiceUser) GenCaptchaToken(email, captcha string) (string, error) {
-	saltHashCaptcha, err := utils.GetSaltHash(captcha)
+	saltHashCaptcha, err := salthash.GetSaltHash(captcha)
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func (s ServiceUser) VaildateCaptcha(cap dto.Captcha) error {
 	if err != nil {
 		return e.NewError(e.JwtParseErr, err)
 	}
-	saltHashCaptcha, err := utils.GetSaltHash(cap.Captcha)
+	saltHashCaptcha, err := salthash.GetSaltHash(cap.Captcha)
 
 	if mapClaims["email"] != cap.Email || mapClaims["hashCaptcha"] != saltHashCaptcha {
 		return e.NewError(e.TokenVerifyErr, err)

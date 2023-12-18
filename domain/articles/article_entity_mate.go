@@ -3,7 +3,6 @@ package articles
 import (
 	"blog/domain/articles/valueobject"
 	"blog/infra/e"
-	"blog/utils"
 )
 
 // ArticleMate 文章
@@ -27,11 +26,15 @@ type ArticleMate struct {
 	Status     valueobject.Status `json:"status" gorm:"column:status; type:TINYINT UNSIGNED; not null"`
 }
 
-func NewArticleMate(uid string) *ArticleMate {
+func CreateArticleMate(uid string) *ArticleMate {
 	return &ArticleMate{
 		Uid:    uid,
 		Status: valueobject.NewStatus(valueobject.Draft),
 	}
+}
+
+func (a *ArticleMate) Publish() {
+
 }
 
 func (a *ArticleMate) SetStatus(status uint) {
@@ -63,7 +66,7 @@ func (a *ArticleMate) SetTitleSlug(title string) error {
 }
 func (a *ArticleMate) SetContent(content string) error {
 	a.Original = content
-	html, err := utils.MarkdownToHTML(content)
+	html, err := MarkdownToHTML(content)
 	if err != nil {
 		return e.NewError(e.MarkdownTOHTMLErr, err)
 	}
