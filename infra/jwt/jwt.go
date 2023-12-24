@@ -45,7 +45,7 @@ func init() {
 // iss（Issuer）:含义：令牌的发行者，表示谁颁发了令牌。
 // 示例："iss": "your-issuer"
 // sub（Subject）:含义：令牌的主题，通常是用户的唯一标识。表示令牌所代表的用户或实体。
-// 示例："sub": "user-id"
+// 示例："sub": "users-id"
 // aud（Audience）:含义：令牌的预期接收者，表示令牌的预期使用方。
 // 示例："aud": "your-audience"
 // exp（Expiration Time）:含义：令牌的过期时间，表示令牌的有效期截止时间。

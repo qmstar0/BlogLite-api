@@ -1,8 +1,8 @@
 package event
 
 const (
-	DelCache = "<event:DelCache>"
-	SendMail = "<event:SendMail>"
+	DelCache = "<commonEvent:DelCache>"
+	SendMail = "<commonEvent:SendMail>"
 )
 
 type DataEvent struct {

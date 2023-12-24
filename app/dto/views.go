@@ -9,7 +9,7 @@ type ArticleListViews struct {
 // CateTagIndexViews 分类和标签索引响应
 type CateTagIndexViews struct {
 	Cate         []CateDisplay `json:"cate"`
-	Tag          []TagDisplay  `json:"tag"`
+	Tag          []TagDisplay  `json:"tags"`
 	ImgUploadUrl string        `json:"imgUploadUrl"`
 }
 

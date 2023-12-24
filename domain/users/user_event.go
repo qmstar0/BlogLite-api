@@ -14,7 +14,7 @@ const EmailSubject = "Please Confirm Your email"
 
 var (
 	bus    = event.GetBus(event.DomainServiceBus)
-	logger = logging.New("user-event")
+	logger = logging.New("users-commonEvent")
 )
 
 func init() {

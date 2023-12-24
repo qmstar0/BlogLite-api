@@ -6,7 +6,7 @@ package dto
 type ArticleListDisplay struct {
 	Article  ArticleDisplay `json:"article,omitempty"`
 	Tags     []TagDisplay   `json:"tags,omitempty"`
-	Category CateDisplay    `json:"category,omitempty"`
+	Category CateDisplay    `json:"categorys,omitempty"`
 	Author   UserDisplay    `json:"author,omitempty"`
 }
 

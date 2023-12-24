@@ -31,7 +31,14 @@ func main() {
 	}
 
 	// 创建子文件夹
-	subFolders := []string{"event", "repository", "entity", "service", "valueobject", "command"}
+	subFolders := []string{
+		"events",
+		"repository",
+		"entity",
+		"service",
+		"valueobject",
+		"commands",
+	}
 	for _, subFolder := range subFolders {
 		err := os.Mkdir(subFolder, os.ModePerm)
 		if err != nil {

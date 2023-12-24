@@ -6,7 +6,7 @@ func InitDefaultConfig() {
 		TagListKey:            "all:tags",
 		CateListKey:           "all:cate",
 		ArticleIndexKey:       "index:article",
-		TagArticleIndexKey:    "index:tag:article",
+		TagArticleIndexKey:    "index:tags:article",
 		CateArticleIndexKey:   "index:cate:article",
 		SystemIndexKey:        "index:system",
 		ArticleDetailIndexKey: "index:articleDetail",

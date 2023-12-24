@@ -34,8 +34,8 @@ type IndexRss struct {
 
 // IndexArticleDetail 文章详情索引
 type IndexArticleDetail struct {
-	Post     IndexArticle `json:"post-content,omitempty"`
+	Post     IndexArticle `json:"posts-content,omitempty"`
 	Tags     []TagDisplay `json:"tags,omitempty"`
-	Category CateDisplay  `json:"category,omitempty"`
+	Category CateDisplay  `json:"categorys,omitempty"`
 	Author   UserDisplay  `json:"author,omitempty"`
 }

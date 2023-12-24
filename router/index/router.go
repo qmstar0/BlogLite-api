@@ -71,13 +71,13 @@ func Router() *gin.Engine {
 		}
 		//t.GET("/create", handlerTags.Create)
 	}
-	u := router.Group("/user")
+	u := router.Group("/users")
 	captchaV := V.NewCaptchaV.Validate()
 	{
 		u.POST("/login", captchaV, handlerUser.Login)
 		u.POST("/register", captchaV, handlerUser.Register)
 	}
-	u2 := r.Group("/user")
+	u2 := r.Group("/users")
 	{
 		userV := V.NewUserV.Validate()
 		u2.PUT("/update", userV, handlerUser.Update)

@@ -6,7 +6,7 @@ package dto
 type ArticleStore struct {
 	Title     string `json:"title" validate:"required"`
 	TitleSlug string `json:"titleSlug" validate:"required"`
-	Category  int    `json:"category" validate:"required"`
+	Category  int    `json:"categorys" validate:"required"`
 	Tags      []int  `json:"tags"`
 	Summary   string `json:"summary" validate:"required"`
 	Content   string `json:"content" validate:"required"`

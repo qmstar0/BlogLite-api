@@ -4,7 +4,7 @@ package dtoV1
 type ArticleListDisplay struct {
 	Article  ArticleDTO  `json:"article,omitempty"`
 	Tags     []TagDTO    `json:"tags,omitempty"`
-	Category CategoryDTO `json:"category,omitempty"`
+	Category CategoryDTO `json:"categorys,omitempty"`
 	Author   UserDTO     `json:"author,omitempty"`
 }
 
@@ -25,7 +25,7 @@ func NewArticleListViews(paginate PaginateDTO, items []ArticleListDisplay) Artic
 // CateTagIndexViews 分类和标签索引响应
 type CateTagIndexViews struct {
 	Cate         []CategoryDTO `json:"cate"`
-	Tag          []TagDTO      `json:"tag"`
+	Tag          []TagDTO      `json:"tags"`
 	ImgUploadUrl string        `json:"imgUploadUrl"`
 }
 
