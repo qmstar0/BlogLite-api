@@ -20,7 +20,7 @@ type PostStateImpl struct {
 func (p *PostStateImpl) Publish(pub common.DomainEventPublisher, cmd PublishPostCommand) error {
 	p.PublishAt = time.Now().Unix()
 	p.TrashedAt = 0
-	return pub.Publish(common.PostPublishedEvent, PostPublishedEvent{
+	return pub.Publish(PostPublishedEvent{
 		Uid: cmd.Uid,
 		Pid: cmd.Pid,
 	})
@@ -29,7 +29,7 @@ func (p *PostStateImpl) Publish(pub common.DomainEventPublisher, cmd PublishPost
 func (p *PostStateImpl) Trash(pub common.DomainEventPublisher, cmd TrashPostCommand) error {
 	p.PublishAt = 0
 	p.TrashedAt = time.Now().Unix()
-	return pub.Publish(common.PostTrashedEvent, PostTrashedEvent{
+	return pub.Publish(PostTrashedEvent{
 		Uid: cmd.Uid,
 		Pid: cmd.Pid,
 	})
@@ -38,7 +38,7 @@ func (p *PostStateImpl) Trash(pub common.DomainEventPublisher, cmd TrashPostComm
 func (p *PostStateImpl) UnTrash(pub common.DomainEventPublisher, cmd UnTrashPostCommand) error {
 	p.PublishAt = time.Now().Unix()
 	p.TrashedAt = 0
-	return pub.Publish(common.PostRestoredEvent, PostRestoredEvent{
+	return pub.Publish(PostRestoredEvent{
 		Uid: cmd.Uid,
 		Pid: cmd.Pid,
 	})
