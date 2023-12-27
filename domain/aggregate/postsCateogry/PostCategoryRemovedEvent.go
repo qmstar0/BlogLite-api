@@ -5,7 +5,3 @@ type PostCategoryRemovedEvent struct {
 	Pid           int
 	OldCategoryId int
 }
-
-func (c PostCategoryRemovedEvent) Topic() string {
-	return ""
-}

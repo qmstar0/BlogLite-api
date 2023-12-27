@@ -6,8 +6,3 @@ type UpdateTagCommand struct {
 	DisplayName string
 	SeoDesc     string
 }
-
-func (u UpdateTagCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

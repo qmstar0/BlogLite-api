@@ -6,7 +6,3 @@ type TagCreatedEvent struct {
 	DisplayName string
 	SeoDesc     string
 }
-
-func (c TagCreatedEvent) Topic() string {
-	return ""
-}

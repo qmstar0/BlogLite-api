@@ -6,8 +6,3 @@ type CreateTagCommand struct {
 	DisplayName string
 	SeoDesc     string
 }
-
-func (c CreateTagCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

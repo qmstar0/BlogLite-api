@@ -6,7 +6,3 @@ type PostCategoryUpdatedEvent struct {
 	OldCategoryId int
 	NewCategoryID int
 }
-
-func (c PostCategoryUpdatedEvent) Topic() string {
-	return ""
-}

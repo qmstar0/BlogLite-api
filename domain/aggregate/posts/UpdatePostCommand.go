@@ -7,8 +7,3 @@ type UpdatePostCommand struct {
 	Summary string
 	Content string
 }
-
-func (u UpdatePostCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

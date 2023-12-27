@@ -6,8 +6,3 @@ type UpdateCategoryCommand struct {
 	DisplayName string
 	SeoDesc     string
 }
-
-func (u UpdateCategoryCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

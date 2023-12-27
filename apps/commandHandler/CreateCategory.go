@@ -2,42 +2,21 @@ package commandHandler
 
 import (
 	"blog/domain/aggregate/categorys"
-	"blog/domain/aggregate/usersRole"
-	"blog/domain/common"
-	"encoding/json"
-	"errors"
-	"github.com/ThreeDotsLabs/watermill/message"
+	"context"
 )
 
 type CreateCategoryCommandHandler struct {
-	categoryRepo categorys.CategoryRepository
-	userRoleRepo usersRole.UserRoleRepository
 }
 
-var (
-	PermissionDeniedErr = errors.New("没有权限")
-)
+func (c CreateCategoryCommandHandler) HandlerName() string {
+	return "Handler.Command.Category.Create"
+}
 
-func (h *CreateCategoryCommandHandler) Handler(publisher common.DomainEventPublisher) message.NoPublishHandlerFunc {
-	return func(msg *message.Message) error {
-		var (
-			err error
-			cmd categorys.CreateCategoryCommand
-		)
+func (c CreateCategoryCommandHandler) NewCommand() any {
+	return &categorys.CreateCategoryCommand{}
+}
 
-		if err = json.Unmarshal(msg.Payload, &cmd); err != nil {
-			return err
-		}
-
-		userRole, err := h.userRoleRepo.FindByUid(cmd.Uid)
-		if !userRole.IsAdmin() {
-			return PermissionDeniedErr
-		}
-
-		category, err := categorys.CreateCategory(publisher, cmd)
-		if err != nil {
-			return err
-		}
-		return h.categoryRepo.Save(category)
-	}
+func (c CreateCategoryCommandHandler) Handle(ctx context.Context, cmd any) error {
+	//TODO implement me
+	panic("implement me")
 }

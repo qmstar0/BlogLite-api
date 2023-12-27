@@ -6,8 +6,3 @@ type CreateCategoryCommand struct {
 	DisplayName string
 	SeoDesc     string
 }
-
-func (c CreateCategoryCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

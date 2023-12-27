@@ -6,7 +6,3 @@ type PostTagsUpdated struct {
 	OldTagIds []int
 	NewTagIds []int
 }
-
-func (c PostTagsUpdated) Topic() string {
-	return ""
-}

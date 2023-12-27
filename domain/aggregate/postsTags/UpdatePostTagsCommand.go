@@ -5,8 +5,3 @@ type UpdatePostTagsCommand struct {
 	Pid    int
 	TagIds []int
 }
-
-func (u UpdatePostTagsCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}

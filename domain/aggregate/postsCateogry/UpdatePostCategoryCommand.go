@@ -5,8 +5,3 @@ type UpdatePostCategoryCommand struct {
 	Pid           int
 	NewCategoryId int
 }
-
-func (u UpdatePostCategoryCommand) Topic() string {
-	//TODO implement me
-	panic("implement me")
-}
