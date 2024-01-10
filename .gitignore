@@ -1,6 +1,6 @@
 config.yml
-private_key.pem
-public_key.pem
+shared/key/es/private_key.pem
+shared/key/es/public_key.pem
 *.log
 /logs
 /test
