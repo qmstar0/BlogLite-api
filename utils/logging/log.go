@@ -45,7 +45,7 @@ func init() {
 		}
 		logDir := config.Conf.Logger.OutputPath
 		if err := os.MkdirAll(logDir, os.FileMode(0666)); err != nil {
-			panic("An error occurred while creating the log folder; from **logging/log.go**")
+			panic("An httpError occurred while creating the log folder; from **logging/log.go**")
 		}
 		logPath := path.Join(logDir, "log.log")
 		l := genRotateOutput(logPath)

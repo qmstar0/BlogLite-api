@@ -5,7 +5,6 @@ import (
 	"blog/cmd/initCmd"
 	"blog/infrastructure/repositoryImpl"
 	"context"
-	"fmt"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/cqrs"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
@@ -28,7 +27,7 @@ func main() {
 	}
 
 	backend := initCmd.NewPubSubBackend(pubsub)
-	fmt.Println()
+
 	commandBus := initCmd.NewCommandBus(pubsub, marshaler)
 	eventBus := initCmd.NewEventBus(pubsub, marshaler)
 	router := initCmd.NewCommandRouter()
@@ -50,12 +49,12 @@ func main() {
 	}
 
 	//初始化http服务
-	httpServe := initCmd.NewHttpServe(commandBus, backend)
+	adapter := initCmd.NewHttpAdapter(commandBus, backend)
 
 	go func() {
 		//当命令路由启动后， 启动http服务
 		<-router.Running()
-		err := httpServe.Run()
+		err := adapter.StartRun()
 		if err != nil {
 			panic(err)
 		}

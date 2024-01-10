@@ -94,7 +94,7 @@ var errMsg = map[uint32]string{
 	UserDuplicateCreationErr:    "User Duplicate Creation Err",
 	ArticleDuplicateCreationErr: "Article Duplicate Creation Err",
 	DuplicatePasswordErr:        "Duplicate password",
-	EmailFormatErr:              "email format error",
+	EmailFormatErr:              "email format httpError",
 	PermissionDenied:            "Permission Denied",
 	LoginRequired:               "Login Required",
 

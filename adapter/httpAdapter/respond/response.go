@@ -3,24 +3,15 @@ package respond
 import (
 	"blog/apps/commandResult"
 	"encoding/json"
+	"errors"
 	"net/http"
 )
 
-type responseTemplate struct {
-	Code commandResult.StateCode
-	Msg  string
-}
-
-func Respond(w http.ResponseWriter, code *commandResult.StateCode) {
-	response := newResponseTemplate(*code)
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(response)
-}
-
-func newResponseTemplate(code commandResult.StateCode) *responseTemplate {
-	msg := commandResult.MessageMap[code]
-	return &responseTemplate{
-		Code: code,
-		Msg:  msg,
+func Respond(w http.ResponseWriter, err *error) {
+	var respE *responseTemplate
+	if !errors.As(*err, &respE) {
+		respE = newError(commandResult.NotImplementedErr)
 	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(respE.toMap())
 }

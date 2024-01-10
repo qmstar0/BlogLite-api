@@ -17,8 +17,6 @@ var (
 	timeExp   = time.Hour
 )
 
-var NoAuthorizeInformationErr = errors.New("没有Authorize相关信息")
-
 func init() {
 	var err error
 
@@ -66,3 +64,8 @@ func getTokenFromAuthorization(r *http.Request) string {
 	}
 	return ""
 }
+
+var (
+	PermissionVerificationError = errors.New("权限校验错误")
+	NoAuthorizeInformationErr   = errors.New("没有Authorize相关信息")
+)
