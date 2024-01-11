@@ -11,6 +11,7 @@ const (
 	EventProcessErr
 	CommandPuiblishErr
 	CommandProcessErr
+	WaitReplyTimeoutErr
 )
 
 // 输入输出错误

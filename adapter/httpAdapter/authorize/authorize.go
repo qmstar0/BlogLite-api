@@ -14,7 +14,7 @@ type AuthorizeClaims struct {
 
 var (
 	Authorize *jwtAuth2.JwtAuth[AuthorizeClaims]
-	timeExp   = time.Hour
+	timeExp   = time.Hour * 48
 )
 
 func init() {
@@ -56,6 +56,10 @@ func ParseToClaims(r *http.Request) (*AuthorizeClaims, error) {
 	return claims, nil
 }
 
+func SignFromClaims(claims AuthorizeClaims) (string, error) {
+	return Authorize.Encode(claims)
+}
+
 func getTokenFromAuthorization(r *http.Request) string {
 	authTokenStr := r.Header.Get("Authorization")
 	splitStr := strings.Split(authTokenStr, " ")
@@ -67,5 +71,5 @@ func getTokenFromAuthorization(r *http.Request) string {
 
 var (
 	PermissionVerificationError = errors.New("权限校验错误")
-	NoAuthorizeInformationErr   = errors.New("没有Authorize相关信息")
+	NoAuthorizeInformationErr   = errors.New("authorize header missing")
 )

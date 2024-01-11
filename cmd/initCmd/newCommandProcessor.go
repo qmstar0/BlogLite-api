@@ -8,6 +8,7 @@ import (
 func NewCommandProcessor(pubsub PubSub, router *message.Router, marshaler cqrs.CommandEventMarshaler) *cqrs.CommandProcessor {
 	cmdProcessor, err := cqrs.NewCommandProcessorWithConfig(router, cqrs.CommandProcessorConfig{
 		GenerateSubscribeTopic: func(params cqrs.CommandProcessorGenerateSubscribeTopicParams) (string, error) {
+			//fmt.Println("订阅", params.CommandName)
 			return params.CommandName, nil
 		},
 		SubscriberConstructor: func(params cqrs.CommandProcessorSubscriberConstructorParams) (message.Subscriber, error) {

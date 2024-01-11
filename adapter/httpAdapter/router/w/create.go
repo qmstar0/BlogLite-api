@@ -1,4 +1,4 @@
-package router
+package w
 
 import (
 	"blog/adapter/httpAdapter/authorize"
@@ -27,7 +27,7 @@ func CreateCategroy(r *http.Request) (cmd any, err error) {
 		return nil, respond.NewError(commandResult.InvalidParam)
 	}
 
-	return categorys.CreateCategoryCommand{
+	return &categorys.CreateCategoryCommand{
 		Uid:         claims.Uid,
 		Name:        dto.Name,
 		DisplayName: dto.DisplayName,

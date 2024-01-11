@@ -6,6 +6,7 @@ import (
 	"blog/adapter/httpAdapter/router"
 	"blog/apps/commandResult"
 	"context"
+	"errors"
 	"github.com/ThreeDotsLabs/watermill/components/requestreply"
 	"net/http"
 )
@@ -28,9 +29,7 @@ func NewHttpAdapter(
 
 func (h HttpAdapter) HttpHandle(fn router.CommandConstructor) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var (
-			err error
-		)
+		var err error
 		defer respond.Respond(w, &err)
 
 		cmd, err := fn(r)
@@ -42,6 +41,11 @@ func (h HttpAdapter) HttpHandle(fn router.CommandConstructor) http.HandlerFunc {
 		if err != nil {
 			return
 		}
+
+		if errors.As(reply.Error, &waitReplyTimeoutErr) {
+			err = respond.NewError(commandResult.WaitReplyTimeoutErr, waitReplyTimeoutErr)
+			return
+		}
 		err = respond.NewError(reply.HandlerResult)
 	}
 }
@@ -49,3 +53,5 @@ func (h HttpAdapter) HttpHandle(fn router.CommandConstructor) http.HandlerFunc {
 func (h HttpAdapter) StartRun() error {
 	return http.ListenAndServe(h.Serve.Addr, h.Serve.Mux)
 }
+
+var waitReplyTimeoutErr = requestreply.ReplyTimeoutError{}

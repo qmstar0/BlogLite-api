@@ -4,6 +4,12 @@ var MessageMap = map[StateCode]string{
 	Successed:         "Successed",
 	NotImplementedErr: "Not Implemented Err",
 
+	EventPublishErr:     "Event Publish Err",
+	EventProcessErr:     "Event Process Err",
+	CommandPuiblishErr:  "Command Puiblish Err",
+	CommandProcessErr:   "Command Process Err",
+	WaitReplyTimeoutErr: "Wait Reply Timeout Err",
+
 	SendErr:            "Send Err",
 	ServeErr:           "ServeErr",
 	SafeErr:            "SafeErr",

@@ -13,5 +13,5 @@ func Respond(w http.ResponseWriter, err *error) {
 		respE = newError(commandResult.NotImplementedErr)
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(respE.toMap())
+	_ = json.NewEncoder(w).Encode(respE.toResponse())
 }

@@ -35,7 +35,7 @@ func (r *responseTemplate) Warp(errs ...error) {
 	}
 }
 
-func (r *responseTemplate) toMap() map[string]any {
+func (r *responseTemplate) toResponse() map[string]any {
 	result := make(map[string]any)
 	result["code"] = r.Code
 	result["msg"] = strings.Join(r.Msgs, "; ")

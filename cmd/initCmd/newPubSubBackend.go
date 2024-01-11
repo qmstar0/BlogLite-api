@@ -21,10 +21,12 @@ func NewPubSubBackend(pubsub PubSub) requestreply.Backend[commandResult.StateCod
 			},
 			GeneratePublishTopic: func(params requestreply.PubSubBackendPublishParams) (string, error) {
 				s := fmt.Sprintf("%T.%s", params.Command, params.OperationID)
+				fmt.Println(s)
 				return s, nil
 			},
 			GenerateSubscribeTopic: func(params requestreply.PubSubBackendSubscribeParams) (string, error) {
 				s := fmt.Sprintf("%T.%s", params.Command, params.OperationID)
+				fmt.Println(s)
 				return s, nil
 			},
 			Logger:                nil,
