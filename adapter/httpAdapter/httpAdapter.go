@@ -22,6 +22,7 @@ func NewHttpAdapter(
 	backend requestreply.Backend[commandResult.StateCode],
 	serve *httpService.HttpServe,
 ) *HttpAdapter {
+
 	adapter := &HttpAdapter{bus: bus, backend: backend, Serve: serve}
 	router.SetUpRoutes(adapter.Serve.Mux, adapter)
 	return adapter
