@@ -1,11 +1,10 @@
-# go-ddd-blog
+# GO-DDD-BLOG
 
 A Golang blog project inspired by Domain-Driven Design (DDD).
 
 ## TODO
 
-- [ ] 完善缓存功能
-- [ ] 添加web响应
-- [ ] 完善领域事件
-- [ ] 添加ssr服务接口相关
-
+- [ ] 项目重新设计为CQRS+DDD+事件溯源
+- [ ] 多协议适配
+    - [x] http
+    - [ ] rpc
