@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-type CommandConstructor func(r *http.Request) (cmd any, err error)
+type CommandConstructor func(w http.ResponseWriter, r *http.Request) (cmd any, err error)
 
 type HttpHandle interface {
-	HttpHandle(CommandConstructor) http.HandlerFunc
+	Adapter(CommandConstructor) http.HandlerFunc
 }
 
 func SetUpRoutes(mux *chi.Mux, adapter HttpHandle) {
@@ -19,7 +19,7 @@ func SetUpRoutes(mux *chi.Mux, adapter HttpHandle) {
 		// -/api/category/*
 		api.Route("/category", func(category chi.Router) {
 
-			category.Post("/create", adapter.HttpHandle(w.CreateCategroy))
+			category.Post("/create", adapter.Adapter(w.CreateCategroy))
 
 		})
 	})

@@ -34,7 +34,7 @@ func init() {
 	//	config.Conf.Database.Name,
 	//	config.Conf.Database.Charset,
 	//)
-	dsn := "host=192.168.1.3 user=qmstar password=@yz021105 dbname=blog_dev port=5432 sslmode=disable"
+	dsn := "host=192.168.1.3 users=qmstar password=@yz021105 dbname=blog_dev port=5432 sslmode=disable"
 	if err := connectDataBase(dsn); err != nil {
 		panic(err)
 	}

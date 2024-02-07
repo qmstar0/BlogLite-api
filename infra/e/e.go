@@ -79,7 +79,7 @@ var errMsg = map[uint32]string{
 	Successed:         "Successed",
 	NotImplementedErr: "Not Implemented Err",
 
-	SendErr:            "Send Err",
+	SendErr:            "Publish Err",
 	ServeErr:           "ServeErr",
 	SafeErr:            "SafeErr",
 	InputErr:           "InputErr",
@@ -108,7 +108,7 @@ var errMsg = map[uint32]string{
 	MarkdownTOHTMLErr: "Markdown TO HTML Err",
 	PwdEncryptionErr:  "password encrytion err",
 
-	EmailSendErr: "Email Send Err",
+	EmailSendErr: "Email Publish Err",
 
 	DomainEventDataTypeErr: "Domain Event Data Type Err",
 

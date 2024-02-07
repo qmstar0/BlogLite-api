@@ -11,3 +11,7 @@ public_key.pem
 /go.sum
 /build
 *.exe
+
+/infra
+/adapter
+/infrastructure

@@ -1,58 +1,52 @@
 package httpAdapter
 
 import (
-	"blog/adapter/httpAdapter/httpService"
-	"blog/adapter/httpAdapter/respond"
 	"blog/adapter/httpAdapter/router"
-	"blog/apps/commandResult"
 	"context"
-	"errors"
-	"github.com/ThreeDotsLabs/watermill/components/requestreply"
+	"fmt"
+	"github.com/qmstar0/eio-cqrs/cqrs"
+	"github.com/qmstar0/eio/message"
 	"net/http"
+	"time"
 )
 
 type HttpAdapter struct {
-	bus     requestreply.CommandBus
-	backend requestreply.Backend[commandResult.StateCode]
-	Serve   *httpService.HttpServe
+	bus cqrs.PublishBus
 }
 
-func NewHttpAdapter(
-	bus requestreply.CommandBus,
-	backend requestreply.Backend[commandResult.StateCode],
-	serve *httpService.HttpServe,
-) *HttpAdapter {
-
-	adapter := &HttpAdapter{bus: bus, backend: backend, Serve: serve}
-	router.SetUpRoutes(adapter.Serve.Mux, adapter)
-	return adapter
+func NewHttpAdapter(bus cqrs.Bus) *HttpAdapter {
+	return &HttpAdapter{bus: bus}
 }
 
-func (h HttpAdapter) HttpHandle(fn router.CommandConstructor) http.HandlerFunc {
+func (h HttpAdapter) Adapter(constructor router.CommandConstructor) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var err error
-		defer respond.Respond(w, &err)
-
-		cmd, err := fn(r)
+		cmd, err := constructor(w, r)
 		if err != nil {
+			w.WriteHeader(500)
 			return
 		}
 
-		reply, err := requestreply.SendWithReply(context.Background(), h.bus, h.backend, &cmd)
+		ctx, cancelFunc := context.WithTimeout(context.WithValue(r.Context(), httpAdapterCtxKey, w), time.Second)
+		defer cancelFunc()
+
 		if err != nil {
+			w.WriteHeader(500)
 			return
 		}
-
-		if errors.As(reply.Error, &waitReplyTimeoutErr) {
-			err = respond.NewError(commandResult.WaitReplyTimeoutErr, waitReplyTimeoutErr)
-			return
-		}
-		err = respond.NewError(reply.HandlerResult)
 	}
 }
 
-func (h HttpAdapter) StartRun() error {
-	return http.ListenAndServe(h.Serve.Addr, h.Serve.Mux)
+var httpAdapterCtxKey = &ctxKey{"httpAdapterCtxKey"}
+
+type ctxKey struct {
+	name string
 }
 
-var waitReplyTimeoutErr = requestreply.ReplyTimeoutError{}
+func (c ctxKey) String() string {
+	return fmt.Sprintf("HttpAdapter ctxKey `%s`", c.name)
+}
+
+func RespondCallback(msg *message.Context) {
+	respW := msg.Value(httpAdapterCtxKey).(http.ResponseWriter)
+	err := msg.Err()
+}

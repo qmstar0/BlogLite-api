@@ -1,7 +1,7 @@
 package authorize
 
 import (
-	jwtAuth2 "blog/infrastructure/utils/jwtAuth"
+	"blog/infrastructure/utils/jwtAuth"
 	"errors"
 	"net/http"
 	"strings"
@@ -13,31 +13,31 @@ type AuthorizeClaims struct {
 }
 
 var (
-	Authorize *jwtAuth2.JwtAuth[AuthorizeClaims]
+	Authorize *jwtAuth.JwtAuth[AuthorizeClaims]
 	timeExp   = time.Hour * 48
 )
 
 func init() {
 	var err error
 
-	publishKey, err := jwtAuth2.GetECPublicKeyFromFile("shared/key/es/public_key.pem")
+	publishKey, err := jwtAuth.GetECPublicKeyFromFile("shared/key/es/public_key.pem")
 	if err != nil {
 		panic(err)
 	}
-	privateKey, err := jwtAuth2.GetECPrivateKeyFromFile("shared/key/es/private_key.pem")
+	privateKey, err := jwtAuth.GetECPrivateKeyFromFile("shared/key/es/private_key.pem")
 	if err != nil {
 		panic(err)
 	}
-	Authorize, err = jwtAuth2.NewJwtAuthWithOption[AuthorizeClaims](
+	Authorize, err = jwtAuth.NewJwtAuthWithOption[AuthorizeClaims](
 		"ES256",
-		jwtAuth2.JwtAuthConfig{
+		jwtAuth.JwtAuthConfig{
 			Issuer:   "Server",
 			Subject:  "UserAuthorize",
 			Audience: "User",
 		},
 		privateKey,
 		publishKey,
-		jwtAuth2.JwtAuthModifyClaimsExpires(timeExp),
+		jwtAuth.JwtAuthModifyClaimsExpires(timeExp),
 	)
 	if err != nil {
 		panic(err)
