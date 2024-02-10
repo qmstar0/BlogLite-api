@@ -1,0 +1,32 @@
+openapi: 3.0.0
+info:
+  title: Category
+  description: Category
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /new:
+    post:
+      description: createCategory
+      operationId: createCategory
+      responses:
+        "200":
+          description: createCategoryOk
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: ok
+
+
