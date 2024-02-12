@@ -17,7 +17,8 @@ func main() {
 	categoryApp := categoryAdapter.NewApp(pubsub, pubsub, bus)
 
 	server.RunHttpServer(":3000", func(router chi.Router) {
-		//router.Handle("/xxxxxxxxx", adapter.HandlerFromMux(httpServer, xxxxxx))
-		categoryAdapter.HandlerFromMuxWithBaseURL(categoryAdapter.NewHttpServer(categoryApp), router, "/categorys")
+		router.Route("/api", func(r chi.Router) {
+			categoryAdapter.HandlerFromMuxWithBaseURL(categoryAdapter.NewHttpServer(categoryApp), r, "/categorys")
+		})
 	})
 }

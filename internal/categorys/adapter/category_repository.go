@@ -14,5 +14,7 @@ func (c categoryRepositoryImpl) Save(cate *category.Category) error {
 }
 
 func NewCategoryRepository() category.CategoryRepository {
-	return &categoryRepositoryImpl{Map: make(map[int]*category.Category)}
+	return &categoryRepositoryImpl{
+		Map: make(map[int]*category.Category),
+	}
 }

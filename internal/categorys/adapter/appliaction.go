@@ -12,7 +12,7 @@ import (
 func NewApp(pub eio.Publisher, sub eio.Subscriber, routerBus cqrs.RouterBus) *application.App {
 	var err error
 	err = routerBus.AddHandlers(
-		//Command.CreateCategory
+		// Command.CreateCategory
 		cqrs.NewHandler[command.CreateCategory](
 			"Command.CreateCategory", sub,
 			command.NewCreateCategoryHandler(NewCategoryRepository()).Handle),

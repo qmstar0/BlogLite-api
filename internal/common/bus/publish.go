@@ -2,9 +2,9 @@ package bus
 
 import "context"
 
-type CommandBus interface {
-	Publish(ctx context.Context, cmd any) error
+type bus[T any] interface {
+	Publish(ctx context.Context, v T) error
 }
-type QueryBus interface {
-	Publish(ctx context.Context, query any) error
-}
+
+type CommandBus bus[any]
+type QueryBus bus[any]

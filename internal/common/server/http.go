@@ -4,25 +4,23 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func RunHttpServer(addr string, fn func(chi.Router)) {
-
+func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
 	addr = parseAddr(addr)
-
 	router := chi.NewRouter()
+
 	setupMiddleware(router)
 
-	fn(router)
+	AddRouteFn(router)
 
 	printStartInfo(addr, router)
 
 	err := http.ListenAndServe(addr, router)
 	if err != nil {
-		logrus.WithError(err).Panic("Unable to start HTTP server")
+		panic(fmt.Sprintf("\u001B[31mHttpserver failed to start:%s \u001B[m", err))
 	}
 }
 
