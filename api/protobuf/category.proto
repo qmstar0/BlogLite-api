@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package category;
+
+option go_package = "./cateogrys";
+
+message CreateCategoryRequest {
+  string name = 1;
+  string displayName = 2;
+  string seoDesc = 3;
+  int32 uid = 4;
+};
+
+message Error {
+  int32 code = 1;
+  string message = 2;
+};
+
+
+service CategorysService {
+  rpc CreateCategory(CreateCategoryRequest) returns (Error);
+}

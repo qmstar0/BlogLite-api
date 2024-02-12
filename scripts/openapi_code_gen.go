@@ -25,14 +25,12 @@ func main() {
 		"-generate", "types",
 		"-o", fmt.Sprintf("%s/openapi_types.gen.go", outputDir),
 		fmt.Sprintf("api/openapi/%s.yaml", server))
-	SetDefaultOutput(cmd1)
 
 	cmd2 := exec.Command(tool,
 		"-package", pkgName,
 		"-generate", "chi-server",
 		"-o", fmt.Sprintf("%s/openapi_api.gen.go", outputDir),
 		fmt.Sprintf("api/openapi/%s.yaml", server))
-	SetDefaultOutput(cmd2)
 
 	err := cmd1.Run()
 	if err != nil {
@@ -44,9 +42,4 @@ func main() {
 		fmt.Println("执行发生错误", err, cmd2.String())
 		return
 	}
-}
-
-func SetDefaultOutput(cmd *exec.Cmd) {
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 }
