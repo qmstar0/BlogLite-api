@@ -1,8 +1,8 @@
 package application
 
 import (
-	"blog/internal/categorys/application/command"
-	"blog/internal/common/bus"
+	"categorys/application/command"
+	"common/bus"
 )
 
 type App struct {

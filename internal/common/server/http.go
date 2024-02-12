@@ -1,11 +1,14 @@
 package server
 
 import (
+	"common/shutdown"
+	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
@@ -18,7 +21,19 @@ func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
 
 	printStartInfo(addr, router)
 
-	err := http.ListenAndServe(addr, router)
+	serve := newHttpServe(addr, router)
+
+	shutdown.OnShutdown(func() error {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := serve.Shutdown(ctx); err != nil {
+			return fmt.Errorf("Error during server shutdown: %v\n", err)
+		}
+		return nil
+	})
+
+	err := serve.ListenAndServe()
 	if err != nil {
 		panic(fmt.Sprintf("\u001B[31mHttpserver failed to start:%s \u001B[m", err))
 	}
@@ -41,4 +56,11 @@ func printStartInfo(addr string, router chi.Router) {
 		return nil
 	})
 	fmt.Printf("\n\033[1mHttpserver Starts Running: \033[m\033[1;4;32m%s\033[m\n", addr)
+}
+
+func newHttpServe(addr string, handler http.Handler) *http.Server {
+	return &http.Server{
+		Addr:    addr,
+		Handler: handler,
+	}
 }

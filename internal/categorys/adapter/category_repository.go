@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"blog/internal/categorys/domain/category"
+	"categorys/domain/category"
 )
 
 type categoryRepositoryImpl struct {

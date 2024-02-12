@@ -1,8 +1,8 @@
 package adapter
 
 import (
-	"blog/internal/categorys/application"
-	"blog/internal/categorys/application/command"
+	"categorys/application"
+	"categorys/application/command"
 	"context"
 	"fmt"
 	"github.com/qmstar0/eio"

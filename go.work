@@ -1,6 +1,10 @@
 go 1.21.0
 
 use (
+	.
 	./internal/categorys
 	./internal/common
+	./internal/posts
+	./internal/tags
+	./internal/users
 )

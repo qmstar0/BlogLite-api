@@ -1,8 +1,8 @@
 package main
 
 import (
-	categoryAdapter "blog/internal/categorys/adapter"
-	"blog/internal/common/server"
+	categoryAdapter "categorys/adapter"
+	"common/server"
 	"github.com/go-chi/chi/v5"
 	"github.com/qmstar0/eio-cqrs/cqrs"
 	"github.com/qmstar0/eio/processor"

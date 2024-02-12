@@ -1,8 +1,8 @@
 package command
 
 import (
-	"blog/internal/categorys/domain/category"
-	"blog/internal/common/decorator"
+	"categorys/domain/category"
+	"common/decorator"
 	"context"
 )
 
