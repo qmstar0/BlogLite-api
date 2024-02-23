@@ -14,7 +14,6 @@ var (
 )
 
 func init() {
-	fmt.Println("开始监听")
 	go func() {
 		downChan := make(chan os.Signal, 1)
 		signal.Notify(downChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)

@@ -1,44 +1,43 @@
-package mysql
+package postgresql
 
 import (
 	"fmt"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"time"
 
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"blog/infra/config"
 )
 
 var (
-	db *DBClient
+	db *gorm.DB
 )
 
-// DBClient 数据库客户端
-type DBClient struct {
-	*gorm.DB
-}
-
 // GetDB 获取db对象
-func GetDB() *DBClient {
+func GetDB() *gorm.DB {
 	return db
 }
 
-func init() {
+func InitDB() {
 	// dsn := "users:password@tcp(host:port)/database_name?charset=utf8mb4&parseTime=True&loc=Local"
-	pwd := os.Getenv("BLOG_MYSQL_PASSWORD")
+	pwd := os.Getenv("DATABASE_PASSWORD_DEV")
 	if pwd == "" {
-		panic("mysql is not configured: see env:BLOG_MYSQL_PASSWORD")
+		panic("mysql is not configured: see env:DATABASE_PASSWORD_DEV")
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=True&loc=Local",
-		config.Conf.Database.User,
+	user := os.Getenv("DATABASE_USER_DEV")
+	if user == "" {
+		panic("mysql is not configured: see env:DATABASE_USER_DEV")
+	}
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Shanghai",
+		"192.168.1.10",
+		user,
 		pwd,
-		config.Conf.Database.Addr,
-		config.Conf.Database.Name,
-		config.Conf.Database.Charset,
+		"blog_dev",
+		5432,
+		"disable",
 	)
 	if err := connectDataBase(dsn); err != nil {
 		panic(err)
@@ -48,7 +47,7 @@ func init() {
 // 连接数据库
 func connectDataBase(dsn string) error {
 	var err error
-	db_, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags), // 使用标准输出作为日志输出
 			logger.Config{
@@ -65,7 +64,7 @@ func connectDataBase(dsn string) error {
 	}
 
 	// 配置连接池
-	sqlDB, err := db_.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		return err
 	}
@@ -75,10 +74,6 @@ func connectDataBase(dsn string) error {
 	sqlDB.SetMaxIdleConns(10)
 	// 设置连接的最大生存时间
 	sqlDB.SetConnMaxLifetime(time.Hour)
-	db = &DBClient{db_}
 	// 迁移数据库结构
-	if err = Migrattion(); err != nil {
-		return err
-	}
 	return nil
 }

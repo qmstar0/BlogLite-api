@@ -1,22 +1,23 @@
-package e
+package httperr
 
 import (
-	"blog/utils/logging"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 )
 
-var logger *logging.Log
+type StateCode int
 
 // Successed 成功
-const Successed = 0
+const Successed StateCode = 0
 
 // NotImplementedErr 临时占位错误
-const NotImplementedErr = 99999
+const NotImplementedErr StateCode = 99999
 
 // 输入输出错误
 const (
-	InputErr = iota + 21010
+	InputErr StateCode = iota + 21010
 	InvalidParam
 	MissingParam
 	InvalidUpdate
@@ -32,7 +33,7 @@ const (
 
 // 安全和鉴权错误
 const (
-	SafeErr = iota + 31010
+	SafeErr StateCode = iota + 31010
 	JwtSignErr
 	JwtParseErr
 	TokenVerifyErr
@@ -42,7 +43,7 @@ const (
 
 // 后台错误
 const (
-	ServeErr = iota + 40010
+	ServeErr StateCode = iota + 40010
 	GenFilenameErr
 	MarkdownTOHTMLErr
 	PwdEncryptionErr
@@ -50,19 +51,19 @@ const (
 
 // 通信错误
 const (
-	SendErr = iota + 51010
+	SendErr StateCode = iota + 51010
 	EmailSendErr
 )
 
 // 领域服务或事件错误
 const (
-	DomainErr = iota + 60010
+	DomainErr StateCode = iota + 60010
 	DomainEventDataTypeErr
 )
 
 // 数据持久化错误
 const (
-	DataPersistenceErr = iota + 80010
+	DataPersistenceErr StateCode = iota + 80010
 	DBCreateErr
 	DBUpdateErr
 	DBDeleteErr
@@ -75,9 +76,8 @@ const (
 	ValueGetErr
 )
 
-var errMsg = map[uint32]string{
-	Successed:         "Successed",
-	NotImplementedErr: "Not Implemented Err",
+var errMsg = map[StateCode]string{
+	Successed: "Successed",
 
 	SendErr:            "Publish Err",
 	ServeErr:           "ServeErr",
@@ -124,43 +124,40 @@ var errMsg = map[uint32]string{
 	ValueGetErr:     "Value Get Err",
 }
 
-func init() {
-	logger = logging.New("httperr")
+func (s StateCode) Error() string {
+	msg, _ := errMsg[s]
+	return msg
+}
+func Error(code StateCode, info string) error {
+	return fmt.Errorf("%w (%s)", code, info)
 }
 
-type E struct {
-	Code uint32
-	Prev error
+type response struct {
+	Code    StateCode
+	Message string
 }
 
-func NewError(i uint32, prev error) E {
-	return E{
-		Code: i,
-		Prev: prev,
+func Respond(w http.ResponseWriter, e *error) {
+	resp := response{
+		Code:    Successed,
+		Message: Successed.Error(),
 	}
-}
-
-func (e E) Error() string {
-	return fmt.Sprintf("%d-%s", e, errMsg[e.Code])
-}
-
-func Compare(err error, code uint32) bool {
-	var e E
-	ok := errors.As(err, &e)
-	if !ok {
-		return false
+	if *e != nil {
+		if errors.As(errors.Unwrap(*e), &resp.Code) {
+			resp.Message = resp.Code.Error()
+		} else {
+			resp.Code = NotImplementedErr
+			resp.Message = (*e).Error()
+		}
 	}
-	return e.Code == code
-}
-
-func ParseErr(err error) (code uint32, message string) {
-	var e E
-	ok := errors.As(err, &e)
-	if !ok {
-		return NotImplementedErr, errMsg[NotImplementedErr]
+	data, err := json.Marshal(resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	if e.Code >= 40000 && e.Code <= 99999 {
-		logger.Warnf("err:%s", e)
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	return e.Code, errMsg[e.Code]
 }

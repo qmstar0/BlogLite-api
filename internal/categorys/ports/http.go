@@ -1,9 +1,9 @@
-package adapter
+package ports
 
 import (
 	"categorys/application"
 	"categorys/application/command"
-	"encoding/json"
+	"common/httperr"
 	"net/http"
 )
 
@@ -16,18 +16,13 @@ func NewHttpServer(app *application.App) *HttpServer {
 }
 
 func (h HttpServer) CreateCategory(w http.ResponseWriter, r *http.Request) {
-	data := make(map[string]any)
-	defer func() {
-		_ = json.NewEncoder(w).Encode(data)
-	}()
-
-	err := h.app.CommandsBus.Publish(r.Context(), command.CreateCategory{
-		Uid:         0,
-		Name:        "",
-		DisplayName: "",
-		SeoDesc:     "",
+	var err error
+	defer httperr.Respond(w, &err)
+	err = h.app.Commands.CreateCategory.Handle(r.Context(), command.CreateCategory{
+		Name:        "blog",
+		DisplayName: "探索日志",
+		SeoDesc:     "xxx",
 	})
-
 	if err != nil {
 		return
 	}

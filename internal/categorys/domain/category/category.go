@@ -23,6 +23,7 @@ func CreateCategory(name Name, displayName, seoDesc string) *Category {
 		DeleteAt:    0,
 	}
 }
+
 func (c *Category) ChangeCategory(name Name, displayName, seoDesc string) {
 	c.Name = name
 	c.SeoDesc = seoDesc

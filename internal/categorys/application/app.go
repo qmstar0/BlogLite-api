@@ -2,15 +2,13 @@ package application
 
 import (
 	"categorys/application/command"
-	"common/bus"
+	"categorys/application/event"
 )
 
 type App struct {
-	CommandsBus bus.CommandBus
-	QueriesBus  bus.QueryBus
-
 	Commands Commands
 	Queries  Queries
+	Events   Events
 }
 
 type Commands struct {
@@ -18,4 +16,8 @@ type Commands struct {
 }
 
 type Queries struct {
+}
+
+type Events struct {
+	CategoryCreated event.CategoryCreatedHandler
 }

@@ -1,47 +1,37 @@
 package adapter
 
 import (
+	"blog/pkg/cqrs"
+	"blog/pkg/postgresql"
 	"categorys/application"
 	"categorys/application/command"
-	"context"
-	"fmt"
-	"github.com/qmstar0/eio"
-	"github.com/qmstar0/eio-cqrs/cqrs"
+	"categorys/application/event"
 )
 
-func NewApp(pub eio.Publisher, sub eio.Subscriber, routerBus cqrs.RouterBus) *application.App {
-	var err error
-	err = routerBus.AddHandlers(
-		// Command.CreateCategory
-		cqrs.NewHandler[command.CreateCategory](
-			"Command.CreateCategory", sub,
-			command.NewCreateCategoryHandler(NewCategoryRepository()).Handle),
+func NewApp(bus *cqrs.Bus) *application.App {
+	db := postgresql.GetDB()
+	categoryStore := NewCategoryEventStore(db)
+
+	app := &application.App{
+		Commands: application.Commands{
+			CreateCategory: command.NewCreateCategoryHandler(NewCategoryRepository(), bus),
+		},
+
+		Queries: application.Queries{},
+
+		Events: application.Events{
+			CategoryCreated: event.NewCategoryCreatedHandler(categoryStore),
+		},
+	}
+
+	addHandlerToBus(bus, app)
+	return app
+}
+
+func addHandlerToBus(bus *cqrs.Bus, app *application.App) {
+	events := app.Events
+
+	bus.AddHandler(
+		cqrs.NewHandler[event.CategoryCreated](events.CategoryCreated.Handle),
 	)
-	if err != nil {
-		panic(fmt.Errorf("an error occurred while `NewApp`: %w", err))
-	}
-
-	err = routerBus.AddHandlers()
-	if err != nil {
-		panic(fmt.Errorf("an error occurred while `NewApp`: %w", err))
-	}
-
-	CommandPublisher := routerBus.WithPublisher(pub)
-	QueryPublisher := routerBus.WithPublisher(pub)
-	return &application.App{
-		CommandsBus: busAdapter{CommandPublisher},
-		QueriesBus:  busAdapter{QueryPublisher},
-	}
-}
-
-type busAdapter struct {
-	bus cqrs.PublishBus
-}
-
-func (b busAdapter) Publish(ctx context.Context, v any) error {
-	err := b.bus.Publish(ctx, v)
-	if err != nil {
-		return err
-	}
-	return nil
 }

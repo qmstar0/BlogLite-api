@@ -1,5 +1,7 @@
 package category
 
+import "context"
+
 type CategoryRepository interface {
-	Save(cate *Category) error
+	Save(ctx context.Context, cate *Category) error
 }

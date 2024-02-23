@@ -18,5 +18,5 @@ message Error {
 
 
 service CategorysService {
-  rpc CreateCategory(CreateCategoryRequest) returns (Error);
+  rpc CreateCategory(CreateCategoryRequest) returns (Error){};
 }

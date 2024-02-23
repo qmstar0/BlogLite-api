@@ -1,13 +1,14 @@
 package command
 
 import (
+	"blog/pkg/cqrs"
+	"categorys/application/event"
 	"categorys/domain/category"
 	"common/decorator"
 	"context"
 )
 
 type CreateCategory struct {
-	Uid         int
 	Name        string
 	DisplayName string
 	SeoDesc     string
@@ -16,20 +17,19 @@ type CreateCategory struct {
 type CreateCategoryHandler decorator.CommandHandler[CreateCategory]
 
 type createCategoryHandler struct {
-	repo category.CategoryRepository
+	cateRepo category.CategoryRepository
+	pub      cqrs.Publisher
 }
 
-func NewCreateCategoryHandler(repo category.CategoryRepository) CreateCategoryHandler {
-	return &createCategoryHandler{repo: repo}
+func NewCreateCategoryHandler(repo category.CategoryRepository, pub cqrs.Publisher) CreateCategoryHandler {
+	return &createCategoryHandler{
+		cateRepo: repo,
+		pub:      pub,
+	}
 }
 
 func (c createCategoryHandler) Handle(ctx context.Context, cmd CreateCategory) error {
 	var err error
-	//defer func() {
-	//	if err != nil {
-	//		//发布事件
-	//	}
-	//}()
 
 	newName, err := category.NewName(cmd.Name)
 	if err != nil {
@@ -38,9 +38,14 @@ func (c createCategoryHandler) Handle(ctx context.Context, cmd CreateCategory) e
 
 	cate := category.CreateCategory(newName, cmd.DisplayName, cmd.SeoDesc)
 
-	err = c.repo.Save(cate)
+	err = c.pub.Publish(ctx, event.CategoryCreated{
+		Cid:         cate.Cid,
+		Name:        cate.Name.String(),
+		DisplayName: cate.DisplayName,
+		SeoDesc:     cate.SeoDesc,
+	})
 	if err != nil {
 		return err
 	}
-	return nil
+	return c.cateRepo.Save(ctx, cate)
 }

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"common/shutdown"
+	"blog/pkg/shutdown"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -33,10 +33,7 @@ func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
 		return nil
 	})
 
-	err := serve.ListenAndServe()
-	if err != nil {
-		panic(fmt.Sprintf("\u001B[31mHttpserver failed to start:%s \u001B[m", err))
-	}
+	_ = serve.ListenAndServe()
 }
 
 func setupMiddleware(router chi.Router) {
