@@ -2,9 +2,10 @@ package ports
 
 import (
 	"categorys/application"
-	"categorys/application/command"
-	"common/httperr"
+	"common/server/httperr"
 	"net/http"
+
+	"categorys/application/command"
 )
 
 type HttpServer struct {
@@ -17,13 +18,14 @@ func NewHttpServer(app *application.App) *HttpServer {
 
 func (h HttpServer) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	var err error
-	defer httperr.Respond(w, &err)
 	err = h.app.Commands.CreateCategory.Handle(r.Context(), command.CreateCategory{
 		Name:        "blog",
 		DisplayName: "探索日志",
 		SeoDesc:     "xxx",
 	})
 	if err != nil {
+		httperr.Respond(w, httperr.CommandHandlerErr, err.Error())
 		return
 	}
+	httperr.Success(w)
 }

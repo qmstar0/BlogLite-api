@@ -5,13 +5,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
+func RunHttpServer(addr string, AddRouteFn func(route chi.Router)) {
 	addr = parseAddr(addr)
 	router := chi.NewRouter()
 
@@ -34,10 +33,6 @@ func RunHttpServer(addr string, AddRouteFn func(chi.Router)) {
 	})
 
 	_ = serve.ListenAndServe()
-}
-
-func setupMiddleware(router chi.Router) {
-	router.Use(middleware.Recoverer)
 }
 
 func parseAddr(addr string) string {
