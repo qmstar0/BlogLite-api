@@ -24,11 +24,11 @@ func InitDB() {
 	// dsn := "users:password@tcp(host:port)/database_name?charset=utf8mb4&parseTime=True&loc=Local"
 	pwd := os.Getenv("DATABASE_PASSWORD_DEV")
 	if pwd == "" {
-		panic("mysql is not configured: see env:DATABASE_PASSWORD_DEV")
+		panic("database is not configured: see env:DATABASE_PASSWORD_DEV")
 	}
 	user := os.Getenv("DATABASE_USER_DEV")
 	if user == "" {
-		panic("mysql is not configured: see env:DATABASE_USER_DEV")
+		panic("database is not configured: see env:DATABASE_USER_DEV")
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Shanghai",
