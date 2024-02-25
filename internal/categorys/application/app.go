@@ -2,7 +2,7 @@ package application
 
 import (
 	"categorys/application/command"
-	"categorys/application/event"
+	"categorys/domain/event"
 )
 
 type App struct {

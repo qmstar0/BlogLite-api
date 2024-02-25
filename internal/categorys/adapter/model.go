@@ -14,6 +14,10 @@ type CategoryDomainEventStoreModel struct {
 	timestamp   time.Time
 }
 
+func (CategoryDomainEventStoreModel) TableName() string {
+	return "Domain_EventStore_Cateogry"
+}
+
 func eventToModel(event events.Event) (*CategoryDomainEventStoreModel, error) {
 	data, err := event.Data.MarshalBinary()
 	if err != nil {

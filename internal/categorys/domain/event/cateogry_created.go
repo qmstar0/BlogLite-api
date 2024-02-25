@@ -2,8 +2,8 @@ package event
 
 import (
 	"blog/pkg/cqrs"
-	"common/decorator"
 	"common/events"
+	"common/handler"
 	"context"
 )
 
@@ -14,7 +14,7 @@ type CategoryCreated struct {
 	SeoDesc     string
 }
 
-type CategoryCreatedHandler decorator.EventHandler[*CategoryCreated]
+type CategoryCreatedHandler handler.EventHandler[*CategoryCreated]
 
 type categoryCreatedHandler struct {
 	store events.EventStore

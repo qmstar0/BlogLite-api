@@ -3,19 +3,22 @@ package adapter
 import (
 	"categorys/domain/category"
 	"context"
+	"gorm.io/gorm"
 )
 
 type categoryRepositoryImpl struct {
-	Map map[int]*category.Category
+	db *gorm.DB
+}
+
+func (c categoryRepositoryImpl) FindById(ctx context.Context, id string) (*category.Category, error) {
+	return nil, nil
 }
 
 func (c categoryRepositoryImpl) Save(ctx context.Context, cate *category.Category) error {
-	c.Map[cate.Cid] = cate
+
 	return nil
 }
 
-func NewCategoryRepository() category.CategoryRepository {
-	return &categoryRepositoryImpl{
-		Map: make(map[int]*category.Category),
-	}
+func NewCategoryRepository(db *gorm.DB) category.CategoryRepository {
+	return &categoryRepositoryImpl{db: db}
 }

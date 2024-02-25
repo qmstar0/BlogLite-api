@@ -8,20 +8,20 @@ import (
 	"time"
 )
 
-type CategoryEventStore struct {
+type categoryEventStoreImpl struct {
 	db *gorm.DB
 }
 
-func NewCategoryEventStore(db *gorm.DB) *CategoryEventStore {
-	c := &CategoryEventStore{db: db}
+func NewCategoryEventStore(db *gorm.DB) events.EventStore {
+	c := &categoryEventStoreImpl{db: db}
 	c.Migrattion()
 	return c
 }
 
-func (c CategoryEventStore) Store(ctx context.Context, event events.Event) error {
+func (c categoryEventStoreImpl) Store(ctx context.Context, event events.Event) error {
 	var (
 		err error
-		tx  = c.db.WithContext(ctx).Model(CategoryDomainEventStoreModel{}).Begin()
+		tx  = c.db.WithContext(ctx).Model(&CategoryDomainEventStoreModel{}).Begin()
 	)
 
 	model, err := eventToModel(event)
@@ -33,7 +33,7 @@ func (c CategoryEventStore) Store(ctx context.Context, event events.Event) error
 	return tx.Create(model).Error
 }
 
-func (c CategoryEventStore) Migrattion() {
+func (c categoryEventStoreImpl) Migrattion() {
 	err := c.db.
 		Set("gorm:table_option", "charset=utf8mb4").
 		Set("gorm:query_options", map[string]any{"timeout": 5 * time.Second}).

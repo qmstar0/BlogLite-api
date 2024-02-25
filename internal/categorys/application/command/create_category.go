@@ -2,9 +2,9 @@ package command
 
 import (
 	"blog/pkg/cqrs"
-	"categorys/application/event"
 	"categorys/domain/category"
-	"common/decorator"
+	"categorys/domain/event"
+	"common/handler"
 	"context"
 )
 
@@ -14,7 +14,7 @@ type CreateCategory struct {
 	SeoDesc     string
 }
 
-type CreateCategoryHandler decorator.CommandHandler[CreateCategory]
+type CreateCategoryHandler handler.CommandHandler[CreateCategory]
 
 type createCategoryHandler struct {
 	cateRepo category.CategoryRepository

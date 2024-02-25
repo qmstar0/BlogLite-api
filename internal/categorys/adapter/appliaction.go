@@ -5,7 +5,7 @@ import (
 	"blog/pkg/postgresql"
 	"categorys/application"
 	"categorys/application/command"
-	"categorys/application/event"
+	"categorys/domain/event"
 )
 
 func NewApp(bus *cqrs.Bus) *application.App {
