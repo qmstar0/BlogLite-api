@@ -38,8 +38,15 @@ func main() {
 
 	server.RunHttpServer(":3000", func(router chi.Router) {
 		router.Route("/api", func(r chi.Router) {
-			ports.HandlerFromMuxWithBaseURL(ports.NewHttpServer(app), r, "/categorys")
+			//ports.HandlerFromMuxWithBaseURL(ports.NewHttpServer(app), r, "/categorys")
+			ports.HandlerWithOptions(ports.NewHttpServer(app), ports.ChiServerOptions{
+				BaseURL:          "/categorys",
+				BaseRouter:       r,
+				Middlewares:      append([]ports.MiddlewareFunc(nil), server.AuthMiddleware()),
+				ErrorHandlerFunc: nil,
+			})
 		})
+
 	})
 
 }
