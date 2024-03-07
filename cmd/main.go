@@ -7,6 +7,7 @@ import (
 	"blog/pkg/shutdown"
 	"categorys/adapter"
 	"categorys/ports"
+	"common/auth"
 	"common/server"
 	"context"
 	"github.com/go-chi/chi/v5"
@@ -27,8 +28,8 @@ func main() {
 
 	server.RunHttpServer(":3000", func(r chi.Router) {
 		ports.HandlerWithOptions(ports.NewHttpServer(app), ports.ChiServerOptions{
-			BaseRouter: r,
-			//Middlewares: append([]ports.MiddlewareFunc(nil), server.AuthMiddleware()),
+			BaseRouter:  r,
+			Middlewares: append([]ports.MiddlewareFunc(nil), auth.AuthMiddleware()),
 		})
 	})
 }

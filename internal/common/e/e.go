@@ -12,7 +12,9 @@ const NotImplementedErr StateCode = "?"
 
 // prots 协议层
 const (
-	InvalidParam      StateCode = "P0001"
+	InvalidParam      StateCode = "P0101"
+	Unauthortion      StateCode = "P0201"
+	LoginExpired      StateCode = "P0301"
 	CommandHandlerErr StateCode = "P1001"
 	QueryHandlerErr   StateCode = "P2001"
 
@@ -33,10 +35,12 @@ const (
 
 var errMap = map[StateCode]string{
 	InvalidParam:         "Invalid Param",
+	Unauthortion:         "Unauthortion",
 	CommandHandlerErr:    "err on processing cmd",
 	QueryHandlerErr:      "err on processing query",
 	NewValueObjectErr:    "err on check data format",
 	ResourceDoesNotExist: "resource does not exist",
 	ResourceCreated:      "resource is created",
 	ValueObjectCheckErr:  "data format error",
+	LoginExpired:         "login has expired",
 }

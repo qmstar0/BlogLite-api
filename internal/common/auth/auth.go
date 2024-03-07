@@ -6,7 +6,6 @@ import (
 	"common/server/httperr"
 	"context"
 	"errors"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
 	"time"
@@ -37,19 +36,21 @@ func tokenFromHeader(r *http.Request) string {
 	return r.Header.Get(AuthHeaderKey)
 }
 
-const userContextKey = "__userContextKey"
+type ctxKey int
+
+const userContextKey ctxKey = iota
 
 var NoUserInContextError = errors.New("no user in context")
 
-func GetUserFromCtx(c echo.Context) (*User, error) {
-	u, ok := c.Get(userContextKey).(*User)
+func GetUserFromCtx(c context.Context) (*User, error) {
+	u, ok := c.Value(userContextKey).(*User)
 	if ok {
 		return u, nil
 	}
 
 	return nil, NoUserInContextError
 }
-func AuthMiddleware() {
+func AuthMiddleware() func(http.Handler) http.Handler {
 	privateFilepath := os.Getenv("AUTH_PRIVATE_FILEPATH")
 	if privateFilepath == "" {
 		panic("auth middleware is not configured: see env:AUTH_PRIVATE_FILEPATH")
@@ -78,27 +79,33 @@ func AuthMiddleware() {
 	return middleware(authCli, DefaultVerificationFn)
 }
 
-func middleware(authCli *jwtAuth.JwtAuth[User], verificationFn VerificationFunc) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			request := c.Request()
-			auth := tokenFromHeader(request)
+func middleware(authCli *jwtAuth.JwtAuth[User], verificationFn VerificationFunc) func(http.Handler) http.Handler {
+	return func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			ok, err := verificationFn(auth, request.Context())
+			ctx := r.Context()
+
+			auth := tokenFromHeader(r)
+
+			ok, err := verificationFn(auth, ctx)
 			if err != nil {
-				return httperr.Respond(c, e.AuthortionErr, nil)
+				httperr.Error(w, e.Wrap(e.Unauthortion, err))
+				return
 			}
 
 			if !ok {
 				user, _, err := authCli.Parse(auth)
 				if err != nil {
-					return httperr.Respond(c, e.LoginExpired, nil)
+					httperr.Error(w, e.Wrap(e.LoginExpired, err))
+					return
 				}
 
-				c.Set(userContextKey, user)
+				c := context.WithValue(ctx, userContextKey, user)
+				r = r.WithContext(c)
 			}
-			return next(c)
-		}
+
+			handler.ServeHTTP(w, r)
+		})
 	}
 }
 

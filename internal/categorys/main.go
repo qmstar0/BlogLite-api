@@ -2,23 +2,34 @@ package main
 
 import (
 	"blog/pkg/env"
-	"blog/pkg/postgresql"
+	"blog/pkg/mongodb"
+	"blog/pkg/rediscache"
+	"blog/pkg/shutdown"
 	"categorys/adapter"
 	"categorys/ports"
+	"common/auth"
 	"common/server"
+	"context"
 	"github.com/go-chi/chi/v5"
 )
 
 func init() {
 	env.Load()
-	postgresql.Init()
+
+	dbCloseFn := mongodb.Init()
+	shutdown.OnShutdown(func() error { return dbCloseFn(context.Background()) })
+
+	cacheCloseFn := rediscache.Init()
+	shutdown.OnShutdown(cacheCloseFn)
 }
 func main() {
+
 	app := adapter.NewApp()
 
-	server.RunHttpServer(":3000", func(router chi.Router) {
-		router.Route("/api", func(r chi.Router) {
-			ports.HandlerFromMuxWithBaseURL(ports.NewHttpServer(app), r, "/categorys")
+	server.RunHttpServer(":3000", func(r chi.Router) {
+		ports.HandlerWithOptions(ports.NewHttpServer(app), ports.ChiServerOptions{
+			BaseRouter:  r,
+			Middlewares: append([]ports.MiddlewareFunc(nil), auth.AuthMiddleware()),
 		})
 	})
 }
