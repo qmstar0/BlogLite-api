@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package category;
 
-option go_package = "./cateogrys";
+option go_package = "./categorys";
 
 message CreateCategoryRequest {
   string name = 1;

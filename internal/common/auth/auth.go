@@ -2,11 +2,14 @@ package auth
 
 import (
 	"blog/pkg/jwtAuth"
-	httperr2 "common/server/httperr"
+	"common/e"
+	"common/server/httperr"
 	"context"
 	"errors"
+	"github.com/labstack/echo/v4"
 	"net/http"
-	"strings"
+	"os"
+	"time"
 )
 
 type User struct {
@@ -16,55 +19,90 @@ type User struct {
 	Role  int16
 }
 
-type AuthorizationHttpMiddleware struct {
-	AuthClient *jwtAuth.JwtAuth[User]
+const (
+	AuthHeaderKey = "Authorization"
+	BearerScopes  = "bearer.Scopes"
+	Audience      = "User"
+	Issuer        = "Authorization"
+	Subject       = "UserToken"
+)
+
+// VerificationFunc 该函数做首次验证
+// 当 return true, nil 时，表示验证成功，无需继续验证
+// 当 return false, nil 时， 表示需要继续验证
+// 当 return xxx, err 时，将直接返回错误
+type VerificationFunc func(auth string, ctx context.Context) (bool, error)
+
+func tokenFromHeader(r *http.Request) string {
+	return r.Header.Get(AuthHeaderKey)
 }
 
-func (a AuthorizationHttpMiddleware) Middleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-
-		bearerToken := a.tokenFromHeader(r)
-		if bearerToken == "" {
-			httperr2.Respond(w, httperr2.LoginRequired, "please sign in")
-			return
-		}
-
-		user, _, err := a.AuthClient.Parse(bearerToken)
-		if err != nil {
-			httperr2.Respond(w, httperr2.LoginExpired, err.Error())
-			return
-		}
-
-		// it's always a good idea to use custom type as context value (in this case ctxKey)
-		// because nobody from the outside of the package will be able to override/read this value
-		ctx = context.WithValue(ctx, userContextKey, user)
-
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
-func (a AuthorizationHttpMiddleware) tokenFromHeader(r *http.Request) string {
-	headerValue := r.Header.Get("Authorization")
-
-	if len(headerValue) > 7 && strings.ToLower(headerValue[0:6]) == "bearer" {
-		return headerValue[7:]
-	}
-
-	return ""
-}
-
-type ctxKey int
-
-const userContextKey ctxKey = iota
+const userContextKey = "__userContextKey"
 
 var NoUserInContextError = errors.New("no user in context")
 
-func GetUserFromCtx(ctx context.Context) (User, error) {
-	u, ok := ctx.Value(userContextKey).(User)
+func GetUserFromCtx(c echo.Context) (*User, error) {
+	u, ok := c.Get(userContextKey).(*User)
 	if ok {
 		return u, nil
 	}
 
-	return User{}, NoUserInContextError
+	return nil, NoUserInContextError
+}
+func AuthMiddleware() {
+	privateFilepath := os.Getenv("AUTH_PRIVATE_FILEPATH")
+	if privateFilepath == "" {
+		panic("auth middleware is not configured: see env:AUTH_PRIVATE_FILEPATH")
+	}
+
+	publicFilepath := os.Getenv("AUTH_PUBLIC_FILEPATH")
+	if publicFilepath == "" {
+		panic("auth middleware is not configured: see env:AUTH_PUBLIC_FILEPATH")
+	}
+
+	private, err := jwtAuth.GetECPrivateKeyFromFile(privateFilepath)
+	if err != nil {
+		panic(err)
+	}
+
+	public, err := jwtAuth.GetECPublicKeyFromFile(publicFilepath)
+	if err != nil {
+		panic(err)
+	}
+
+	authCli := jwtAuth.NewJwtAuth[User](jwtAuth.ES256, time.Hour*24, private, public, jwtAuth.JwtAuthConfig{
+		Audience: Audience,
+		Issuer:   Issuer,
+		Subject:  Subject,
+	})
+	return middleware(authCli, DefaultVerificationFn)
+}
+
+func middleware(authCli *jwtAuth.JwtAuth[User], verificationFn VerificationFunc) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			request := c.Request()
+			auth := tokenFromHeader(request)
+
+			ok, err := verificationFn(auth, request.Context())
+			if err != nil {
+				return httperr.Respond(c, e.AuthortionErr, nil)
+			}
+
+			if !ok {
+				user, _, err := authCli.Parse(auth)
+				if err != nil {
+					return httperr.Respond(c, e.LoginExpired, nil)
+				}
+
+				c.Set(userContextKey, user)
+			}
+			return next(c)
+		}
+	}
+}
+
+var DefaultVerificationFn = func(auth string, ctx context.Context) (bool, error) {
+	_, ok := ctx.Value(BearerScopes).([]string)
+	return !ok, nil
 }

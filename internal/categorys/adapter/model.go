@@ -1,33 +1,33 @@
 package adapter
 
 import (
-	"common/events"
+	"common/domainevent"
+	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )
 
 type CategoryDomainEventStoreModel struct {
-	Id          int
 	EventID     string
-	AggregateID int
-	Type        int16
-	Data        []byte
-	timestamp   time.Time
+	AggregateID uint32
+	Type        uint16
+	Event       bson.Raw
+	Timestamp   time.Time
 }
 
 func (CategoryDomainEventStoreModel) TableName() string {
 	return "Domain_EventStore_Cateogry"
 }
 
-func eventToModel(event events.Event) (*CategoryDomainEventStoreModel, error) {
-	data, err := event.Data.MarshalBinary()
+func eventToModel(event domainevent.DomainEvent) (*CategoryDomainEventStoreModel, error) {
+	marshal, err := bson.Marshal(event.Event)
 	if err != nil {
 		return nil, err
 	}
 	return &CategoryDomainEventStoreModel{
 		EventID:     event.EventID,
 		AggregateID: event.AggregateID,
-		Type:        int16(event.Type),
-		Data:        data,
-		timestamp:   time.Time{},
+		Type:        event.EventType,
+		Event:       marshal,
+		Timestamp:   event.Timestamp,
 	}, nil
 }

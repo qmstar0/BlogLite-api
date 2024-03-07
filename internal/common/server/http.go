@@ -5,18 +5,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 	"strings"
 	"time"
 )
 
-func RunHttpServer(addr string, AddRouteFn func(route chi.Router)) {
+func RunHttpServer(addr string, AddRouteFn func(r chi.Router)) {
 	addr = parseAddr(addr)
 	router := chi.NewRouter()
 
 	setupMiddleware(router)
 
-	AddRouteFn(router)
+	router.Route("/api", AddRouteFn)
 
 	printStartInfo(addr, router)
 
@@ -33,6 +34,7 @@ func RunHttpServer(addr string, AddRouteFn func(route chi.Router)) {
 	})
 
 	_ = serve.ListenAndServe()
+
 }
 
 func parseAddr(addr string) string {
@@ -43,8 +45,8 @@ func parseAddr(addr string) string {
 }
 
 func printStartInfo(addr string, router chi.Router) {
-	_ = chi.Walk(router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		fmt.Printf("\033[32m%-10s\033[m - \033[1;4m%-10s\033[m    (has \033[1m%d\033[m middleware)\n", fmt.Sprintf("[%s]", method), route, len(middlewares))
+	_ = chi.Walk(router, func(method string, route string, handler http.Handler, _ ...func(http.Handler) http.Handler) error {
+		fmt.Printf("\033[32m%-10s\033[m - \033[1;4m%-10s\033[m\n", fmt.Sprintf("[%s]", method), route)
 		return nil
 	})
 	fmt.Printf("\n\033[1mHttpserver Starts Running: \033[m\033[1;4;32m%s\033[m\n", addr)
@@ -55,4 +57,9 @@ func newHttpServe(addr string, handler http.Handler) *http.Server {
 		Addr:    addr,
 		Handler: handler,
 	}
+}
+func setupMiddleware(router chi.Router) {
+	router.Use(
+		middleware.Recoverer,
+	)
 }

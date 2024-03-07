@@ -1,37 +1,28 @@
 package adapter
 
 import (
-	"blog/pkg/cqrs"
-	"blog/pkg/postgresql"
+	"blog/pkg/mongodb"
+	"blog/pkg/rediscache"
 	"categorys/application"
 	"categorys/application/command"
-	"categorys/domain/event"
+	"categorys/application/query"
 )
 
-func NewApp(bus *cqrs.Bus) *application.App {
-	db := postgresql.GetDB()
-	categoryStore := NewCategoryEventStore(db)
+func NewApp() *application.App {
+	cacher := rediscache.GetCacher()
+	db := mongodb.GetDB()
+	cateRepo := NewCategoryRepository(db)
 
-	app := &application.App{
+	return &application.App{
 		Commands: application.Commands{
-			CreateCategory: command.NewCreateCategoryHandler(NewCategoryRepository(), bus),
+			CreateCategory: command.NewCreateCategoryHandler(cateRepo),
+			UpdateCategory: command.NewUpdataCategoryHandler(cateRepo),
+			DeleteCategory: command.NewDeleteCategoryHandler(cateRepo),
 		},
 
-		Queries: application.Queries{},
-
-		Events: application.Events{
-			CategoryCreated: event.NewCategoryCreatedHandler(categoryStore),
+		Queries: application.Queries{
+			GetCategory:    query.NewGetCategoryHandler(cateRepo, cacher),
+			GetAllCategory: query.NewGetAllCategoryHandler(cateRepo, cacher),
 		},
 	}
-
-	addHandlerToBus(bus, app)
-	return app
-}
-
-func addHandlerToBus(bus *cqrs.Bus, app *application.App) {
-	events := app.Events
-
-	bus.AddHandler(
-		cqrs.NewHandler[event.CategoryCreated](events.CategoryCreated.Handle),
-	)
 }

@@ -2,22 +2,21 @@ package application
 
 import (
 	"categorys/application/command"
-	"categorys/domain/event"
+	"categorys/application/query"
 )
 
 type App struct {
 	Commands Commands
 	Queries  Queries
-	Events   Events
 }
 
 type Commands struct {
 	CreateCategory command.CreateCategoryHandler
+	UpdateCategory command.UpdateCategoryHandler
+	DeleteCategory command.DeleteCategoryHandler
 }
 
 type Queries struct {
-}
-
-type Events struct {
-	CategoryCreated event.CategoryCreatedHandler
+	GetCategory    query.GetCategoryHandler
+	GetAllCategory query.GetAllCategoryHandler
 }

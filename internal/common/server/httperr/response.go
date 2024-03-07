@@ -1,39 +1,44 @@
 package httperr
 
 import (
+	"common/e"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
+const ok = `{"code":"OK"}`
+
 type response struct {
-	Code    StateCode `json:"code"`
-	Message string    `json:"message"`
+	Code e.StateCode `json:"code"`
+	Data any         `json:"data"`
 }
 
-func Respond(w http.ResponseWriter, code StateCode, info string) {
-	reply(w, response{
-		Code:    code,
-		Message: fmt.Sprintf("%s;%s", code.Error(), info),
+func Respond(w http.ResponseWriter, data any) {
+	respond(w, response{
+		Code: e.Successed,
+		Data: data,
 	})
 }
 
-func reply(w http.ResponseWriter, resp response) {
-	data, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+func Error(w http.ResponseWriter, err error) {
+	respond(w, e.Unwrap(err))
 }
 
 func Success(w http.ResponseWriter) {
-	reply(w, response{
-		Code:    Successed,
-		Message: Successed.Error(),
-	})
+	_, err := fmt.Fprintf(w, ok)
+	if err != nil {
+		w.WriteHeader(502)
+	}
+}
+
+func respond(w http.ResponseWriter, resp any) {
+	marshal, err := json.Marshal(resp)
+	if err != nil {
+		return
+	}
+	_, err = w.Write(marshal)
+	if err != nil {
+		w.WriteHeader(502)
+	}
 }
