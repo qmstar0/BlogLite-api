@@ -14,5 +14,5 @@ public_key.pem
 /infra
 /adapter
 /infrastructure
-.env
+/.env
 *.env

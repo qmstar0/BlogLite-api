@@ -41,6 +41,7 @@ func (h HttpServer) CreateCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Location", r.URL.JoinPath(req.Name).String())
 	httperr.Success(w)
 }
 

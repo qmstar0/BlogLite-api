@@ -1,9 +1,8 @@
 package domainevent
 
 const (
-	Snapshotted uint16 = 1 << iota
-
+	Snapshotted uint16 = iota
+	Deleted
 	Created
 	Updated
-	Deleted
 )

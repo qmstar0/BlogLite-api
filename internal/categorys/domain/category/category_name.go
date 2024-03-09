@@ -22,6 +22,6 @@ func (n Name) String() string {
 	return string(n)
 }
 
-func (n Name) ToUint32() uint32 {
+func (n Name) ToID() uint32 {
 	return idtools.NewHashID(string(n))
 }

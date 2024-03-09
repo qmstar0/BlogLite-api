@@ -26,6 +26,7 @@ func Error(w http.ResponseWriter, err error) {
 }
 
 func Success(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
 	_, err := fmt.Fprintf(w, ok)
 	if err != nil {
 		w.WriteHeader(502)
@@ -33,6 +34,7 @@ func Success(w http.ResponseWriter) {
 }
 
 func respond(w http.ResponseWriter, resp any) {
+	w.Header().Set("Content-Type", "application/json")
 	marshal, err := json.Marshal(resp)
 	if err != nil {
 		return

@@ -17,14 +17,13 @@ func (e StateError) Error() string {
 func Wrap(code StateCode, err error) error {
 	var stateErr StateError
 	if errors.As(err, &stateErr) {
-
-		stateErr.Message = fmt.Sprintf("%s; %s", code.Error(), stateErr.Message)
+		stateErr.Message = fmt.Sprintf("%s | %s", code.Error(), stateErr.Message)
 		return stateErr
 	}
 
 	return StateError{
 		Code:    code,
-		Message: code.Error(),
+		Message: fmt.Sprintf("%s | %s", err.Error(), code.Error()),
 	}
 }
 

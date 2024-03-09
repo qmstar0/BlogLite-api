@@ -2,6 +2,8 @@ package server
 
 import (
 	"blog/pkg/shutdown"
+	"common/e"
+	"common/server/httperr"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -17,6 +19,7 @@ func RunHttpServer(addr string, AddRouteFn func(r chi.Router)) {
 
 	setupMiddleware(router)
 
+	router.Route("/debug", setupDebugSystemInfo)
 	router.Route("/api", AddRouteFn)
 
 	printStartInfo(addr, router)
@@ -62,4 +65,8 @@ func setupMiddleware(router chi.Router) {
 	router.Use(
 		middleware.Recoverer,
 	)
+}
+
+func setupDebugSystemInfo(router chi.Router) {
+	router.Get("/error", func(w http.ResponseWriter, r *http.Request) { httperr.Respond(w, e.GetStateCodeMap()) })
 }
