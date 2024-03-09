@@ -82,9 +82,7 @@ func AuthMiddleware() func(http.Handler) http.Handler {
 func middleware(authCli *jwtAuth.JwtAuth[User], verificationFn VerificationFunc) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 			ctx := r.Context()
-
 			auth := tokenFromHeader(r)
 
 			ok, err := verificationFn(auth, ctx)
@@ -111,5 +109,8 @@ func middleware(authCli *jwtAuth.JwtAuth[User], verificationFn VerificationFunc)
 
 var DefaultVerificationFn = func(auth string, ctx context.Context) (bool, error) {
 	_, ok := ctx.Value(BearerScopes).([]string)
+	if ok && auth == "" {
+		return !ok, e.Wrap(e.LoginRequired, errors.New("must log in"))
+	}
 	return !ok, nil
 }

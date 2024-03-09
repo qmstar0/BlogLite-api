@@ -29,13 +29,11 @@ func NewCreateCategoryHandler(repo category.CategoryRepository) CreateCategoryHa
 func (c createCategoryHandler) Handle(ctx context.Context, cmd CreateCategory) error {
 	var err error
 	newName, err := category.NewName(cmd.Name)
-	_, err = c.cateRepo.Find(ctx, newName.ToUint32())
-	if err != nil {
-		if e.Unwrap(err).Code != e.FindResultIsNull {
-			return err
-		}
-	} else {
+	_, err = c.cateRepo.Find(ctx, newName.ToID())
+	if err == nil {
 		return e.Wrap(e.ResourceCreated, errors.New("resource created"))
+	} else if !errors.Is(e.Unwrap(err).Code, e.ResourceDoesNotExist) {
+		return err
 	}
 
 	cate := category.CreateCategory(newName, cmd.DisplayName, cmd.SeoDesc)

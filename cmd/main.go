@@ -27,9 +27,11 @@ func main() {
 	app := adapter.NewApp()
 
 	server.RunHttpServer(":3000", func(r chi.Router) {
+
 		ports.HandlerWithOptions(ports.NewHttpServer(app), ports.ChiServerOptions{
 			BaseRouter:  r,
 			Middlewares: append([]ports.MiddlewareFunc(nil), auth.AuthMiddleware()),
 		})
+
 	})
 }

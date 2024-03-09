@@ -2,21 +2,16 @@ package adapter
 
 import (
 	"common/domainevent"
-	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var facet, unwind1, unwind2, project, unwind3, replaceRoot bson.D
 
-var (
-	EntityNotFind = errors.New("the resource does not exist")
-)
-
 func initAggregateQuery() {
 	facet = bson.D{{"$facet", bson.M{
-		"last1": bson.A{bson.M{"$match": bson.M{"type": domainevent.Snapshotted}}, bson.M{"$group": bson.M{"_id": nil, "lastTimestamp": bson.M{"$max": "$timestamp"}}}},
-		"last2": bson.A{bson.M{"$match": bson.M{"$or": bson.A{bson.M{"type": domainevent.Deleted}, bson.M{"type": domainevent.Created}}}}, bson.M{"$group": bson.M{"_id": nil, "lastTimestamp": bson.M{"$max": "$timestamp"}}}},
+		"last1": bson.A{bson.M{"$match": bson.M{"eventtype": domainevent.Snapshotted}}, bson.M{"$group": bson.M{"_id": nil, "lastTimestamp": bson.M{"$max": "$timestamp"}}}},
+		"last2": bson.A{bson.M{"$match": bson.M{"$or": bson.A{bson.M{"eventtype": domainevent.Deleted}, bson.M{"eventtype": domainevent.Created}}}}, bson.M{"$group": bson.M{"_id": nil, "lastTimestamp": bson.M{"$max": "$timestamp"}}}},
 		"data":  bson.A{bson.M{"$replaceRoot": bson.M{"newRoot": "$$ROOT"}}},
 	}}}
 

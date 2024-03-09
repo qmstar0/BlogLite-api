@@ -26,7 +26,7 @@ func (u deleteCategoryHandler) Handle(ctx context.Context, cmd DeleteCategory) e
 	if err != nil {
 		return e.Wrap(e.NewValueObjectErr, err)
 	}
-	cate, err := u.cateRepo.Find(ctx, newName.ToUint32())
+	cate, err := u.cateRepo.Find(ctx, newName.ToID())
 	if err != nil {
 		return e.Wrap(e.ResourceDoesNotExist, err)
 	}

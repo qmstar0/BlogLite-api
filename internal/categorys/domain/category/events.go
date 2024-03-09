@@ -6,13 +6,6 @@ type CategoryCreated struct {
 	SeoDesc     string
 }
 
-type CategorySnapshot struct {
-	Cid         uint32
-	Name        string
-	DisplayName string
-	SeoDesc     string
-}
-
 type CategoryChanged struct {
 	OldDisplayName string
 	NewDisplayName string
