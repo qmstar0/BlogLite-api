@@ -1,0 +1,4 @@
+package: ports
+generate:
+  - types
+output: internal/users/ports/openapi_types.gen.go

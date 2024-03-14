@@ -11,10 +11,13 @@ type App struct {
 }
 
 type Commands struct {
-	UpdateUsername command.UpdateUsernameHandler
-	ResetPassword  command.ResetPasswordHandler
+	CreateUser      command.CreateUserHandler
+	ResetPassword   command.ResetPasswordHandler
+	ModifyUserName  command.ModifyUserNameHandler
+	ModifyUserRoles command.ModifyUserRolesHandler
 }
 
 type Queries struct {
-	GetUser query.GetUserHandler
+	GetUserInfo    query.GetUserInfoHandler
+	GetTokenByUser query.GetUserAuthenticationHandler
 }

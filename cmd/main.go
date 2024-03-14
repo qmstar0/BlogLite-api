@@ -5,12 +5,11 @@ import (
 	"blog/pkg/mongodb"
 	"blog/pkg/rediscache"
 	"blog/pkg/shutdown"
-	"categorys/adapter"
-	"categorys/ports"
 	"common/auth"
 	"common/server"
 	"context"
-	"github.com/go-chi/chi/v5"
+	"posts/adapter"
+	"posts/ports"
 )
 
 func init() {

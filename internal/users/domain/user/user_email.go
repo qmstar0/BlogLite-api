@@ -9,7 +9,7 @@ func (m Email) String() string {
 }
 
 func (m Email) ToID() uint32 {
-	return idtools.NewHashID(string(m))
+	return idtools.NewHashID([]byte(m))
 }
 
 func NewEmail(email string) (Email, error) {

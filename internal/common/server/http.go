@@ -37,7 +37,6 @@ func RunHttpServer(addr string, AddRouteFn func(r chi.Router)) {
 	})
 
 	_ = serve.ListenAndServe()
-
 }
 
 func parseAddr(addr string) string {

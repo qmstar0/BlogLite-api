@@ -1,9 +1,21 @@
 package idtools
 
-import "hash/fnv"
+import (
+	"hash"
+	"hash/fnv"
+	"sync"
+)
 
-func NewHashID(s string) uint32 {
-	hash := fnv.New32()
-	_, _ = hash.Write([]byte(s))
-	return hash.Sum32()
+var fnvPool = sync.Pool{New: func() any {
+	return fnv.New32()
+}}
+
+func NewHashID(s []byte) uint32 {
+	hash32 := fnvPool.Get().(hash.Hash32)
+	defer func() {
+		hash32.Reset()
+		fnvPool.Put(hash32)
+	}()
+	_, _ = hash32.Write(s)
+	return hash32.Sum32()
 }

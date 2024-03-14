@@ -8,29 +8,36 @@ import (
 )
 
 type ResetPassword struct {
-	Uid      uint32
+	Token    string
 	Passowrd string
 }
 
 type ResetPasswordHandler handler.CommandHandler[ResetPassword]
 
 type resetPasswordHandler struct {
-	userRepo user.UserRepository
+	userRepo    user.UserRepository
+	userAuthSer user.UserAuthService
 }
 
-func NewResetPasswordHandler(repository user.UserRepository) ResetPasswordHandler {
-	return &resetPasswordHandler{userRepo: repository}
+func NewResetPasswordHandler(repository user.UserRepository, service user.UserAuthService) ResetPasswordHandler {
+	return &resetPasswordHandler{userRepo: repository, userAuthSer: service}
 }
 
 func (h resetPasswordHandler) Handle(ctx context.Context, cmd ResetPassword) error {
+
+	tokenU, err := h.userAuthSer.ParseToken(cmd.Token)
+	if err != nil {
+		return e.Wrap(e.AuthenticationErr, err)
+	}
+
 	password, err := user.NewPassword(cmd.Passowrd)
 	if err != nil {
 		return e.Wrap(e.NewValueObjectErr, err)
 	}
 
-	u, err := h.userRepo.Find(ctx, cmd.Uid)
+	u, err := h.userRepo.Find(ctx, tokenU.Uid)
 	if err != nil {
-		return e.Wrap(e.FindErr, err)
+		return e.Wrap(e.FindEventErr, err)
 	}
 
 	u.ResetPassowrd(password)

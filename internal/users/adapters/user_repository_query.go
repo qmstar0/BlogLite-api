@@ -1,40 +1,48 @@
 package adapters
 
 import (
-	"common/domainevent"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"users/domain/user"
 )
 
-var facet, unwind1, unwind2, project, unwind3, replaceRoot bson.D
-
-func initAggregateQuery() {
+var (
 	facet = bson.D{{"$facet", bson.M{
-		"snapshotted": bson.A{
-			bson.M{"$match": bson.M{"eventtype": domainevent.Snapshotted}},
-			bson.M{"$sort": bson.M{"timestamp": -1}},
-			bson.M{"$limit": 1},
+		"baseline": bson.A{
+			bson.M{"$match": bson.M{"eventtype": user.Login}},
+			bson.M{"$group": bson.M{
+				"_id":       nil,
+				"timestamp": bson.M{"$max": "$timestamp"},
+			}},
 		},
-		"data": bson.A{bson.M{"$replaceRoot": bson.M{"newRoot": "$$ROOT"}}},
+		"event": bson.A{bson.M{"$replaceRoot": bson.M{"newRoot": "$$ROOT"}}},
 	}}}
+	unwind1     = bson.D{{"$unwind", "$baseline"}}
+	unwind2     = bson.D{{"$unwind", "$event"}}
+	match       = bson.D{{"$match", bson.M{"$expr": bson.M{"$gte": bson.A{"$event.timestamp", "$baseline.timestamp"}}}}}
+	replaceRoot = bson.D{{"$replaceRoot", bson.M{"newRoot": "$event"}}}
 
-	unwind1 = bson.D{{"$unwind", "$snapshotted"}}
+	limit1             = bson.D{{"$limit", 1}}
+	sortTimestamp      = bson.D{{"$sort", bson.M{"timestamp": -1}}}
+	matchNoSnapshotted = bson.D{{"$match", bson.M{"type": bson.M{"$ne": user.Login}}}}
+)
 
-	project = bson.D{{"$project",
-		bson.M{"result": bson.M{"$filter": bson.M{"input": "$data", "cond": bson.M{"$gte": bson.A{"$$this.timestamp", "$last1.lastTimestamp"}}}}}}}
-
-	unwind3 = bson.D{{"$unwind", "$result"}}
-	replaceRoot = bson.D{{"$replaceRoot", bson.M{"newRoot": "$result"}}}
-}
-
-func queryToGetLastSnapshotAndLastEvent(aggid uint32) mongo.Pipeline {
+func getUserQ(aggid uint32) mongo.Pipeline {
 	return mongo.Pipeline{
 		bson.D{{"$match", bson.M{"aggregateid": aggid}}},
 		facet,
 		unwind1,
 		unwind2,
-		project,
-		unwind3,
+		match,
 		replaceRoot,
+	}
+}
+
+func checkUserIsExistQ(aggid uint32) mongo.Pipeline {
+	return mongo.Pipeline{
+		bson.D{{"$match", bson.M{"aggregateid": aggid, "eventtype": bson.M{"$in": bson.A{user.Login, user.Logout}}}}},
+		sortTimestamp,
+		limit1,
+		matchNoSnapshotted,
 	}
 }

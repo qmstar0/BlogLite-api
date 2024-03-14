@@ -9,50 +9,50 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Store struct {
+type Store[E any] struct {
 	session    mongo.Session
 	collection *mongo.Collection
+	replayMap  map[uint16]func(raw any, entity *E) error
 }
 
-func NewStore(database *mongo.Database, collectionName string) *Store {
-	session, err := database.Client().StartSession()
+func NewStore[E any](collection *mongo.Collection) *Store[E] {
+	startSession, err := collection.Database().Client().StartSession()
 	if err != nil {
 		panic(err)
 	}
-
-	collection := database.Collection(collectionName)
 
 	if err = buildIndexes(collection); err != nil {
 		panic(err)
 	}
 
-	return &Store{
-		session:    session,
+	return &Store[E]{
+		session:    startSession,
 		collection: collection,
+		replayMap:  make(map[uint16]func(raw any, entity *E) error),
 	}
 }
-func (s Store) FindEntityEvents(ctx context.Context, aggid uint32) ([]domainevent.DomainEvent, error) {
-	cursor, err := s.collection.Aggregate(ctx, DefaultEntityQuery(aggid))
-	if err != nil {
-		return nil, e.Wrap(e.FindErr, err)
-	}
-	var events = make([]domainevent.DomainEvent, 0)
 
-	err = cursor.All(ctx, &events)
-	if err != nil {
-		return nil, e.Wrap(e.FindResultToModelsErr, err)
+func (s Store[E]) SetReplayCase(eventType uint16, task func(raw any, entity *E) error) {
+	s.replayMap[eventType] = task
+}
+func (s Store[E]) Replay(events []domainevent.DomainEvent, entity *E) error {
+	for _, event := range events {
+		if f, ok := s.replayMap[event.EventType]; ok {
+			if err := f(event.Event, entity); err != nil {
+				return err
+			}
+		}
 	}
-	return events, nil
+	return nil
 }
 
-func (s Store) StoreEvent(ctx context.Context, events []domainevent.DomainEvent) error {
+func (s Store[E]) StoreEvent(ctx context.Context, events []domainevent.DomainEvent) error {
 	return mongo.WithSession(ctx, s.session, func(sctx mongo.SessionContext) error {
 		var err error
 		for _, event := range events {
 			if event.Event, err = bson.Marshal(event.Event); err != nil {
 				return e.Wrap(e.MarshalEventErr, err)
 			}
-
 			if _, err = s.collection.InsertOne(ctx, event); err != nil {
 				return e.Wrap(e.InsertDataErr, err)
 			}
@@ -61,26 +61,24 @@ func (s Store) StoreEvent(ctx context.Context, events []domainevent.DomainEvent)
 	})
 }
 
-func (s Store) Snapshot(ctx context.Context, aggid uint32, entity any) error {
-	return s.StoreEvent(ctx, []domainevent.DomainEvent{domainevent.NewDomainEvent(aggid, domainevent.Snapshotted, entity)})
+func (s Store[E]) FindEvent(ctx context.Context, pipeline mongo.Pipeline) ([]domainevent.DomainEvent, error) {
+	cursor, err := s.collection.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, e.Wrap(e.DatabaseErr, err)
+	}
+
+	events := make([]domainevent.DomainEvent, 0)
+	err = cursor.All(ctx, &events)
+	if err != nil {
+		return nil, e.Wrap(e.UnmarshalEventErr, err)
+	}
+
+	return events, nil
 }
 
-func (s Store) AutoSnapshot(ctx context.Context) {
-
+func (s Store[E]) Snapshot(ctx context.Context, aggid uint32, etype uint16, entity *E) error {
+	return s.StoreEvent(ctx, []domainevent.DomainEvent{domainevent.NewDomainEvent(aggid, etype, entity)})
 }
-
-//func (s Store) Session(ctx context.Context, task SessionTask) error {
-//	return mongo.WithSession(ctx, s.session, func(sctx mongo.SessionContext) error {
-//		return task(sctx, s.collection)
-//	})
-//}
-//
-//func (s Store) Collection() *mongo.Collection {
-//	return s.collection
-//}
-
-type SessionTask func(sctx mongo.SessionContext, coll *mongo.Collection) error
-type CommandTask func(ctx context.Context, coll *mongo.Collection) error
 
 func buildIndexes(collection *mongo.Collection) error {
 	_, err := collection.Indexes().CreateOne(context.Background(), mongo.IndexModel{

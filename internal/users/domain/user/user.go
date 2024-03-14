@@ -9,7 +9,7 @@ type User struct {
 	Name     UserName
 	Email    Email
 	Password Password
-	Rights   UserRights
+	Roles    UserRole
 
 	events []domainevent.DomainEvent
 }
@@ -21,11 +21,11 @@ func NewUser(name UserName, email Email, pwd Password) *User {
 		Name:     name,
 		Email:    email,
 		Password: pwd,
-		Rights:   Normally,
+		Roles:    Normally,
 		events: []domainevent.DomainEvent{domainevent.NewDomainEvent(
 			uid,
-			domainevent.Created,
-			UserCreated{
+			RegistrationSuccess,
+			UserRegistrationSuccess{
 				Uid:      uid,
 				Name:     name.String(),
 				Email:    email.String(),
@@ -36,8 +36,8 @@ func NewUser(name UserName, email Email, pwd Password) *User {
 	}
 }
 
-func (u *User) ChangeUsername(name UserName) {
-	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, domainevent.Updated, UsernameUpdated{
+func (u *User) ModifyUserName(name UserName) {
+	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, NameChanged, UsernameChanged{
 		Uid:     u.Uid,
 		OldName: u.Name.String(),
 		NewName: name.String(),
@@ -54,29 +54,28 @@ func (u *User) ResetPassowrd(pwd Password) {
 	u.Password = pwd
 }
 
-func (u *User) AddPermissions(rights ...UserRights) {
-	newRights := u.Rights
-	for _, right := range rights {
-		newRights |= right
-	}
-	u.changePermissions(newRights)
-}
-
-func (u *User) CancelPermissions(rights ...UserRights) {
-	newRights := u.Rights
-	for _, right := range rights {
-		newRights &= ^right
-	}
-	u.changePermissions(newRights)
-}
-
-func (u *User) changePermissions(newRights UserRights) {
-	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, RightsChanged, UserRightsChanged{
+func (u *User) ModifyRoles(roles UserRole) {
+	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, RolesChanged, UserRolesChanged{
 		Uid:       u.Uid,
-		OldRights: uint16(u.Rights),
-		NewRights: uint16(newRights),
+		OldRights: uint16(u.Roles),
+		NewRights: uint16(roles),
 	}))
-	u.Rights = newRights
+
+	u.Roles = roles
+}
+
+func (u *User) Login() {
+	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, Login, UserLogin{
+		Uid:   u.Uid,
+		Email: u.Email.String(),
+	}))
+}
+
+func (u *User) Logout() {
+	u.events = append(u.events, domainevent.NewDomainEvent(u.Uid, Logout, UserLogout{
+		Uid:   u.Uid,
+		Email: u.Email.String(),
+	}))
 }
 
 func EventFromAggregate(agg *User) []domainevent.DomainEvent {

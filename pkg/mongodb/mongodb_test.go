@@ -3,7 +3,6 @@ package mongodb_test
 import (
 	"blog/pkg/env"
 	"blog/pkg/mongodb"
-	"common/domainevent"
 	"common/idtools"
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
@@ -114,7 +113,7 @@ func TestData0(t *testing.T) {
 		db = getdb()
 	)
 
-	for _, d := range []uint16{domainevent.Created, domainevent.Snapshotted, domainevent.Updated} {
+	for _, d := range []uint16{2, 1, 4} {
 		testData.Type = d
 		testData.EventID = idtools.NewUUID()
 		testData.Timestamp = testData.Timestamp.Add(getRandTime())

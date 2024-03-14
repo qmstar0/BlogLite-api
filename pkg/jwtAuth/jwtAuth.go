@@ -60,22 +60,22 @@ func (j *JwtAuth[Claims]) Sign(claims Claims) (string, error) {
 	return jwt.NewWithClaims(j.alg, j.wrapClaims(buf.Bytes())).SignedString(j.signKey)
 }
 
-func (j *JwtAuth[Claims]) Parse(tokenStr string) (*Claims, *jwt.StandardClaims, error) {
-	var wrapedClaims = &wrapClaims{}
+func (j *JwtAuth[Claims]) Parse(tokenStr string) (Claims, *jwt.StandardClaims, error) {
+	var wrapedClaims = new(wrapClaims)
+	var claims Claims
 
 	_, err := jwt.ParseWithClaims(tokenStr, wrapedClaims, func(token *jwt.Token) (interface{}, error) {
 		return j.verifyKey, nil
 	})
 
 	if err != nil {
-		return nil, nil, err
+		return claims, nil, err
 	}
-	var claims Claims
 	err = gob.NewDecoder(bytes.NewBuffer(wrapedClaims.Payload)).Decode(&claims)
 	if err != nil {
-		return nil, nil, err
+		return claims, nil, err
 	}
-	return &claims, &wrapedClaims.StandardClaims, nil
+	return claims, &wrapedClaims.StandardClaims, nil
 }
 
 func (j *JwtAuth[Claims]) wrapClaims(payload []byte) jwt.Claims {

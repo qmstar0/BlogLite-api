@@ -7,10 +7,11 @@ import (
 	"strings"
 )
 
+func init() {
+	load(".env")
+}
+
 func Load(path ...string) {
-	if len(path) == 0 {
-		path = append(path, ".env")
-	}
 	for i := range path {
 		load(path[i])
 	}
