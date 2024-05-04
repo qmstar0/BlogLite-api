@@ -16,3 +16,6 @@ public_key.pem
 /infrastructure
 /.env
 *.env
+
+config/
+*.toml
