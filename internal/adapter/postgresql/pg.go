@@ -19,11 +19,6 @@ func GetDB() *bun.DB {
 
 func Init() (closeFn func() error) {
 	var err error
-	//sqlDB, err := sql.Open("postgres", "host=8.137.52.129 port=5430 user=qmstar password=@yz021105 dbname=blog_dev sslmode=disable")
-	//if err != nil {
-	//	panic(err)
-	//}
-
 	sqlDB := sql.OpenDB(pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
 		pgdriver.WithAddr(config.Conf.Postgre.Addr),
