@@ -1,36 +1,21 @@
 package main
 
 import (
-	"blog/pkg/env"
-	"blog/pkg/mongodb"
-	"blog/pkg/rediscache"
-	"blog/pkg/shutdown"
-	"common/auth"
-	"common/server"
-	"context"
-	"posts/adapter"
-	"posts/ports"
+	"go-blog-ddd/config"
+	"go-blog-ddd/internal/adapter/postgresql"
+	"go-blog-ddd/internal/adapter/utils/shutdown"
+	"go-blog-ddd/internal/application"
+	"go-blog-ddd/internal/ports/httpserver"
 )
 
 func init() {
-	env.Load()
-
-	dbCloseFn := mongodb.Init()
-	shutdown.OnShutdown(func() error { return dbCloseFn(context.Background()) })
-
-	cacheCloseFn := rediscache.Init()
-	shutdown.OnShutdown(cacheCloseFn)
+	config.Init()
+	fn := postgresql.Init()
+	shutdown.OnShutdown(fn)
 }
+
 func main() {
-
-	app := adapter.NewApp()
-
-	server.RunHttpServer(":3000", func(r chi.Router) {
-
-		ports.HandlerWithOptions(ports.NewHttpServer(app), ports.ChiServerOptions{
-			BaseRouter:  r,
-			Middlewares: append([]ports.MiddlewareFunc(nil), auth.AuthMiddleware()),
-		})
-
-	})
+	app := application.NewApp()
+	server := httpserver.NewHttpServer(app)
+	httpserver.RunHttpServer(":3000", server)
 }

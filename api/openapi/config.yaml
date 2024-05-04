@@ -1,0 +1,5 @@
+package: httpserver
+generate:
+  - gin
+  - types
+output: internal/ports/httpserver/openapi_api.gen.go

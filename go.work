@@ -1,8 +1,0 @@
-go 1.22.0
-
-use (
-	.
-	./internal/common
-	./internal/posts
-	./internal/users
-)
