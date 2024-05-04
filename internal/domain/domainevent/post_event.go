@@ -21,11 +21,11 @@ package domainevent
 //		ID string
 //	}
 
-type PostTagsChanged struct {
-	ID      string
-	OldTags []string
-	NewTags []string
-}
+//type PostTagsChanged struct {
+//	ID      string
+//	OldTags []string
+//	NewTags []string
+//}
 
 //type PostCategoryChanged struct {
 //	ID  string

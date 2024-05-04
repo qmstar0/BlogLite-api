@@ -10,12 +10,14 @@ import (
 
 func init() {
 	config.Init()
-	fn := postgresql.Init()
-	shutdown.OnShutdown(fn)
+	closeFn := postgresql.Init()
+	shutdown.OnShutdown(closeFn)
 }
 
 func main() {
+
 	app := application.NewApp()
 	server := httpserver.NewHttpServer(app)
+
 	httpserver.RunHttpServer(":3000", server)
 }
