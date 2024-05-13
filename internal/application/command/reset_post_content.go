@@ -2,12 +2,9 @@ package command
 
 import (
 	"context"
-	"go-blog-ddd/config"
-	"go-blog-ddd/internal/adapter/utils/mdtohtml"
+	"go-blog-ddd/internal/adapter/mdtohtml"
 	"go-blog-ddd/internal/domain/aggregates"
 	"go-blog-ddd/internal/domain/commands"
-	"os"
-	"path/filepath"
 )
 
 type ResetPostContentHandler struct {
@@ -27,17 +24,11 @@ func (m ResetPostContentHandler) Handle(ctx context.Context, cmd commands.ResetP
 		return err
 	}
 
-	fileContent, err := os.ReadFile(filepath.Join(config.Conf.Resource.Static.PostFromPath, cmd.MDFilePath))
+	htmlStr, err := mdtohtml.Convert(cmd.MDFile)
 	if err != nil {
 		return err
 	}
 
-	htmlStr, err := mdtohtml.Convert(fileContent)
-	if err != nil {
-		return err
-	}
-
-	find.ResetContent(cmd.MDFilePath, htmlStr)
-
+	find.ResetContent(htmlStr)
 	return m.repo.Save(ctx, find)
 }

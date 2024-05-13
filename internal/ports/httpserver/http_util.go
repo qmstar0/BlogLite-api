@@ -3,14 +3,28 @@ package httpserver
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
-	"go-blog-ddd/internal/adapter/utils/shutdown"
+	"go-blog-ddd/config"
+	"go-blog-ddd/internal/adapter/logging"
+	"go-blog-ddd/internal/adapter/utils"
 	"net/http"
 	"strings"
 	"time"
 )
 
+var logger *log.Logger
+
+func init() {
+	logger = logging.WithPrefix("http server")
+	if config.Cfg.Build.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
 func RunHttpServer(addr string, serverInterface ServerInterface) {
+
 	addr = parseAddr(addr)
 	//router := chi.NewRouter()
 
@@ -20,14 +34,12 @@ func RunHttpServer(addr string, serverInterface ServerInterface) {
 
 	RegisterHandlers(engine, serverInterface)
 
-	printStartInfo(addr, engine)
-
 	serve := &http.Server{
 		Addr:    addr,
 		Handler: engine,
 	}
 
-	shutdown.OnShutdown(func() error {
+	utils.OnShutdown(func() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
@@ -36,7 +48,7 @@ func RunHttpServer(addr string, serverInterface ServerInterface) {
 		}
 		return nil
 	})
-
+	logger.Infof("running http://%s", lipgloss.NewStyle().Underline(true).Foreground(lipgloss.Color("#7CFB74")).Render(addr))
 	_ = serve.ListenAndServe()
 }
 
@@ -47,22 +59,11 @@ func parseAddr(addr string) string {
 	return addr
 }
 
-func printStartInfo(addr string, router *gin.Engine) {
-	//_ = chi.Walk(router, func(method string, route string, decorator http.Handler, _ ...func(http.Handler) http.Handler) error {
-	//	fmt.Printf("\033[32m%-10s\033[m - \033[1;4m%-10s\033[m\n", fmt.Sprintf("[%s]", method), route)
-	//	return nil
-	//})
-
-	for _, info := range router.Routes() {
-		fmt.Printf("\033[32m%-10s\033[m - \033[1;4m%-10s\033[m\n", fmt.Sprintf("[%s]", info.Method), info.Path)
-	}
-
-	fmt.Printf("\n\033[1mHttpserver Starts Running: \033[m\033[1;4;32m%s\033[m\n", addr)
-}
-
 func setupMiddleware(engine *gin.Engine) {
 	engine.Use(
 		gin.Recovery(),
-		//gin.Logger(),
 	)
+	if gin.Mode() == gin.DebugMode {
+		engine.Use(gin.Logger())
+	}
 }

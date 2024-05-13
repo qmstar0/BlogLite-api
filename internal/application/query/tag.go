@@ -4,30 +4,16 @@ import (
 	"context"
 )
 
+type TagView struct {
+	Name string `json:"name"`
+	Num  int    `json:"num"`
+}
+
 type TagListView struct {
-	Count int      `json:"count"`
-	Items []string `json:"items"`
+	Count int       `json:"count"`
+	Items []TagView `json:"items"`
 }
 
-type TagReadModel interface {
-	All(ctx context.Context) ([]string, error)
-}
-
-type TagQueryControl struct {
-	readmodel TagReadModel
-}
-
-func NewTagQueryControl(readmodel TagReadModel) TagQueryControl {
-	return TagQueryControl{readmodel: readmodel}
-}
-
-func (t TagQueryControl) GetTags(ctx context.Context) (TagListView, error) {
-	all, err := t.readmodel.All(ctx)
-	if err != nil {
-		return TagListView{}, err
-	}
-	return TagListView{
-		Count: len(all),
-		Items: all,
-	}, nil
+type TagQueryControl interface {
+	All(ctx context.Context) (TagListView, error)
 }

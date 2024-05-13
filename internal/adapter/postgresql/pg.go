@@ -21,11 +21,11 @@ func Init() (closeFn func() error) {
 	var err error
 	sqlDB := sql.OpenDB(pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(config.Conf.Postgre.Addr),
+		pgdriver.WithAddr(config.Cfg.Postgre.Addr),
 		pgdriver.WithTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-		pgdriver.WithUser(config.Conf.Postgre.User),
-		pgdriver.WithPassword(config.Conf.Postgre.Password),
-		pgdriver.WithDatabase(config.Conf.Postgre.Database),
+		pgdriver.WithUser(config.Cfg.Postgre.User),
+		pgdriver.WithPassword(config.Cfg.Postgre.Password),
+		pgdriver.WithDatabase(config.Cfg.Postgre.Database),
 
 		pgdriver.WithTimeout(5*time.Second),
 		pgdriver.WithDialTimeout(5*time.Second),

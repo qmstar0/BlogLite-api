@@ -2,7 +2,9 @@ package domain
 
 import (
 	"context"
+	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/adapter/transaction"
+	"go-blog-ddd/internal/application/query"
 )
 
 type TagReadModel struct {
@@ -12,11 +14,16 @@ type TagReadModel struct {
 func NewTagReadModel(db transaction.TransactionContext) TagReadModel {
 	return TagReadModel{db: db}
 }
-func (t TagReadModel) All(ctx context.Context) ([]string, error) {
-	var result = make([]string, 0)
-	err := t.db.NewSelect().Model((*PostTagM)(nil)).ColumnExpr("DISTINCT tag").Scan(ctx, &result)
+
+func (t TagReadModel) All(ctx context.Context) (query.TagListView, error) {
+	var result = make([]*PostTagM, 0)
+	err := t.db.NewSelect().Model(&result).
+		ColumnExpr("tag, COUNT(*) as num").
+		Group("tag").
+		Scan(ctx)
 	if err != nil {
-		return nil, err
+		return query.TagListView{}, e.RErrDatabase.WithError(err)
 	}
-	return result, nil
+
+	return PostTagsModelToView(result), nil
 }

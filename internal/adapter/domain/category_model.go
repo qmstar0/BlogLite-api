@@ -31,11 +31,28 @@ func CategoryModelToAggregate(m *CategoryM) *aggregates.Category {
 	}
 }
 
-func CategoryModelToView(m *CategoryM) query.CategoryView {
+func CategoryModelToListView(categorys []*CategoryM) query.CategoryListView {
+	categoryLen := len(categorys)
+	var result = query.CategoryListView{
+		Count: categoryLen,
+		Items: make([]query.CategoryView, categoryLen),
+	}
+	if categoryLen <= 0 {
+		return result
+	}
+	for i, category := range categorys {
+		result.Items[i] = CategoryModelToView(category)
+	}
+
+	return result
+
+}
+
+func CategoryModelToView(category *CategoryM) query.CategoryView {
 	return query.CategoryView{
-		ID:   m.ID,
-		Name: m.Name,
-		Desc: m.Desc,
-		Num:  m.Num,
+		ID:   category.ID,
+		Name: category.Name,
+		Desc: category.Desc,
+		Num:  category.Num,
 	}
 }

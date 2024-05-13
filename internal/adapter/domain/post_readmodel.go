@@ -3,7 +3,9 @@ package domain
 import (
 	"context"
 	"github.com/uptrace/bun"
+	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/adapter/transaction"
+	"go-blog-ddd/internal/adapter/utils"
 	"go-blog-ddd/internal/application/query"
 )
 
@@ -14,22 +16,72 @@ type PostReadModel struct {
 func NewPostReadModel(db transaction.TransactionContext) PostReadModel {
 	return PostReadModel{db: db}
 }
+
 func (p PostReadModel) FindByID(ctx context.Context, pid uint32) (query.PostView, error) {
-	var postM = &PostM{ID: pid}
+	var posts = []*PostM{{ID: pid, Visible: true}}
 	err := p.db.NewSelect().
-		Model(postM).
+		Model(posts).
 		Relation("PostTags").
 		Relation("Category").
-		WherePK().
+		WherePK("id", "visible").
 		Scan(ctx)
 	if err != nil {
-		return query.PostView{}, err
+		return query.PostView{}, e.RErrDatabase.WithError(err)
 	}
-	return PostModelToView(postM), nil
+	if len(posts) <= 0 {
+		return query.PostView{}, e.RErrResourceNotExists
+	}
+	return PostModelToView(posts[0]), nil
 }
 
-func (p PostReadModel) AllWithFilter(ctx context.Context, limit, offset int, tags []string, categroyID uint32) ([]query.PostView, error) {
-	var postMS = make([]*PostM, 0)
+func (p PostReadModel) FindByUri(ctx context.Context, uri string) (query.PostView, error) {
+	var posts = []*PostM{{Uri: uri, Visible: true}}
+
+	err := p.db.NewSelect().
+		Model(&posts).
+		Relation("PostTags").
+		Relation("Category").
+		WherePK("uri", "visible").
+		Limit(1).
+		Scan(ctx)
+	if err != nil {
+		return query.PostView{}, e.RErrDatabase.WithError(err)
+	}
+	if len(posts) <= 0 {
+		return query.PostView{}, e.RErrResourceNotExists
+	}
+	return PostModelToView(posts[0]), nil
+}
+
+func (p PostReadModel) RecentPosts(ctx context.Context, limit int) (query.PostListView, error) {
+	var posts = make([]*PostM, 0)
+
+	err := p.db.NewSelect().
+		Model(&posts).
+		ColumnExpr("id, uri, title, created_at, updated_at").
+		Order("created_at", "updated_at").
+		Where("visible = ?", true).
+		Limit(limit).
+		Scan(ctx)
+	if err != nil {
+		return query.PostListView{}, e.RErrDatabase.WithError(err)
+	}
+	return PostModelToListView(posts), nil
+}
+
+func (p PostReadModel) AllWithFilter(
+	ctx context.Context,
+	limit,
+	page int,
+	tags []string,
+	categroyID uint32,
+	onlyVisible bool,
+) (query.PostListView, error) {
+
+	var posts = make([]*PostM, 0)
+
+	//计算偏移
+	offset := utils.Offset(page, limit)
 
 	//tag filter
 	var TagFilterFn func(*bun.SelectQuery) *bun.SelectQuery
@@ -55,10 +107,14 @@ func (p PostReadModel) AllWithFilter(ctx context.Context, limit, offset int, tag
 
 	//main query
 	selectQuery := p.db.NewSelect().
-		Model(&postMS).
+		Model(&posts).
+		ExcludeColumn("content").
 		Relation("PostTags", TagFilterFn).
 		Relation("Category", CategoryFilterFn).
-		Order("updated_at")
+		Order("created_at", "updated_at")
+	if onlyVisible {
+		selectQuery = selectQuery.Where("visible = ?", true)
+	}
 	if limit > 0 {
 		selectQuery = selectQuery.Limit(limit)
 	}
@@ -67,17 +123,10 @@ func (p PostReadModel) AllWithFilter(ctx context.Context, limit, offset int, tag
 	}
 
 	if err := selectQuery.Scan(ctx); err != nil {
-		return nil, err
+		return query.PostListView{}, e.RErrDatabase.WithError(err)
 	}
 
-	postMLen := len(postMS)
-	if postMLen <= 0 {
-		return nil, nil
-	}
-
-	var result = make([]query.PostView, 0)
-	for i, m := range postMS {
-		result[i] = PostModelToView(m)
-	}
+	result := PostModelToListView(posts)
+	result.Page = page
 	return result, nil
 }

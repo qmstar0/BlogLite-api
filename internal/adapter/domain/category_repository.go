@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/uptrace/bun"
+	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/adapter/transaction"
 	"go-blog-ddd/internal/domain/aggregates"
 	"go-blog-ddd/internal/domain/values"
@@ -67,21 +68,21 @@ func (r CategoryRepository) DropTable() {
 	}
 }
 
-func (r CategoryRepository) NextID(ctx context.Context) uint32 {
+func (r CategoryRepository) NextID(ctx context.Context) (uint32, error) {
 	var nextID uint32
 	rowContext := r.db.QueryRowContext(ctx, "select nextval('?');", bun.Ident(r.sequenceTable))
 	err := rowContext.Scan(&nextID)
 	if err != nil {
-		panic(err)
+		return 0, e.RErrDatabase.WithError(err)
 	}
-	return nextID
+	return nextID, nil
 }
 
 func (r CategoryRepository) FindByID(ctx context.Context, id uint32) (*aggregates.Category, error) {
 	var cate = make([]*CategoryM, 0, 1)
 	err := r.db.NewSelect().Model(&cate).Where("id = ?", id).Limit(1).Scan(ctx)
 	if err != nil {
-		return nil, err
+		return nil, e.RErrDatabase.WithError(err)
 	}
 	if len(cate) >= 1 {
 		return CategoryModelToAggregate(cate[0]), nil
@@ -93,7 +94,7 @@ func (r CategoryRepository) FindByName(ctx context.Context, name values.Category
 	var cate = make([]*CategoryM, 0, 1)
 	err := r.db.NewSelect().Model(&cate).Where("name = ?", name.String()).Limit(1).Scan(ctx)
 	if err != nil {
-		return nil, err
+		return nil, e.RErrDatabase.WithError(err)
 	}
 	if len(cate) >= 1 {
 		return CategoryModelToAggregate(cate[0]), nil
@@ -101,13 +102,15 @@ func (r CategoryRepository) FindByName(ctx context.Context, name values.Category
 	return nil, nil
 }
 
-func (r CategoryRepository) FindByIDOrErr(ctx context.Context, id uint32) (*aggregates.Category, error) {
-	var model = &CategoryM{ID: id}
-	err := r.db.NewSelect().Model(model).WherePK().Scan(ctx)
+func (r CategoryRepository) FindOrErrByID(ctx context.Context, id uint32) (*aggregates.Category, error) {
+	found, err := r.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return CategoryModelToAggregate(model), nil
+	if found == nil {
+		return nil, e.RErrResourceNotExists
+	}
+	return found, nil
 }
 
 func (r CategoryRepository) Save(ctx context.Context, category *aggregates.Category) error {
@@ -115,13 +118,31 @@ func (r CategoryRepository) Save(ctx context.Context, category *aggregates.Categ
 	return r.db.Transaction(ctx, func(tctx transaction.TransactionContext) error {
 		ins := tctx.NewInsert().Model(model).On("CONFLICT (id) DO UPDATE")
 		_, err := ins.Exec(tctx)
-		return err
+
+		if err != nil {
+			return e.RErrDatabase.WithError(err)
+		}
+		return nil
 	})
 }
 
 func (r CategoryRepository) Delete(ctx context.Context, cid uint32) error {
 	return r.db.Transaction(ctx, func(tctx transaction.TransactionContext) error {
 		_, err := tctx.NewDelete().Model(&CategoryM{ID: cid}).WherePK().Exec(tctx)
-		return err
+		if err != nil {
+			return e.RErrDatabase.WithError(err)
+		}
+		return nil
 	})
+}
+
+func (r CategoryRepository) ResourceUniquenessCheck(ctx context.Context, name values.CategoryName) error {
+	exists, err := r.db.NewSelect().Model(&CategoryM{Name: name.String()}).WherePK("name").Limit(1).Exists(ctx)
+	if err != nil {
+		return e.RErrDatabase.WithError(err)
+	}
+	if exists {
+		return e.RErrResourceExists
+	}
+	return nil
 }

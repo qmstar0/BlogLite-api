@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/adapter/transaction"
 	"go-blog-ddd/internal/application/query"
 )
@@ -13,7 +14,8 @@ type CategoryReadModel struct {
 func NewCategoryReadModel(db transaction.TransactionContext) CategoryReadModel {
 	return CategoryReadModel{db: db}
 }
-func (q CategoryReadModel) All(ctx context.Context) ([]query.CategoryView, error) {
+
+func (q CategoryReadModel) All(ctx context.Context) (query.CategoryListView, error) {
 	CategoryCount := q.db.NewSelect().
 		Model((*PostM)(nil)).
 		ColumnExpr("category_id, COUNT(*) AS category_count").
@@ -27,14 +29,9 @@ func (q CategoryReadModel) All(ctx context.Context) ([]query.CategoryView, error
 		Join("left join post_category on category.id = post_category.category_id").
 		Order("id").
 		Scan(ctx)
-
 	if err != nil {
-		return nil, err
+		return query.CategoryListView{}, e.RErrDatabase.WithError(err)
 	}
 
-	var result = make([]query.CategoryView, len(categorys))
-	for i, category := range categorys {
-		result[i] = CategoryModelToView(category)
-	}
-	return result, nil
+	return CategoryModelToListView(categorys), nil
 }

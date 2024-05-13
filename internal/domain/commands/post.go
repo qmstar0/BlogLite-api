@@ -1,34 +1,24 @@
 package commands
 
 type CreatePost struct {
-	Uri        string
-	MDFilePath string
+	Uri    string
+	MDFile []byte
 }
+
 type DeletePost struct {
 	ID uint32
 }
-type ResetPostCategory struct {
+
+type ModifyPost struct {
 	ID         uint32
-	CategoryID uint32
-}
-
-type ModifyPostVisibility struct {
-	ID      uint32
-	Visible bool
-}
-
-type ModifyPostTags struct {
-	ID      uint32
-	NewTags []string
-}
-
-type ModifyPostInfo struct {
-	ID    uint32
-	Title string
-	Desc  string
+	Tags       *[]string
+	CategoryID *uint32
+	Visible    *bool
+	Title      *string
+	Desc       *string
 }
 
 type ResetPostContent struct {
-	ID         uint32
-	MDFilePath string
+	ID     uint32
+	MDFile []byte
 }

@@ -13,8 +13,7 @@ type Post struct {
 
 	ID uint32
 
-	SourcePath string
-	Content    string
+	Content string
 
 	Uri   values.PostUri
 	Title values.PostTitle
@@ -32,16 +31,16 @@ type Post struct {
 func NewPost(
 	pid uint32,
 	uri values.PostUri,
-	sourcePath,
 	content string,
 ) *Post {
+	now := time.Now()
 	return &Post{
-		ID:         pid,
-		Uri:        uri,
-		Content:    content,
-		SourcePath: sourcePath,
-		CreatedAt:  time.Now(),
-		Visible:    false,
+		ID:        pid,
+		Uri:       uri,
+		Content:   content,
+		CreatedAt: now,
+		UpdatedAt: now,
+		Visible:   false,
 	}
 }
 
@@ -67,26 +66,29 @@ func (p *Post) ModifyPostTags(tags []values.Tag) {
 	p.Tags = tags
 }
 
-func (p *Post) ModifyPostInfo(title values.PostTitle, desc string) {
-	p.Desc = desc
+func (p *Post) ModifyPostTitle(title values.PostTitle) {
 	p.Title = title
 	p.UpdatedAt = time.Now()
 }
 
-func (p *Post) ResetContent(sourcePath, content string) {
-	p.UpdatedAt = time.Now()
+func (p *Post) ResetContent(content string) {
 	p.Content = content
-	p.SourcePath = sourcePath
+	p.UpdatedAt = time.Now()
+}
+
+func (p *Post) ModifyPostDesc(desc string) {
+	p.Desc = desc
+	p.UpdatedAt = time.Now()
 }
 
 func (p *Post) Delete() {}
 
 type PostRepository interface {
-	//FindByTags(ctx context.Context, tags []values.Tag) ([]*Post, error)
 	FindByUri(ctx context.Context, uri values.PostUri) (*Post, error)
 	FindOrErrByUri(ctx context.Context, uri values.PostUri) (*Post, error)
 	FindOrErrByID(ctx context.Context, id uint32) (*Post, error)
 	Save(ctx context.Context, post *Post) error
-	NextID(ctx context.Context) uint32
+	NextID(ctx context.Context) (uint32, error)
 	Delete(ctx context.Context, pid uint32) error
+	ResourceUniquenessCheck(ctx context.Context, uri values.PostUri) error
 }

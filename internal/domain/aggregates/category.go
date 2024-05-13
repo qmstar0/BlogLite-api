@@ -28,10 +28,11 @@ func (c *Category) SeoSeoDesc(desc string) {
 func (c *Category) Delete() {}
 
 type CategoryRepository interface {
-	NextID(ctx context.Context) uint32
+	NextID(ctx context.Context) (uint32, error)
 	FindByID(ctx context.Context, id uint32) (*Category, error)
 	FindByName(ctx context.Context, name values.CategoryName) (*Category, error)
-	FindByIDOrErr(ctx context.Context, id uint32) (*Category, error)
+	FindOrErrByID(ctx context.Context, id uint32) (*Category, error)
 	Save(ctx context.Context, category *Category) error
 	Delete(ctx context.Context, cid uint32) error
+	ResourceUniquenessCheck(ctx context.Context, name values.CategoryName) error
 }

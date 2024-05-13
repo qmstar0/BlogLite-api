@@ -2,7 +2,6 @@ package query
 
 import (
 	"context"
-	"go-blog-ddd/internal/adapter/utils"
 )
 
 type PostView struct {
@@ -11,9 +10,10 @@ type PostView struct {
 	Title   string `json:"title,omitempty"`
 	Content string `json:"content,omitempty"`
 	Desc    string `json:"desc,omitempty"`
-	Visible bool   `json:"visible,omitempty"`
 
 	Tags []string `json:"tags,omitempty"`
+
+	Visible bool `json:"visible,omitempty"`
 
 	Category  *CategoryView `json:"category,omitempty"`
 	CreatedAt int64         `json:"createdAt,omitempty"`
@@ -22,41 +22,20 @@ type PostView struct {
 
 type PostListView struct {
 	Count int        `json:"count"`
-	Page  int        `json:"page"`
+	Page  int        `json:"page,omitempty"`
 	Items []PostView `json:"items"`
 }
-type PostReadModel interface {
+
+type PostQueryControl interface {
 	FindByID(ctx context.Context, pid uint32) (PostView, error)
-	AllWithFilter(ctx context.Context, limit, offset int, tags []string, categroyID uint32) ([]PostView, error)
-}
-
-type PostQueryControl struct {
-	readmodel PostReadModel
-}
-
-func NewPostQueryControl(readmodel PostReadModel) PostQueryControl {
-	return PostQueryControl{readmodel: readmodel}
-}
-
-func (p PostQueryControl) FindByID(ctx context.Context, pid uint32) (PostView, error) {
-	return p.readmodel.FindByID(ctx, pid)
-}
-
-func (p PostQueryControl) GetPostsWithFilter(
-	ctx context.Context,
-	limit, page int,
-	tags []string,
-	categroyID uint32,
-) (PostListView, error) {
-	offset := utils.Offset(page, limit)
-
-	postViews, err := p.readmodel.AllWithFilter(ctx, limit, offset, tags, categroyID)
-	if err != nil {
-		return PostListView{}, err
-	}
-	return PostListView{
-		Count: len(postViews),
-		Page:  page,
-		Items: postViews,
-	}, nil
+	FindByUri(ctx context.Context, uri string) (PostView, error)
+	RecentPosts(ctx context.Context, limit int) (PostListView, error)
+	AllWithFilter(
+		ctx context.Context,
+		limit,
+		offset int,
+		tags []string,
+		categroyID uint32,
+		onlyVisible bool,
+	) (PostListView, error)
 }

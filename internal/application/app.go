@@ -34,13 +34,10 @@ type Commands struct {
 	ModifyCategoryDesc command.ModifyCategoryDescHandler
 	DeleteCategory     command.DeleteCategoryHandler
 
-	CreatePost        command.CreatePostHandler
-	DeletePost        command.DeletePostHandler
-	ModifyPostTags    command.ModifyPostTagsHandler
-	ModifyPostVisible command.ModifyPostVisibleHandler
-	ModifyPostInfo    command.ModifyPostInfoHandler
-	ResetPostCategory command.ResetPostCategoryHandler
-	ResetPostContent  command.ResetPostContentHandler
+	CreatePost       command.CreatePostHandler
+	DeletePost       command.DeletePostHandler
+	ModifyPost       command.ModifyPostHandler
+	ResetPostContent command.ResetPostContentHandler
 }
 
 func NewApp() *App {
@@ -55,18 +52,15 @@ func NewApp() *App {
 			ModifyCategoryDesc: command.NewModifyCategoryDescHandler(categoryRepo),
 			DeleteCategory:     command.NewDeleteCategoryHandler(categoryRepo),
 
-			CreatePost:        command.NewCreatePostHandler(postRepo),
-			DeletePost:        command.NewDeletePostHandler(postRepo),
-			ModifyPostTags:    command.NewModifyPostTagsHandler(postRepo),
-			ModifyPostVisible: command.NewModifyPostVisibleHandler(postRepo),
-			ModifyPostInfo:    command.NewModifyPostInfoHandler(postRepo),
-			ResetPostCategory: command.NewResetPostCategoryHandler(postRepo, categoryService),
-			ResetPostContent:  command.NewResetPostContentHandler(postRepo),
+			CreatePost:       command.NewCreatePostHandler(postRepo),
+			DeletePost:       command.NewDeletePostHandler(postRepo),
+			ModifyPost:       command.NewModifyPostHandler(postRepo, categoryService),
+			ResetPostContent: command.NewResetPostContentHandler(postRepo),
 		},
 		Queries: Queries{
-			Posts:     query.NewPostQueryControl(domain.NewPostReadModel(tctx)),
-			Categorys: query.NewCategoryQueryControl(domain.NewCategoryReadModel(tctx)),
-			Tags:      query.NewTagQueryControl(domain.NewTagReadModel(tctx)),
+			Posts:     domain.NewPostReadModel(tctx),
+			Categorys: domain.NewCategoryReadModel(tctx),
+			Tags:      domain.NewTagReadModel(tctx),
 		},
 	}
 }

@@ -16,7 +16,7 @@ func NewPostDomainService(cateRepo aggregates.CategoryRepository) *CategoryDomai
 }
 
 func (p CategoryDomainService) ResetCategoryForPost(ctx context.Context, post *aggregates.Post, newCategoryID uint32) error {
-	cate, err := p.cateRepo.FindByIDOrErr(ctx, newCategoryID)
+	cate, err := p.cateRepo.FindOrErrByID(ctx, newCategoryID)
 	if err != nil {
 		return err
 	}

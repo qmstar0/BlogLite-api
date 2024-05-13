@@ -9,70 +9,113 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Category defines model for category.
-type Category struct {
-	Desc *string `json:"desc,omitempty"`
-	Id   *int    `json:"id,omitempty"`
-	Name *string `json:"name,omitempty"`
-	Num  *int    `json:"num,omitempty"`
+// AdminGetPostListParams defines parameters for AdminGetPostList.
+type AdminGetPostListParams struct {
+	Page *int `form:"page,omitempty" json:"page,omitempty"`
 }
 
-// Categorys defines model for categorys.
-type Categorys struct {
-	Count *int      `json:"count,omitempty"`
-	Items *Category `json:"items,omitempty"`
+// ModifyCategoryDescJSONBody defines parameters for ModifyCategoryDesc.
+type ModifyCategoryDescJSONBody struct {
+	Desc string `json:"desc"`
 }
 
-// Post defines model for post.
-type Post struct {
-	Category  *Category `json:"category,omitempty"`
-	Content   *string   `json:"content,omitempty"`
-	CreatedAt *int      `json:"createdAt,omitempty"`
-	Desc      *string   `json:"desc,omitempty"`
-	Id        *string   `json:"id,omitempty"`
-	Tags      *[]string `json:"tags,omitempty"`
-	Title     *string   `json:"title,omitempty"`
-	UpdatedAt *int      `json:"updatedAt,omitempty"`
-	Uri       *string   `json:"uri,omitempty"`
-	Visible   *bool     `json:"visible,omitempty"`
+// CreateCategoryJSONBody defines parameters for CreateCategory.
+type CreateCategoryJSONBody struct {
+	Desc string `json:"desc"`
+
+	// Name 名称
+	Name string `json:"name"`
 }
 
-// Posts defines model for posts.
-type Posts struct {
-	Count *int  `json:"count,omitempty"`
-	Items *Post `json:"items,omitempty"`
-	Page  *int  `json:"page,omitempty"`
+// SetPostContentMultipartBody defines parameters for SetPostContent.
+type SetPostContentMultipartBody struct {
+	Content openapi_types.File `json:"content"`
 }
 
-// Tags defines model for tags.
-type Tags struct {
-	Count *int      `json:"count,omitempty"`
-	Items *[]string `json:"items,omitempty"`
+// ModifyPostsJSONBody defines parameters for ModifyPosts.
+type ModifyPostsJSONBody struct {
+	// Category 分组
+	Category *uint32   `json:"category,omitempty"`
+	Desc     *string   `json:"desc,omitempty"`
+	Tags     *[]string `json:"tags,omitempty"`
+	Title    *string   `json:"title,omitempty"`
+	Visible  *bool     `json:"visible,omitempty"`
 }
 
-// GetApiPostsParams defines parameters for GetApiPosts.
-type GetApiPostsParams struct {
+// GetPostListParams defines parameters for GetPostList.
+type GetPostListParams struct {
 	Page     *int    `form:"page,omitempty" json:"page,omitempty"`
 	Tag      *string `form:"tag,omitempty" json:"tag,omitempty"`
 	Category *uint32 `form:"category,omitempty" json:"category,omitempty"`
 }
 
+// CreatePostMultipartBody defines parameters for CreatePost.
+type CreatePostMultipartBody struct {
+	Content openapi_types.File `form:"content" json:"content"`
+
+	// Uri ID 编号
+	Uri string `form:"uri" json:"uri"`
+}
+
+// ModifyCategoryDescJSONRequestBody defines body for ModifyCategoryDesc for application/json ContentType.
+type ModifyCategoryDescJSONRequestBody ModifyCategoryDescJSONBody
+
+// CreateCategoryJSONRequestBody defines body for CreateCategory for application/json ContentType.
+type CreateCategoryJSONRequestBody CreateCategoryJSONBody
+
+// SetPostContentMultipartRequestBody defines body for SetPostContent for multipart/form-data ContentType.
+type SetPostContentMultipartRequestBody SetPostContentMultipartBody
+
+// ModifyPostsJSONRequestBody defines body for ModifyPosts for application/json ContentType.
+type ModifyPostsJSONRequestBody ModifyPostsJSONBody
+
+// CreatePostMultipartRequestBody defines body for CreatePost for multipart/form-data ContentType.
+type CreatePostMultipartRequestBody CreatePostMultipartBody
+
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// Admin Get PostList
+	// (GET /admin/posts)
+	AdminGetPostList(c *gin.Context, params AdminGetPostListParams)
+	// 删除分类
+	// (DELETE /api/category/{id})
+	DeleteCategory(c *gin.Context, id uint32)
+	// 修改简介
+	// (PATCH /api/category/{id})
+	ModifyCategoryDesc(c *gin.Context, id uint32)
 	// 全部分类
 	// (GET /api/categorys)
-	GetApiCategorys(c *gin.Context)
+	GetAllCategorys(c *gin.Context)
+	// 创建分类
+	// (POST /api/categorys)
+	CreateCategory(c *gin.Context)
+	// 删除
+	// (DELETE /api/post/{id})
+	DeletePost(c *gin.Context, id uint32)
+	// 设置PostContent
+	// (POST /api/post/{id})
+	SetPostContent(c *gin.Context, id uint32)
+	// 修改Post
+	// (PUT /api/post/{id})
+	ModifyPosts(c *gin.Context, id uint32)
+	// 帖子
+	// (GET /api/post/{uri})
+	GetPostByUri(c *gin.Context, uri string)
 	// 帖子列表
 	// (GET /api/posts)
-	GetApiPosts(c *gin.Context, params GetApiPostsParams)
-	// 帖子
-	// (GET /api/posts/{id})
-	GetApiPostsId(c *gin.Context, id uint32)
+	GetPostList(c *gin.Context, params GetPostListParams)
+	// 创建Post
+	// (POST /api/posts)
+	CreatePost(c *gin.Context)
+	// 最近帖子
+	// (GET /api/posts/recent)
+	GetRecentPostList(c *gin.Context)
 	// 全部标签
 	// (GET /api/tags)
-	GetApiTags(c *gin.Context)
+	GetAllTags(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -84,8 +127,21 @@ type ServerInterfaceWrapper struct {
 
 type MiddlewareFunc func(c *gin.Context)
 
-// GetApiCategorys operation middleware
-func (siw *ServerInterfaceWrapper) GetApiCategorys(c *gin.Context) {
+// AdminGetPostList operation middleware
+func (siw *ServerInterfaceWrapper) AdminGetPostList(c *gin.Context) {
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params AdminGetPostListParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", c.Request.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
+		return
+	}
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -94,16 +150,186 @@ func (siw *ServerInterfaceWrapper) GetApiCategorys(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetApiCategorys(c)
+	siw.Handler.AdminGetPostList(c, params)
 }
 
-// GetApiPosts operation middleware
-func (siw *ServerInterfaceWrapper) GetApiPosts(c *gin.Context) {
+// DeleteCategory operation middleware
+func (siw *ServerInterfaceWrapper) DeleteCategory(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id uint32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeleteCategory(c, id)
+}
+
+// ModifyCategoryDesc operation middleware
+func (siw *ServerInterfaceWrapper) ModifyCategoryDesc(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id uint32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ModifyCategoryDesc(c, id)
+}
+
+// GetAllCategorys operation middleware
+func (siw *ServerInterfaceWrapper) GetAllCategorys(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAllCategorys(c)
+}
+
+// CreateCategory operation middleware
+func (siw *ServerInterfaceWrapper) CreateCategory(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateCategory(c)
+}
+
+// DeletePost operation middleware
+func (siw *ServerInterfaceWrapper) DeletePost(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id uint32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.DeletePost(c, id)
+}
+
+// SetPostContent operation middleware
+func (siw *ServerInterfaceWrapper) SetPostContent(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id uint32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.SetPostContent(c, id)
+}
+
+// ModifyPosts operation middleware
+func (siw *ServerInterfaceWrapper) ModifyPosts(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "id" -------------
+	var id uint32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.ModifyPosts(c, id)
+}
+
+// GetPostByUri operation middleware
+func (siw *ServerInterfaceWrapper) GetPostByUri(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "uri" -------------
+	var uri string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uri", c.Param("uri"), &uri, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetPostByUri(c, uri)
+}
+
+// GetPostList operation middleware
+func (siw *ServerInterfaceWrapper) GetPostList(c *gin.Context) {
 
 	var err error
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GetApiPostsParams
+	var params GetPostListParams
 
 	// ------------- Optional query parameter "page" -------------
 
@@ -136,22 +362,11 @@ func (siw *ServerInterfaceWrapper) GetApiPosts(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetApiPosts(c, params)
+	siw.Handler.GetPostList(c, params)
 }
 
-// GetApiPostsId operation middleware
-func (siw *ServerInterfaceWrapper) GetApiPostsId(c *gin.Context) {
-
-	var err error
-
-	// ------------- Path parameter "id" -------------
-	var id uint32
-
-	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Param("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter id: %w", err), http.StatusBadRequest)
-		return
-	}
+// CreatePost operation middleware
+func (siw *ServerInterfaceWrapper) CreatePost(c *gin.Context) {
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -160,11 +375,11 @@ func (siw *ServerInterfaceWrapper) GetApiPostsId(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetApiPostsId(c, id)
+	siw.Handler.CreatePost(c)
 }
 
-// GetApiTags operation middleware
-func (siw *ServerInterfaceWrapper) GetApiTags(c *gin.Context) {
+// GetRecentPostList operation middleware
+func (siw *ServerInterfaceWrapper) GetRecentPostList(c *gin.Context) {
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -173,7 +388,20 @@ func (siw *ServerInterfaceWrapper) GetApiTags(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetApiTags(c)
+	siw.Handler.GetRecentPostList(c)
+}
+
+// GetAllTags operation middleware
+func (siw *ServerInterfaceWrapper) GetAllTags(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAllTags(c)
 }
 
 // GinServerOptions provides options for the Gin server.
@@ -203,8 +431,17 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 		ErrorHandler:       errorHandler,
 	}
 
-	router.GET(options.BaseURL+"/api/categorys", wrapper.GetApiCategorys)
-	router.GET(options.BaseURL+"/api/posts", wrapper.GetApiPosts)
-	router.GET(options.BaseURL+"/api/posts/:id", wrapper.GetApiPostsId)
-	router.GET(options.BaseURL+"/api/tags", wrapper.GetApiTags)
+	router.GET(options.BaseURL+"/admin/posts", wrapper.AdminGetPostList)
+	router.DELETE(options.BaseURL+"/api/category/:id", wrapper.DeleteCategory)
+	router.PATCH(options.BaseURL+"/api/category/:id", wrapper.ModifyCategoryDesc)
+	router.GET(options.BaseURL+"/api/categorys", wrapper.GetAllCategorys)
+	router.POST(options.BaseURL+"/api/categorys", wrapper.CreateCategory)
+	router.DELETE(options.BaseURL+"/api/post/:id", wrapper.DeletePost)
+	router.POST(options.BaseURL+"/api/post/:id", wrapper.SetPostContent)
+	router.PUT(options.BaseURL+"/api/post/:id", wrapper.ModifyPosts)
+	router.GET(options.BaseURL+"/api/post/:uri", wrapper.GetPostByUri)
+	router.GET(options.BaseURL+"/api/posts", wrapper.GetPostList)
+	router.POST(options.BaseURL+"/api/posts", wrapper.CreatePost)
+	router.GET(options.BaseURL+"/api/posts/recent", wrapper.GetRecentPostList)
+	router.GET(options.BaseURL+"/api/tags", wrapper.GetAllTags)
 }

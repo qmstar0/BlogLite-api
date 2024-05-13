@@ -3,7 +3,7 @@ package domainevent
 //	type PostCreated struct {
 //		ID     string
 //		UserID uint32
-//		Desc    string
+//		Uri    string
 //	}
 //
 //	type PostChanged struct {

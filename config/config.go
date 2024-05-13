@@ -1,17 +1,26 @@
 package config
 
 import (
-	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
+	"go-blog-ddd/internal/adapter/logging"
 )
 
-var Conf Config
+var Cfg Config
+
+var logger = logging.WithPrefix("config")
+
+func init() {
+	logger.SetLevel(log.DebugLevel)
+}
 
 type Config struct {
-	UploadFile UploadFile `toml:"upload_file" mapstructure:"upload_file"`
-	Resource   Resource   `toml:"resource" mapstructure:"resource"`
-	Request    Request    `toml:"request" mapstructure:"request"`
-	Postgre    Postgre    `toml:"postgre" mapstructure:"postgre"`
+	UploadFile  UploadFile  `toml:"upload_file" mapstructure:"upload_file"`
+	Resource    Resource    `toml:"resource" mapstructure:"resource"`
+	HttpRequest HttpRequest `toml:"http_request" mapstructure:"http_request"`
+	Postgre     Postgre     `toml:"postgre" mapstructure:"postgre"`
+	App         App         `toml:"app" mapstructure:"app"`
+	Build       Build       `toml:"build" mapstructure:"build"`
 }
 
 type UploadFile struct {
@@ -23,9 +32,10 @@ type Resource struct {
 	} `toml:"static" mapstruceure:"static"`
 }
 
-type Request struct {
+type HttpRequest struct {
 	Post struct {
-		DefaultLimit int `toml:"default_limit" mapstructure:"default_limit"`
+		DefaultLimit   int `toml:"default_limit" mapstructure:"default_limit"`
+		RecentPostsNum int `toml:"recent_posts_num" mapstructure:"recent_posts_num"`
 	} `toml:"post" mapstructure:"post"`
 }
 
@@ -36,21 +46,33 @@ type Postgre struct {
 	Database string `toml:"database" mapstructure:"database"`
 }
 
+type App struct {
+	Addr string `toml:"addr" mapstructure:"addr"`
+}
+
+type Build struct {
+	Release bool `toml:"release" mapstructure:"release"`
+}
+
 func Init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
-	viper.AddConfigPath("config/")
+	parser := viper.NewWithOptions()
+	parser.AutomaticEnv()
+	parser.SetConfigName("config")
+	parser.SetConfigType("toml")
+	parser.AddConfigPath("config/")
 
-	err := viper.ReadInConfig()
+	err := parser.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	err = viper.Unmarshal(&Conf)
+	err = parser.Unmarshal(&Cfg)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(viper.AllSettings())
-	fmt.Println(Conf)
+	if !Cfg.Build.Release {
+		logging.Logger.SetLevel(log.DebugLevel)
+		logger.Debug(parser.AllSettings())
+		logger.Debug(Cfg)
+	}
 }

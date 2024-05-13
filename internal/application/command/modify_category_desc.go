@@ -18,10 +18,11 @@ func NewModifyCategoryDescHandler(repo aggregates.CategoryRepository) ModifyCate
 }
 
 func (u ModifyCategoryDescHandler) Handle(ctx context.Context, cmd commands.ModifyCategoryDesc) error {
-	cate, err := u.cateRepo.FindByIDOrErr(ctx, cmd.ID)
+	cate, err := u.cateRepo.FindOrErrByID(ctx, cmd.ID)
 	if err != nil {
 		return err
 	}
 	cate.SeoSeoDesc(cmd.NewDesc)
+
 	return u.cateRepo.Save(ctx, cate)
 }

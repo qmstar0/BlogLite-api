@@ -9,7 +9,7 @@ import (
 var categoryViewTemplate = `
 	ID: {{ .ID }}
 	Name: {{ .Name }}
-	Desc: {{ .Desc }}
+	Uri: {{ .Uri }}
 	Num: {{ .Num }}
 `
 
