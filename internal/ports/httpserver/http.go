@@ -3,7 +3,6 @@ package httpserver
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"go-blog-ddd/config"
 	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/application"
@@ -161,13 +160,20 @@ func (h HttpServer) GetAllTags(c *gin.Context) {
 }
 
 func (h HttpServer) SetPostContent(c *gin.Context, id uint32) {
-	var req SetPostContentMultipartRequestBody
-
-	if err := c.ShouldBindWith(&req, binding.FormMultipart); err != nil {
+	formfile, err := c.FormFile("content")
+	if err != nil {
 		render.Error(c, err)
 		return
 	}
-	content, err := req.Content.Bytes()
+
+	file, err := formfile.Open()
+	if err != nil {
+		render.Error(c, err)
+		return
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
 	if err != nil {
 		render.Error(c, err)
 		return

@@ -25,7 +25,7 @@ func releaseModeErrorResponse(err error) Response {
 	if !errors.As(err, &code) {
 		code = e.NotImplement.WithError(err)
 	}
-	code.Err = nil
+	code.Debug = ""
 	return Response{
 		StateCode: code,
 	}

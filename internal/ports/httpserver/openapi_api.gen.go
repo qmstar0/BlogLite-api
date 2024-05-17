@@ -17,17 +17,17 @@ type AdminGetPostListParams struct {
 	Page *int `form:"page,omitempty" json:"page,omitempty"`
 }
 
-// ModifyCategoryDescJSONBody defines parameters for ModifyCategoryDesc.
-type ModifyCategoryDescJSONBody struct {
-	Desc string `json:"desc"`
-}
-
 // CreateCategoryJSONBody defines parameters for CreateCategory.
 type CreateCategoryJSONBody struct {
 	Desc string `json:"desc"`
 
 	// Name 名称
 	Name string `json:"name"`
+}
+
+// ModifyCategoryDescJSONBody defines parameters for ModifyCategoryDesc.
+type ModifyCategoryDescJSONBody struct {
+	Desc string `json:"desc"`
 }
 
 // SetPostContentMultipartBody defines parameters for SetPostContent.
@@ -54,17 +54,17 @@ type GetPostListParams struct {
 
 // CreatePostMultipartBody defines parameters for CreatePost.
 type CreatePostMultipartBody struct {
-	Content openapi_types.File `form:"content" json:"content"`
+	Content openapi_types.File `json:"content"`
 
 	// Uri ID 编号
-	Uri string `form:"uri" json:"uri"`
+	Uri string `json:"uri"`
 }
-
-// ModifyCategoryDescJSONRequestBody defines body for ModifyCategoryDesc for application/json ContentType.
-type ModifyCategoryDescJSONRequestBody ModifyCategoryDescJSONBody
 
 // CreateCategoryJSONRequestBody defines body for CreateCategory for application/json ContentType.
 type CreateCategoryJSONRequestBody CreateCategoryJSONBody
+
+// ModifyCategoryDescJSONRequestBody defines body for ModifyCategoryDesc for application/json ContentType.
+type ModifyCategoryDescJSONRequestBody ModifyCategoryDescJSONBody
 
 // SetPostContentMultipartRequestBody defines body for SetPostContent for multipart/form-data ContentType.
 type SetPostContentMultipartRequestBody SetPostContentMultipartBody
@@ -80,18 +80,18 @@ type ServerInterface interface {
 	// Admin Get PostList
 	// (GET /admin/posts)
 	AdminGetPostList(c *gin.Context, params AdminGetPostListParams)
+	// 全部分类
+	// (GET /api/categories)
+	GetAllCategorys(c *gin.Context)
+	// 创建分类
+	// (POST /api/categories)
+	CreateCategory(c *gin.Context)
 	// 删除分类
 	// (DELETE /api/category/{id})
 	DeleteCategory(c *gin.Context, id uint32)
 	// 修改简介
 	// (PATCH /api/category/{id})
 	ModifyCategoryDesc(c *gin.Context, id uint32)
-	// 全部分类
-	// (GET /api/categorys)
-	GetAllCategorys(c *gin.Context)
-	// 创建分类
-	// (POST /api/categorys)
-	CreateCategory(c *gin.Context)
 	// 删除
 	// (DELETE /api/post/{id})
 	DeletePost(c *gin.Context, id uint32)
@@ -153,6 +153,32 @@ func (siw *ServerInterfaceWrapper) AdminGetPostList(c *gin.Context) {
 	siw.Handler.AdminGetPostList(c, params)
 }
 
+// GetAllCategorys operation middleware
+func (siw *ServerInterfaceWrapper) GetAllCategorys(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAllCategorys(c)
+}
+
+// CreateCategory operation middleware
+func (siw *ServerInterfaceWrapper) CreateCategory(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.CreateCategory(c)
+}
+
 // DeleteCategory operation middleware
 func (siw *ServerInterfaceWrapper) DeleteCategory(c *gin.Context) {
 
@@ -199,32 +225,6 @@ func (siw *ServerInterfaceWrapper) ModifyCategoryDesc(c *gin.Context) {
 	}
 
 	siw.Handler.ModifyCategoryDesc(c, id)
-}
-
-// GetAllCategorys operation middleware
-func (siw *ServerInterfaceWrapper) GetAllCategorys(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.GetAllCategorys(c)
-}
-
-// CreateCategory operation middleware
-func (siw *ServerInterfaceWrapper) CreateCategory(c *gin.Context) {
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		middleware(c)
-		if c.IsAborted() {
-			return
-		}
-	}
-
-	siw.Handler.CreateCategory(c)
 }
 
 // DeletePost operation middleware
@@ -432,10 +432,10 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	}
 
 	router.GET(options.BaseURL+"/admin/posts", wrapper.AdminGetPostList)
+	router.GET(options.BaseURL+"/api/categories", wrapper.GetAllCategorys)
+	router.POST(options.BaseURL+"/api/categories", wrapper.CreateCategory)
 	router.DELETE(options.BaseURL+"/api/category/:id", wrapper.DeleteCategory)
 	router.PATCH(options.BaseURL+"/api/category/:id", wrapper.ModifyCategoryDesc)
-	router.GET(options.BaseURL+"/api/categorys", wrapper.GetAllCategorys)
-	router.POST(options.BaseURL+"/api/categorys", wrapper.CreateCategory)
 	router.DELETE(options.BaseURL+"/api/post/:id", wrapper.DeletePost)
 	router.POST(options.BaseURL+"/api/post/:id", wrapper.SetPostContent)
 	router.PUT(options.BaseURL+"/api/post/:id", wrapper.ModifyPosts)
