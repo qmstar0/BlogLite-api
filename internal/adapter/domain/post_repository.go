@@ -84,10 +84,11 @@ func (p PostRepository) NextID(ctx context.Context) (uint32, error) {
 
 func (p PostRepository) FindByUri(ctx context.Context, uri values.PostUri) (*aggregates.Post, error) {
 	var posts = make([]*PostM, 0, 1)
-	err := p.db.NewSelect().Model(&posts).
+	err := p.db.NewSelect().
+		Model(&posts).
 		Relation("PostTags").
 		Relation("Category").
-		Where("uri = ?", uri.String()).
+		Where("post.uri = ?", uri.String()).
 		Limit(1).
 		Scan(ctx)
 	if err != nil {
@@ -113,10 +114,10 @@ func (p PostRepository) FindOrErrByUri(ctx context.Context, uri values.PostUri) 
 func (p PostRepository) FindOrErrByID(ctx context.Context, id uint32) (*aggregates.Post, error) {
 	var posts = make([]*PostM, 0, 1)
 	err := p.db.NewSelect().
-		Model(posts).
+		Model(&posts).
 		Relation("PostTags").
 		Relation("Category").
-		Where("id = ?", id).
+		Where("post.id = ?", id).
 		Limit(1).
 		Scan(ctx)
 	if err != nil {

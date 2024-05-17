@@ -20,7 +20,7 @@ func NewPostReadModel(db transaction.TransactionContext) PostReadModel {
 func (p PostReadModel) FindByID(ctx context.Context, pid uint32) (query.PostView, error) {
 	var posts = []*PostM{{ID: pid, Visible: true}}
 	err := p.db.NewSelect().
-		Model(posts).
+		Model(&posts).
 		Relation("PostTags").
 		Relation("Category").
 		WherePK("id", "visible").
@@ -60,7 +60,7 @@ func (p PostReadModel) RecentPosts(ctx context.Context, limit int) (query.PostLi
 		Model(&posts).
 		ColumnExpr("id, uri, title, created_at, updated_at").
 		Order("created_at", "updated_at").
-		Where("visible = ?", true).
+		Where("post.visible = ?", true).
 		Limit(limit).
 		Scan(ctx)
 	if err != nil {
@@ -80,40 +80,36 @@ func (p PostReadModel) AllWithFilter(
 
 	var posts = make([]*PostM, 0)
 
+	selectQuery := p.db.NewSelect()
+
 	//计算偏移
 	offset := utils.Offset(page, limit)
-
-	//tag filter
-	var TagFilterFn func(*bun.SelectQuery) *bun.SelectQuery
-	if len(tags) != 0 {
-		filteredPost := p.db.NewSelect().
-			Model((*PostTagM)(nil)).
-			Column("post_id").
-			Where("tag IN (?)", bun.In(tags)).
-			Group("post_id").
-			Having("COUNT(DISTINCT lang) >= ?")
-		TagFilterFn = func(selectQuery *bun.SelectQuery) *bun.SelectQuery {
-			return selectQuery.Where("post_id IN (?)", filteredPost)
-		}
-	}
 
 	//category filter
 	var CategoryFilterFn func(*bun.SelectQuery) *bun.SelectQuery
 	if categroyID != 0 {
 		CategoryFilterFn = func(selectQuery *bun.SelectQuery) *bun.SelectQuery {
-			return selectQuery.Where("id = ?", categroyID)
+			return selectQuery.Where("category.id = ?", categroyID)
 		}
 	}
 
 	//main query
-	selectQuery := p.db.NewSelect().
+	selectQuery = selectQuery.
 		Model(&posts).
 		ExcludeColumn("content").
-		Relation("PostTags", TagFilterFn).
+		Relation("PostTags").
 		Relation("Category", CategoryFilterFn).
 		Order("created_at", "updated_at")
 	if onlyVisible {
 		selectQuery = selectQuery.Where("visible = ?", true)
+	}
+	if tagsLen := len(tags); tagsLen != 0 {
+		selectQuery = selectQuery.Where("post.id IN (?)", p.db.NewSelect().
+			Model((*PostTagM)(nil)).
+			ColumnExpr("post_id").
+			Where("tag IN (?)", bun.In(tags)).
+			Group("post_id").
+			Having("COUNT(*) >= ?", tagsLen))
 	}
 	if limit > 0 {
 		selectQuery = selectQuery.Limit(limit)
