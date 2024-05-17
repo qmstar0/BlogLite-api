@@ -68,11 +68,7 @@ func (s ModifyPostHandler) Handle(ctx context.Context, cmd commands.ModifyPost) 
 }
 
 func (s ModifyPostHandler) setTag(post *aggregates.Post, tags []string) error {
-	tagsLen := len(tags)
-	if tagsLen > 4 {
-		return e.DErrInvalidOperation.WithMessage("Post最多拥有4个Tag")
-	}
-	var tagValues = make([]values.Tag, tagsLen)
+	var tagValues = make([]values.Tag, len(tags))
 
 	for i, tag := range tags {
 		newTag, err := values.NewTag(tag)
@@ -81,14 +77,16 @@ func (s ModifyPostHandler) setTag(post *aggregates.Post, tags []string) error {
 		}
 		tagValues[i] = newTag
 	}
-	post.ModifyPostTags(tagValues)
+	if err := post.ModifyPostTags(tagValues); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (s ModifyPostHandler) setTitle(post *aggregates.Post, title string) error {
 	titleValue, err := values.NewPostTitle(title)
 	if err != nil {
-		return e.DErrInvalidOperation.WithMessage(err.Error())
+		return err
 	}
 
 	post.ModifyPostTitle(titleValue)
@@ -109,9 +107,8 @@ func (s ModifyPostHandler) setDesc(post *aggregates.Post, desc []byte) error {
 }
 
 func (s ModifyPostHandler) setVisible(post *aggregates.Post, visible bool) error {
-	err := post.ModifyVisible(visible)
-	if err != nil {
-		return e.DErrInvalidOperation.WithMessage(err.Error())
+	if err := post.ModifyVisible(visible); err != nil {
+		return err
 	}
 	return nil
 }

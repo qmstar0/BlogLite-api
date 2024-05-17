@@ -1,7 +1,8 @@
 package values
 
 import (
-	"errors"
+	"fmt"
+	"go-blog-ddd/internal/adapter/e"
 	"strings"
 )
 
@@ -12,10 +13,10 @@ type PostTitle string
 func NewPostTitle(title string) (PostTitle, error) {
 	title = strings.TrimSpace(title)
 	if title == "" {
-		return "", errors.New("分类名不能为空")
+		return "", e.DErrInvalidOperation.WithMessage("分类名不能为空")
 	}
 	if len([]rune(title)) > MaxTitleCharLength {
-		return "", errors.New("帖子标题过长")
+		return "", e.DErrInvalidOperation.WithMessage(fmt.Sprintf("帖子标题过长(最多%d个字符)", MaxTitleCharLength))
 	}
 	return PostTitle(title), nil
 }

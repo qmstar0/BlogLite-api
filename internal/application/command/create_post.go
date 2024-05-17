@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/adapter/mdtohtml"
 	"go-blog-ddd/internal/domain/aggregates"
 	"go-blog-ddd/internal/domain/commands"
@@ -23,14 +22,8 @@ func NewCreatePostHandler(repository aggregates.PostRepository) CreatePostHandle
 func (c CreatePostHandler) Handle(ctx context.Context, cmd commands.CreatePost) (uint32, error) {
 	uri, err := values.NewPostUri(cmd.Uri)
 	if err != nil {
-		return 0, e.PErrInvalidParam.WithError(err)
+		return 0, err
 	}
-
-	//if find, err := c.postRepo.FindByUri(ctx, uri); err != nil {
-	//	return 0, e.RErrDatabase.WithError(err)
-	//} else if find != nil {
-	//	return 0, e.RErrResourceExists
-	//}
 
 	if err = c.postRepo.ResourceUniquenessCheck(ctx, uri); err != nil {
 		return 0, err

@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/domain/aggregates"
 	"go-blog-ddd/internal/domain/commands"
 	"go-blog-ddd/internal/domain/values"
@@ -22,15 +21,8 @@ func NewCreateCategoryHandler(repo aggregates.CategoryRepository) CreateCategory
 func (c CreateCategoryHandler) Handle(ctx context.Context, cmd commands.CreateCategory) (uint32, error) {
 	name, err := values.NewCategoryName(cmd.Name)
 	if err != nil {
-		return 0, e.DErrInvalidOperation.WithError(err)
+		return 0, err
 	}
-
-	//if find, err := c.repo.FindByName(ctx, name); err != nil {
-	//	return 0, err
-	//} else if find != nil {
-	//	return 0, e.RErrResourceExists
-	//}
-
 	if err = c.repo.ResourceUniquenessCheck(ctx, name); err != nil {
 		return 0, err
 	}

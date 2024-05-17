@@ -1,7 +1,7 @@
 package values
 
 import (
-	"errors"
+	"go-blog-ddd/internal/adapter/e"
 	"regexp"
 	"strings"
 )
@@ -13,7 +13,7 @@ type Tag string
 func NewTag(s string) (Tag, error) {
 	s = strings.TrimSpace(s)
 	if !TagRegexpCheck.MatchString(s) {
-		return "", errors.New("标签名格式错误")
+		return "", e.DErrInvalidOperation.WithMessage("标签名格式错误")
 	}
 	return Tag(s), nil
 }

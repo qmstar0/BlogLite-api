@@ -1,22 +1,22 @@
 package values
 
 import (
-	"errors"
+	"fmt"
+	"go-blog-ddd/internal/adapter/e"
 	"strings"
 )
+
+const MaxUriCharLength = 75
 
 type PostUri string
 
 func NewPostUri(uri string) (PostUri, error) {
 	uri = strings.TrimSpace(uri)
-	if uri == "" {
-		return "", errors.New("uri不能为空")
+	if uri == "" || strings.Contains(uri, " ") {
+		return "", e.DErrInvalidOperation.WithMessage("uri格式错误")
 	}
-	if strings.Contains(uri, " ") {
-		return "", errors.New("uri中不能存在空格")
-	}
-	if len([]rune(uri)) > MaxTitleCharLength {
-		return "", errors.New("帖子标题过长")
+	if len([]rune(uri)) > MaxUriCharLength {
+		return "", e.DErrInvalidOperation.WithMessage(fmt.Sprintf("帖子标题过长(最多%d)", MaxUriCharLength))
 	}
 	return PostUri(uri), nil
 }

@@ -1,7 +1,7 @@
 package values
 
 import (
-	"errors"
+	"go-blog-ddd/internal/adapter/e"
 	"regexp"
 	"strings"
 )
@@ -13,7 +13,7 @@ type CategoryName string
 func NewCategoryName(s string) (CategoryName, error) {
 	s = strings.TrimSpace(s)
 	if !CategoryRegexpCheck.MatchString(s) {
-		return "", errors.New("分类名格式错误")
+		return "", e.DErrInvalidOperation.WithMessage("分类名格式错误")
 	}
 	return CategoryName(s), nil
 }

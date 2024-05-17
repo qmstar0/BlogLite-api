@@ -2,9 +2,9 @@ package aggregates
 
 import (
 	"context"
-	"fmt"
+	"errors"
+	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/domain/values"
-	"strings"
 	"time"
 )
 
@@ -46,15 +46,8 @@ func NewPost(
 
 func (p *Post) ModifyVisible(visible bool) error {
 	if visible {
-		var params = make([]string, 0)
-		if p.Title == "" {
-			params = append(params, "title(Post标题)")
-		}
-		if p.Desc == "" {
-			params = append(params, "desc(Post简介)")
-		}
-		if len(params) > 0 {
-			return fmt.Errorf("你必须设置%s等参数后，才能设置Post为可见", strings.Join(params, "; "))
+		if p.Title == "" || p.Desc == "" {
+			return e.DErrInvalidOperation.WithMessage("请先完善帖子的标题和简介")
 		}
 	}
 	p.Visible = visible
@@ -62,8 +55,12 @@ func (p *Post) ModifyVisible(visible bool) error {
 	return nil
 }
 
-func (p *Post) ModifyPostTags(tags []values.Tag) {
+func (p *Post) ModifyPostTags(tags []values.Tag) error {
+	if len(tags) > 4 {
+		return e.DErrInvalidOperation.WithError(errors.New("Post最多拥有4个Tag")).WithMessage("每个帖子最多只能设置4个标签")
+	}
 	p.Tags = tags
+	return nil
 }
 
 func (p *Post) ModifyPostTitle(title values.PostTitle) {
