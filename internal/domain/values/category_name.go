@@ -1,7 +1,7 @@
 package values
 
 import (
-	"go-blog-ddd/internal/adapter/e"
+	"go-blog-ddd/internal/pkg/e"
 	"regexp"
 	"strings"
 )

@@ -20,7 +20,7 @@ func main() {
 	}
 	for i := range dirs {
 		dir := filepath.Join(rootDir, dirs[i].Name())
-		fmt.Println("执行目录:", dir)
+		fmt.Println("handler dir:", dir)
 		runCmd(dir)
 	}
 }

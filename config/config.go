@@ -1,35 +1,24 @@
 package config
 
 import (
-	"github.com/charmbracelet/log"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go-blog-ddd/internal/adapter/logging"
 )
 
 var Cfg Config
 
-var logger = logging.WithPrefix("config")
-
-func init() {
-	logger.SetLevel(log.DebugLevel)
-}
-
 type Config struct {
+	Port    int  `toml:"port" mapstructure:"port"`
+	Release bool `toml:"release" mapstructure:"release"`
+
 	UploadFile  UploadFile  `toml:"upload_file" mapstructure:"upload_file"`
-	Resource    Resource    `toml:"resource" mapstructure:"resource"`
 	HttpRequest HttpRequest `toml:"http_request" mapstructure:"http_request"`
 	Postgre     Postgre     `toml:"postgre" mapstructure:"postgre"`
-	App         App         `toml:"app" mapstructure:"app"`
-	Build       Build       `toml:"build" mapstructure:"build"`
+	JWTAuth     JWTAuth     `toml:"jwt_auth" mapstructure:"jwt_auth"`
 }
 
 type UploadFile struct {
 	MaxFileSize int64 `toml:"max_file_size" mapstructure:"max_file_size"`
-}
-type Resource struct {
-	Static struct {
-		PostFromPath string `toml:"post_from_path" mapstructure:"post_from_path"`
-	} `toml:"static" mapstruceure:"static"`
 }
 
 type HttpRequest struct {
@@ -39,6 +28,14 @@ type HttpRequest struct {
 	} `toml:"post" mapstructure:"post"`
 }
 
+type JWTAuth struct {
+	AuthKey       string   `toml:"authkey" mapstructure:"authkey"`
+	Subject       string   `toml:"subject" mapstructure:"subject"`
+	Issuer        string   `toml:"issuer" mapstructure:"issuer"`
+	Audience      []string `toml:"audience" mapstructure:"audience"`
+	AuthTokenLife int      `toml:"authtoken_left" mapstructure:"authtoken_left"`
+}
+
 type Postgre struct {
 	Addr     string `toml:"addr" mapstructure:"addr"`
 	User     string `toml:"user" mapstructure:"user"`
@@ -46,33 +43,22 @@ type Postgre struct {
 	Database string `toml:"database" mapstructure:"database"`
 }
 
-type App struct {
-	Addr string `toml:"addr" mapstructure:"addr"`
-}
-
-type Build struct {
-	Release bool `toml:"release" mapstructure:"release"`
-}
-
-func Init() {
-	parser := viper.NewWithOptions()
-	parser.AutomaticEnv()
-	parser.SetConfigName("config")
-	parser.SetConfigType("toml")
-	parser.AddConfigPath("config/")
-
-	err := parser.ReadInConfig()
+func Init(configFile string, flags *pflag.FlagSet) {
+	if flags != nil {
+		_ = viper.BindPFlags(flags)
+	}
+	viper.SetConfigFile(configFile)
+	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	err = parser.Unmarshal(&Cfg)
+	err = viper.Unmarshal(&Cfg)
 	if err != nil {
 		panic(err)
 	}
-	if !Cfg.Build.Release {
-		logging.Logger.SetLevel(log.DebugLevel)
-		logger.Debug(parser.AllSettings())
-		logger.Debug(Cfg)
-	}
+}
+
+func AllSettings() map[string]any {
+	return viper.AllSettings()
 }

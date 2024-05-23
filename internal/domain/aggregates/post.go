@@ -3,8 +3,8 @@ package aggregates
 import (
 	"context"
 	"errors"
-	"go-blog-ddd/internal/adapter/e"
 	"go-blog-ddd/internal/domain/values"
+	"go-blog-ddd/internal/pkg/e"
 	"time"
 )
 

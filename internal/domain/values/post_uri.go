@@ -2,7 +2,7 @@ package values
 
 import (
 	"fmt"
-	"go-blog-ddd/internal/adapter/e"
+	"go-blog-ddd/internal/pkg/e"
 	"strings"
 )
 
