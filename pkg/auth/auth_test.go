@@ -8,20 +8,20 @@ import (
 
 func TestJWT(t *testing.T) {
 	authenticator := auth2.NewJWTAuthenticator([]byte("test"), "ADMIN PERMISSIONS", "于野|探索日志", "ADMIN", "AUTHOR")
-	signStr, err := authenticator.Sign(time.Second * 1)
+	signStr, claims, err := authenticator.Sign(time.Second * 1)
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	t.Log(claims)
 	t.Log(signStr)
 
-	err = authenticator.Check(signStr)
+	_, err = authenticator.Parse(signStr)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(time.Second * 1)
-	err = authenticator.Check(signStr)
+	_, err = authenticator.Parse(signStr)
 	if err == nil {
 		t.Fatal("token超时后仍可用")
 	}
