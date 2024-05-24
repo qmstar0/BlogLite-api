@@ -10,8 +10,8 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "blog",
 	Short: "blog is root commandhandler",
-	Run: func(cmd *cobra.Command, args []string) {
-		_ = cmd.Help()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 

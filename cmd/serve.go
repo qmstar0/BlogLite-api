@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	configPath *string
+	configPath string
 	logger     *log.Logger
 )
 
@@ -26,7 +26,7 @@ var serveCmd = &cobra.Command{
 	Long:  `Start the server on the specified flagport.`,
 	//运行前hooks
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		config.Init(*configPath, cmd.Flags())
+		config.Init(configPath, cmd.Flags())
 		dbCloseFn := postgresql.Init()
 		shutdown.RegisterTasks(func() {
 			err := dbCloseFn()
@@ -54,13 +54,11 @@ var serveCmd = &cobra.Command{
 		shutdown.RegisterTasks(launcher.Close)
 
 		launcher.Run(config.Cfg.Port)
-		shutdown.WaitExit()
 	},
 }
 
 func init() {
-	cobra.OnInitialize()
-	configPath = serveCmd.Flags().String("config", defaultConfigPath, "Set configuration file path")
+	serveCmd.Flags().StringVar(&configPath, "config", defaultConfigPath, "Set configuration file path")
 	serveCmd.Flags().IntP("port", "p", 0, "Set the admintoken running flagport")
 	serveCmd.Flags().Bool("release", false, "Set mode")
 	rootCmd.AddCommand(serveCmd)

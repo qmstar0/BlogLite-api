@@ -11,8 +11,7 @@ func Init(level log.Level) {
 	logger = log.NewWithOptions(os.Stdout, log.Options{
 		TimeFormat:      "2006/01/02 15:04:05",
 		ReportTimestamp: true,
-
-		Level: level,
+		Level:           level,
 	})
 }
 

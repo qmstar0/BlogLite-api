@@ -19,4 +19,5 @@ public_key.pem
 
 config/
 *.toml
-/web/
+/web
+/gateway
