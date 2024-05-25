@@ -3,13 +3,13 @@ package cmd
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
+	"github.com/qmstar0/shutdown"
 	"github.com/spf13/cobra"
 	"go-blog-ddd/config"
 	"go-blog-ddd/internal/apps"
 	"go-blog-ddd/internal/apps/service"
 	"go-blog-ddd/pkg/logging"
 	"go-blog-ddd/pkg/postgresql"
-	"go-blog-ddd/pkg/shutdown"
 	"go-blog-ddd/ports/httpserver"
 )
 

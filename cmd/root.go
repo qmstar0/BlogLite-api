@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/qmstar0/shutdown"
 	"github.com/spf13/cobra"
-	"go-blog-ddd/pkg/shutdown"
 	"os"
 )
 
@@ -24,5 +24,5 @@ func Execute() {
 		_, _ = fmt.Fprintf(os.Stderr, "%s", err)
 		shutdown.Exit(1)
 	}
-	shutdown.WaitExit()
+	shutdown.WaitCtrlC()
 }
