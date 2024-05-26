@@ -2,8 +2,8 @@ package render
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-blog-ddd/config"
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/config"
+	"github.com/qmstar0/domain/internal/pkg/e"
 )
 
 var errorToResponse func(error) Response

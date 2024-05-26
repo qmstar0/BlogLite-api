@@ -7,7 +7,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"go-blog-ddd/config"
 	"time"
 )
 
@@ -17,15 +16,15 @@ func GetDB() *bun.DB {
 	return db
 }
 
-func Init() (closeFn func() error) {
+func Init(addr, user, pwd, database string) (closeFn func() error) {
 	var err error
 	sqlDB := sql.OpenDB(pgdriver.NewConnector(
 		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(config.Cfg.Postgre.Addr),
+		pgdriver.WithAddr(addr),
 		pgdriver.WithTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-		pgdriver.WithUser(config.Cfg.Postgre.User),
-		pgdriver.WithPassword(config.Cfg.Postgre.Password),
-		pgdriver.WithDatabase(config.Cfg.Postgre.Database),
+		pgdriver.WithUser(user),
+		pgdriver.WithPassword(pwd),
+		pgdriver.WithDatabase(database),
 
 		pgdriver.WithTimeout(5*time.Second),
 		pgdriver.WithDialTimeout(5*time.Second),

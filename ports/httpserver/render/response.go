@@ -2,7 +2,7 @@ package render
 
 import (
 	"errors"
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/pkg/e"
 )
 
 type Response struct {

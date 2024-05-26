@@ -20,8 +20,7 @@ public_key.pem
 config/
 *.toml
 
-/web
+/web/*
 !/web/README.MD
 /gateway
 !/gatewat/README.MD
-/gateway/.idea/

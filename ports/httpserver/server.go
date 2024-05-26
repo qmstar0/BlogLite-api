@@ -6,9 +6,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
-	"go-blog-ddd/config"
-	"go-blog-ddd/internal/apps/service"
-	"go-blog-ddd/pkg/logging"
+	"github.com/qmstar0/domain/config"
+	"github.com/qmstar0/domain/internal/apps/service"
+	"github.com/qmstar0/domain/pkg/logging"
+
 	"net/http"
 	"time"
 )

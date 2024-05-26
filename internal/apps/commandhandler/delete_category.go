@@ -2,8 +2,8 @@ package commandhandler
 
 import (
 	"context"
-	"go-blog-ddd/internal/domain/aggregates"
-	"go-blog-ddd/internal/domain/commands"
+	"github.com/qmstar0/domain/internal/domain/aggregates"
+	"github.com/qmstar0/domain/internal/domain/commands"
 )
 
 type DeleteCategoryHandler struct {

@@ -2,9 +2,9 @@ package commandhandler
 
 import (
 	"context"
-	"go-blog-ddd/internal/domain/aggregates"
-	"go-blog-ddd/internal/domain/commands"
-	"go-blog-ddd/internal/pkg/mdtohtml"
+	"github.com/qmstar0/domain/internal/domain/aggregates"
+	"github.com/qmstar0/domain/internal/domain/commands"
+	"github.com/qmstar0/domain/internal/pkg/mdtohtml"
 )
 
 type ResetPostContentHandler struct {

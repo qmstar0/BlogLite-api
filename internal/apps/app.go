@@ -2,12 +2,12 @@ package apps
 
 import (
 	"context"
-	"go-blog-ddd/internal/apps/commandhandler"
-	"go-blog-ddd/internal/apps/query"
-	"go-blog-ddd/internal/domain/services"
-	domain2 "go-blog-ddd/internal/pkg/domain"
-	"go-blog-ddd/pkg/postgresql"
-	"go-blog-ddd/pkg/transaction"
+	"github.com/qmstar0/domain/internal/apps/commandhandler"
+	"github.com/qmstar0/domain/internal/apps/query"
+	"github.com/qmstar0/domain/internal/domain/services"
+	"github.com/qmstar0/domain/internal/pkg/domain"
+	"github.com/qmstar0/domain/pkg/postgresql"
+	"github.com/qmstar0/domain/pkg/transaction"
 )
 
 type DomainApp struct {
@@ -40,11 +40,11 @@ type Commands struct {
 	ResetPostContent commandhandler.ResetPostContentHandler
 }
 
-func NewDomainControl() *DomainApp {
+func NewDomainApp() *DomainApp {
 	tctx := transaction.NewTransactionContext(postgresql.GetDB())
-	categoryRepo := domain2.NewCategoryRepository(tctx)
+	categoryRepo := domain.NewCategoryRepository(tctx)
 	categoryService := services.NewPostDomainService(categoryRepo)
-	postRepo := domain2.NewPostRepository(tctx)
+	postRepo := domain.NewPostRepository(tctx)
 	return &DomainApp{
 		transaction: tctx,
 		Commands: Commands{
@@ -58,9 +58,9 @@ func NewDomainControl() *DomainApp {
 			ResetPostContent: commandhandler.NewResetPostContentHandler(postRepo),
 		},
 		Queries: Queries{
-			Posts:     domain2.NewPostReadModel(tctx),
-			Categorys: domain2.NewCategoryReadModel(tctx),
-			Tags:      domain2.NewTagReadModel(tctx),
+			Posts:     domain.NewPostReadModel(tctx),
+			Categorys: domain.NewCategoryReadModel(tctx),
+			Tags:      domain.NewTagReadModel(tctx),
 		},
 	}
 }

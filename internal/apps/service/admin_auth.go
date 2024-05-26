@@ -1,10 +1,10 @@
 package service
 
 import (
-	"go-blog-ddd/config"
-	"go-blog-ddd/internal/apps/query"
-	"go-blog-ddd/internal/pkg/e"
-	"go-blog-ddd/pkg/auth"
+	"github.com/qmstar0/domain/config"
+	"github.com/qmstar0/domain/internal/apps/query"
+	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/domain/pkg/auth"
 	"time"
 )
 

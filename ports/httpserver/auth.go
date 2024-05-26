@@ -2,9 +2,10 @@ package httpserver
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-blog-ddd/internal/apps/service"
-	"go-blog-ddd/internal/pkg/e"
-	"go-blog-ddd/ports/httpserver/render"
+	"github.com/qmstar0/domain/internal/apps/service"
+	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/domain/ports/httpserver/render"
+
 	"strings"
 )
 

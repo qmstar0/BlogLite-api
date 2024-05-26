@@ -1,6 +1,6 @@
 package main
 
-import "go-blog-ddd/cmd"
+import "github.com/qmstar0/domain/cmd"
 
 func main() {
 	cmd.Execute()

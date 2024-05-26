@@ -3,14 +3,14 @@ package cmd
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
+	"github.com/qmstar0/domain/config"
+	"github.com/qmstar0/domain/internal/apps"
+	"github.com/qmstar0/domain/internal/apps/service"
+	"github.com/qmstar0/domain/pkg/logging"
+	"github.com/qmstar0/domain/pkg/postgresql"
+	"github.com/qmstar0/domain/ports/httpserver"
 	"github.com/qmstar0/shutdown"
 	"github.com/spf13/cobra"
-	"go-blog-ddd/config"
-	"go-blog-ddd/internal/apps"
-	"go-blog-ddd/internal/apps/service"
-	"go-blog-ddd/pkg/logging"
-	"go-blog-ddd/pkg/postgresql"
-	"go-blog-ddd/ports/httpserver"
 )
 
 var (
@@ -27,7 +27,12 @@ var serveCmd = &cobra.Command{
 	//运行前hooks
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		config.Init(configPath, cmd.Flags())
-		dbCloseFn := postgresql.Init()
+		dbCloseFn := postgresql.Init(
+			config.Cfg.Postgre.Addr,
+			config.Cfg.Postgre.User,
+			config.Cfg.Postgre.Password,
+			config.Cfg.Postgre.Database,
+		)
 		shutdown.RegisterTasks(func() {
 			err := dbCloseFn()
 			if err != nil {
@@ -49,7 +54,7 @@ var serveCmd = &cobra.Command{
 		logger.Debug(config.AllSettings())
 
 		service := service.NewAdminAuthenticationService()
-		httpServer := httpserver.NewHttpServer(apps.NewDomainControl(), service)
+		httpServer := httpserver.NewHttpServer(apps.NewDomainApp(), service)
 		launcher := httpserver.NewHttpServeLauncher(httpServer, service)
 		shutdown.RegisterTasks(launcher.Close)
 
