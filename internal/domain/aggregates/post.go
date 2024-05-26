@@ -3,8 +3,8 @@ package aggregates
 import (
 	"context"
 	"errors"
-	"go-blog-ddd/internal/domain/values"
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/domain/values"
+	"github.com/qmstar0/domain/internal/pkg/e"
 	"time"
 )
 

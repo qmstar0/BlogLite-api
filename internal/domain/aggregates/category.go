@@ -2,7 +2,7 @@ package aggregates
 
 import (
 	"context"
-	"go-blog-ddd/internal/domain/values"
+	"github.com/qmstar0/domain/internal/domain/values"
 )
 
 type Category struct {

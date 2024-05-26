@@ -1,10 +1,10 @@
 package domain
 
 import (
+	"github.com/qmstar0/domain/internal/apps/query"
+	"github.com/qmstar0/domain/internal/domain/aggregates"
+	"github.com/qmstar0/domain/internal/domain/values"
 	"github.com/uptrace/bun"
-	"go-blog-ddd/internal/apps/query"
-	"go-blog-ddd/internal/domain/aggregates"
-	"go-blog-ddd/internal/domain/values"
 )
 
 type CategoryM struct {

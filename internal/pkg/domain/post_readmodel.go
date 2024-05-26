@@ -2,11 +2,11 @@ package domain
 
 import (
 	"context"
+	"github.com/qmstar0/domain/internal/apps/query"
+	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/pkg/utils"
+	"github.com/qmstar0/domain/pkg/transaction"
 	"github.com/uptrace/bun"
-	"go-blog-ddd/internal/apps/query"
-	"go-blog-ddd/internal/pkg/e"
-	utils2 "go-blog-ddd/internal/pkg/utils"
-	"go-blog-ddd/pkg/transaction"
 )
 
 type PostReadModel struct {
@@ -83,7 +83,7 @@ func (p PostReadModel) AllWithFilter(
 	selectQuery := p.db.NewSelect()
 	totalQuery := p.db.NewSelect()
 	//计算偏移
-	offset := utils2.Offset(page, limit)
+	offset := utils.Offset(page, limit)
 
 	//category filter
 	var CategoryFilterFn func(*bun.SelectQuery) *bun.SelectQuery
@@ -138,6 +138,6 @@ func (p PostReadModel) AllWithFilter(
 
 	result := PostModelToListView(posts)
 	result.Page = page
-	result.Prev, result.Next = utils2.Paginator(total, page, limit)
+	result.Prev, result.Next = utils.Paginator(total, page, limit)
 	return result, nil
 }

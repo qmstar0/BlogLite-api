@@ -2,7 +2,8 @@ package values
 
 import (
 	"fmt"
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/pkg/e"
+
 	"strings"
 )
 

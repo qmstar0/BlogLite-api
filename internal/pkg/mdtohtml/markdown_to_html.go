@@ -2,12 +2,12 @@ package mdtohtml
 
 import (
 	"bytes"
+	"github.com/qmstar0/domain/internal/pkg/e"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
-	"go-blog-ddd/internal/pkg/e"
 )
 
 var defaultMarkdownToHTMLTool = goldmark.New(

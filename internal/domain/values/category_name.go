@@ -1,7 +1,7 @@
 package values
 
 import (
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/pkg/e"
 	"regexp"
 	"strings"
 )

@@ -2,8 +2,8 @@ package services
 
 import (
 	"context"
-	"go-blog-ddd/internal/domain/aggregates"
-	"go-blog-ddd/internal/pkg/e"
+	"github.com/qmstar0/domain/internal/domain/aggregates"
+	"github.com/qmstar0/domain/internal/pkg/e"
 )
 
 type CategoryDomainService struct {

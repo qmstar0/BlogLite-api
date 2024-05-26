@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"github.com/qmstar0/domain/internal/apps/query"
 	"github.com/uptrace/bun"
-	"go-blog-ddd/internal/apps/query"
 )
 
 type PostTagM struct {

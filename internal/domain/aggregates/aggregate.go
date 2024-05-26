@@ -1,6 +1,6 @@
 package aggregates
 
-import "go-blog-ddd/internal/domain/domainevent"
+import "github.com/qmstar0/domain/internal/domain/domainevent"
 
 type AggregateRoot struct {
 	events domainevent.EventQueue

@@ -6,9 +6,6 @@ public_key.pem
 /test
 /temp
 /.idea
-/go.mod
-/go.sums
-/go.sum
 /build
 *.exe
 /infra
@@ -19,7 +16,8 @@ public_key.pem
 
 config/
 *.toml
-
+Dockerfile
+docker-compose.yml
 /web/*
 !/web/README.MD
 /gateway
