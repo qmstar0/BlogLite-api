@@ -1,0 +1,24 @@
+version = "0.0.1"
+
+#port = 5000
+
+[upload_file]
+# 文件大小最大限制
+max_file_size = 1048_5760
+
+[jwt_auth]
+authkey = "string"
+subject = "string"
+issuer = "string"
+audience = ["string", "string"]
+authtoken_left = 90            # day
+
+[http_request.post]
+default_limit = 13
+recent_posts_num = 5
+
+[postgre]
+addr = "string:int"
+user = "string"
+password = "string"
+database = "string"

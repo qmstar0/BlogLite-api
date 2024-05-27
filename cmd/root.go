@@ -11,6 +11,7 @@ var rootCmd = &cobra.Command{
 	Use:   "blog",
 	Short: "blog is root commandhandler",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		defer shutdown.Exit(0)
 		return cmd.Help()
 	},
 }

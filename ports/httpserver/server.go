@@ -22,6 +22,9 @@ type HttpServeLauncher struct {
 }
 
 func NewHttpServeLauncher(serverInterface ServerInterface, service *service.AdminAuthenticationService) *HttpServeLauncher {
+	if config.Cfg.Release {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	engine := gin.New()
 	setupMiddleware(engine)
 	RegisterHandlersWithOptions(engine, serverInterface, GinServerOptions{
@@ -49,11 +52,8 @@ func (h HttpServeLauncher) Run(port int) {
 	if port <= 0 {
 		port = DefaultHttpServerPort
 	}
-	if config.Cfg.Release {
-		gin.SetMode(gin.ReleaseMode)
-	}
 	h.server.Addr = h.spliceAddr(port)
-	h.logger.Infof("running http://%s", lipgloss.NewStyle().Underline(true).Foreground(lipgloss.Color("#7CFB74")).Render(h.server.Addr))
+	h.logger.Printf("running http://%s", lipgloss.NewStyle().Underline(true).Foreground(lipgloss.Color("#7CFB74")).Render(h.server.Addr))
 	_ = h.server.ListenAndServe()
 }
 

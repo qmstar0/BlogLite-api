@@ -18,7 +18,7 @@ var (
 	logger     *log.Logger
 )
 
-const defaultConfigPath = "config/config.toml"
+const defaultConfigPath = "config.toml"
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",

@@ -20,7 +20,7 @@ func NewModifyPostHandler(repo aggregates.PostRepository, service *services.Cate
 		panic("missing PostRepository")
 	}
 	if service == nil {
-		panic("missing domain admintoken")
+		panic("missing domain service")
 	}
 	return ModifyPostHandler{repo: repo, service: service}
 }
