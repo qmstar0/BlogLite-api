@@ -8,12 +8,12 @@ import (
 var Cfg Config
 
 type Config struct {
-	Port    int  `toml:"port" mapstructure:"port"`
-	Release bool `toml:"release" mapstructure:"release"`
+	Port        int    `toml:"port" mapstructure:"port"`
+	Release     bool   `toml:"release" mapstructure:"release"`
+	DatabaseDNS string `toml:"database_dns" mapstructure:"database_dns"`
 
 	UploadFile  UploadFile  `toml:"upload_file" mapstructure:"upload_file"`
 	HttpRequest HttpRequest `toml:"http_request" mapstructure:"http_request"`
-	Postgre     Postgre     `toml:"postgre" mapstructure:"postgre"`
 	JWTAuth     JWTAuth     `toml:"jwt_auth" mapstructure:"jwt_auth"`
 }
 
@@ -34,13 +34,6 @@ type JWTAuth struct {
 	Issuer        string   `toml:"issuer" mapstructure:"issuer"`
 	Audience      []string `toml:"audience" mapstructure:"audience"`
 	AuthTokenLife int      `toml:"authtoken_left" mapstructure:"authtoken_left"`
-}
-
-type Postgre struct {
-	Addr     string `toml:"addr" mapstructure:"addr"`
-	User     string `toml:"user" mapstructure:"user"`
-	Password string `toml:"password" mapstructure:"password"`
-	Database string `toml:"database" mapstructure:"database"`
 }
 
 func Init(configFile string, flags *pflag.FlagSet) {

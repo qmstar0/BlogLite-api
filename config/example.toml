@@ -1,9 +1,14 @@
-version = "0.0.1"
+# 运行端口默认5000
+port = 5000
 
-#port = 5000
+# 运行模式 debug（默认）/release
+#release = true
+
+# 数据库DNS
+database_dns = "user=用户 password=密码 host=host port=port dbname=数据库 sslmode=disable"
 
 [upload_file]
-# 文件大小最大限制
+# 文件大小最大限制 10*1024*1024
 max_file_size = 1048_5760
 
 [jwt_auth]
@@ -16,9 +21,3 @@ authtoken_left = 90            # day
 [http_request.post]
 default_limit = 13
 recent_posts_num = 5
-
-[postgre]
-addr = "string:int"
-user = "string"
-password = "string"
-database = "string"

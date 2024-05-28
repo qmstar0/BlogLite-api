@@ -10,7 +10,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -x -o ./build/main .
 
 FROM alpine:latest
 WORKDIR /backend
-
 COPY --from=builder /backend/build/main .
-
-CMD ["./main", "serve"]
+CMD ["./main"]
