@@ -3,10 +3,10 @@ package domain
 import (
 	"context"
 	"fmt"
-	"github.com/qmstar0/domain/internal/domain/aggregates"
-	"github.com/qmstar0/domain/internal/domain/values"
-	"github.com/qmstar0/domain/internal/pkg/e"
-	"github.com/qmstar0/domain/pkg/transaction"
+	"github.com/qmstar0/nightsky-api/internal/domain/aggregates"
+	"github.com/qmstar0/nightsky-api/internal/domain/values"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/pkg/transaction"
 	"github.com/uptrace/bun"
 
 	"time"

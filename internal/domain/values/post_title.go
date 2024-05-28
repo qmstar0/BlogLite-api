@@ -2,7 +2,7 @@ package values
 
 import (
 	"fmt"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 
 	"strings"
 )

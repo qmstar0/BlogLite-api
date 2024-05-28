@@ -2,8 +2,8 @@ package commandhandler
 
 import (
 	"context"
-	"github.com/qmstar0/domain/internal/domain/aggregates"
-	"github.com/qmstar0/domain/internal/domain/commands"
+	"github.com/qmstar0/nightsky-api/internal/domain/aggregates"
+	"github.com/qmstar0/nightsky-api/internal/domain/commands"
 )
 
 type DeletePostHandler struct {

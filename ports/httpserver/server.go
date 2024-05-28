@@ -6,10 +6,9 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
-	"github.com/qmstar0/domain/config"
-	"github.com/qmstar0/domain/internal/apps/service"
-	"github.com/qmstar0/domain/pkg/logging"
-
+	"github.com/qmstar0/nightsky-api/config"
+	"github.com/qmstar0/nightsky-api/internal/apps/service"
+	"github.com/qmstar0/nightsky-api/pkg/logging"
 	"net/http"
 	"time"
 )

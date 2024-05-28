@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/qmstar0/domain/internal/apps/query"
+	"github.com/qmstar0/nightsky-api/internal/apps/query"
 	"github.com/uptrace/bun"
 )
 

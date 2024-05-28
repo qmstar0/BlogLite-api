@@ -2,7 +2,7 @@ package render
 
 import (
 	"errors"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 )
 
 type Response struct {

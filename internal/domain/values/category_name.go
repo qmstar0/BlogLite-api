@@ -1,7 +1,7 @@
 package values
 
 import (
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 	"regexp"
 	"strings"
 )

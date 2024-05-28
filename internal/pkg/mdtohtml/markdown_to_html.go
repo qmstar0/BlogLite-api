@@ -2,7 +2,7 @@ package mdtohtml
 
 import (
 	"bytes"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"

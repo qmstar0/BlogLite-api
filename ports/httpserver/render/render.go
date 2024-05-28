@@ -2,8 +2,8 @@ package render
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/qmstar0/domain/config"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/config"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 )
 
 var errorToResponse func(error) Response

@@ -2,12 +2,12 @@ package apps
 
 import (
 	"context"
-	"github.com/qmstar0/domain/internal/apps/commandhandler"
-	"github.com/qmstar0/domain/internal/apps/query"
-	"github.com/qmstar0/domain/internal/domain/services"
-	"github.com/qmstar0/domain/internal/pkg/domain"
-	"github.com/qmstar0/domain/pkg/postgresql"
-	"github.com/qmstar0/domain/pkg/transaction"
+	"github.com/qmstar0/nightsky-api/internal/apps/commandhandler"
+	"github.com/qmstar0/nightsky-api/internal/apps/query"
+	"github.com/qmstar0/nightsky-api/internal/domain/services"
+	"github.com/qmstar0/nightsky-api/internal/pkg/domain"
+	"github.com/qmstar0/nightsky-api/pkg/postgresql"
+	"github.com/qmstar0/nightsky-api/pkg/transaction"
 )
 
 type DomainApp struct {

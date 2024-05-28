@@ -2,10 +2,10 @@ package domain
 
 import (
 	"context"
-	"github.com/qmstar0/domain/internal/apps/query"
-	"github.com/qmstar0/domain/internal/pkg/e"
-	"github.com/qmstar0/domain/internal/pkg/utils"
-	"github.com/qmstar0/domain/pkg/transaction"
+	"github.com/qmstar0/nightsky-api/internal/apps/query"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/pkg/utils"
+	"github.com/qmstar0/nightsky-api/pkg/transaction"
 	"github.com/uptrace/bun"
 )
 

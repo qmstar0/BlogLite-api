@@ -3,8 +3,8 @@ package aggregates
 import (
 	"context"
 	"errors"
-	"github.com/qmstar0/domain/internal/domain/values"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/domain/values"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 	"time"
 )
 

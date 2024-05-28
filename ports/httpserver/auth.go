@@ -2,9 +2,9 @@ package httpserver
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/qmstar0/domain/internal/apps/service"
-	"github.com/qmstar0/domain/internal/pkg/e"
-	"github.com/qmstar0/domain/ports/httpserver/render"
+	"github.com/qmstar0/nightsky-api/internal/apps/service"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/ports/httpserver/render"
 
 	"strings"
 )

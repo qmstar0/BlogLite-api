@@ -1,4 +1,4 @@
-module github.com/qmstar0/domain
+module github.com/qmstar0/nightsky-api
 
 go 1.22.0
 
@@ -16,7 +16,6 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/uptrace/bun v1.2.1
 	github.com/uptrace/bun/dialect/pgdialect v1.2.1
-	github.com/uptrace/bun/driver/pgdriver v1.2.1
 	github.com/yuin/goldmark v1.7.1
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc
 )

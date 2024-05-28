@@ -1,6 +1,6 @@
 package aggregates
 
-import "github.com/qmstar0/domain/internal/domain/domainevent"
+import "github.com/qmstar0/nightsky-api/internal/domain/domainevent"
 
 type AggregateRoot struct {
 	events domainevent.EventQueue

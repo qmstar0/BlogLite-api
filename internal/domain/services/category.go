@@ -2,8 +2,8 @@ package services
 
 import (
 	"context"
-	"github.com/qmstar0/domain/internal/domain/aggregates"
-	"github.com/qmstar0/domain/internal/pkg/e"
+	"github.com/qmstar0/nightsky-api/internal/domain/aggregates"
+	"github.com/qmstar0/nightsky-api/internal/pkg/e"
 )
 
 type CategoryDomainService struct {

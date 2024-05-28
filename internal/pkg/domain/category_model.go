@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"github.com/qmstar0/domain/internal/apps/query"
-	"github.com/qmstar0/domain/internal/domain/aggregates"
-	"github.com/qmstar0/domain/internal/domain/values"
+	"github.com/qmstar0/nightsky-api/internal/apps/query"
+	"github.com/qmstar0/nightsky-api/internal/domain/aggregates"
+	"github.com/qmstar0/nightsky-api/internal/domain/values"
 	"github.com/uptrace/bun"
 )
 

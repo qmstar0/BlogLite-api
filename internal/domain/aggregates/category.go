@@ -2,7 +2,7 @@ package aggregates
 
 import (
 	"context"
-	"github.com/qmstar0/domain/internal/domain/values"
+	"github.com/qmstar0/nightsky-api/internal/domain/values"
 )
 
 type Category struct {
