@@ -1,12 +1,12 @@
 package postgresql
 
 import (
-	"crypto/tls"
 	"database/sql"
+	"github.com/charmbracelet/log"
 	_ "github.com/lib/pq"
+	"github.com/qmstar0/shutdown"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"time"
 )
 
@@ -16,22 +16,14 @@ func GetDB() *bun.DB {
 	return db
 }
 
-func Init(addr, user, pwd, database string) (closeFn func() error) {
+func Init(dsn string) (closeFn func() error) {
 	var err error
-	sqlDB := sql.OpenDB(pgdriver.NewConnector(
-		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(addr),
-		pgdriver.WithTLSConfig(&tls.Config{InsecureSkipVerify: true}),
-		pgdriver.WithUser(user),
-		pgdriver.WithPassword(pwd),
-		pgdriver.WithDatabase(database),
 
-		pgdriver.WithTimeout(5*time.Second),
-		pgdriver.WithDialTimeout(5*time.Second),
-		pgdriver.WithReadTimeout(5*time.Second),
-		pgdriver.WithWriteTimeout(5*time.Second),
-	))
-
+	sqlDB, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Error(err)
+		shutdown.Exit(1)
+	}
 	sqlDB.SetConnMaxLifetime(time.Minute * 5)
 	sqlDB.SetMaxIdleConns(50)
 	sqlDB.SetMaxOpenConns(50)
