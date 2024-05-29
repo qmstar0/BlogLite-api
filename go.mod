@@ -75,5 +75,4 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	mellium.im/sasl v0.3.1 // indirect
 )
