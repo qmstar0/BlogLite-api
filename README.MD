@@ -1,3 +1,25 @@
-# GO-DDD-BLOG
+# NightSky-Api  
 
-A Golang blog project inspired by Domain-Driven Design (DDD).
+[中文]|[English](./README_en.MD)
+
+> 本项目旨在为nightsky项目提供api服务
+
+本项目是一个基于 DDD（领域驱动设计）和 CQRS（命令查询责任分离）原则构建的Api系统，旨在提供清晰、可扩展的后端服务。  
+
+## 功能特性  
+- **CQRS 架构支持：**  
+  - 命令端负责写操作（创建、更新、删除）  
+  - 查询端负责读操作（获取文章、分类、标签信息）  
+- **DDD 设计风格：**  
+  - 领域模型驱动的设计  
+  - 聚合根、实体、值对象的明确定义和边界  
+
+## 环境要求
+- golang 1.22+
+
+## 未来计划
+- 更强大完善的身份验证功能
+- 可插拔式模块化
+- 性能调优
+
+---
