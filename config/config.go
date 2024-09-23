@@ -1,57 +1,62 @@
 package config
 
 import (
-	"github.com/spf13/pflag"
+	"errors"
+	"github.com/qmstar0/BlogLite-api/pkg/logging"
 	"github.com/spf13/viper"
 )
 
 var Cfg Config
 
 type Config struct {
-	Port        int    `toml:"port" mapstructure:"port"`
-	Release     bool   `toml:"release" mapstructure:"release"`
-	DatabaseDNS string `toml:"database_dns" mapstructure:"database_dns"`
-
-	UploadFile  UploadFile  `toml:"upload_file" mapstructure:"upload_file"`
-	HttpRequest HttpRequest `toml:"http_request" mapstructure:"http_request"`
-	JWTAuth     JWTAuth     `toml:"jwt_auth" mapstructure:"jwt_auth"`
+	PORT              int    `toml:"port" mapstructure:"port"`
+	Mode              string `toml:"mode" mapstructure:"mode"`
+	DatabaseDNS       string `toml:"database_dns" mapstructure:"database_dns"`
+	AuthSecretKey     string `toml:"auth_secret_key" mapstructure:"auth_secret_key"`
+	AuthAdminPassword string `toml:"auth_admin_password" mapstructure:"auth_admin_password"`
 }
 
-type UploadFile struct {
-	MaxFileSize int64 `toml:"max_file_size" mapstructure:"max_file_size"`
-}
-
-type HttpRequest struct {
-	Post struct {
-		DefaultLimit   int `toml:"default_limit" mapstructure:"default_limit"`
-		RecentPostsNum int `toml:"recent_posts_num" mapstructure:"recent_posts_num"`
-	} `toml:"post" mapstructure:"post"`
-}
-
-type JWTAuth struct {
-	AuthKey       string   `toml:"authkey" mapstructure:"authkey"`
-	Subject       string   `toml:"subject" mapstructure:"subject"`
-	Issuer        string   `toml:"issuer" mapstructure:"issuer"`
-	Audience      []string `toml:"audience" mapstructure:"audience"`
-	AuthTokenLife int      `toml:"authtoken_left" mapstructure:"authtoken_left"`
-}
-
-func Init(configFile string, flags *pflag.FlagSet) {
-	if flags != nil {
-		_ = viper.BindPFlags(flags)
+func (c Config) Validate() error {
+	if c.Mode != "debug" && c.Mode != "release" {
+		return errors.New("未设置或设置了错误的运行模式")
 	}
-	viper.SetConfigFile(configFile)
+
+	if c.PORT == 0 {
+		return errors.New("未设置运行端口")
+	}
+
+	if c.DatabaseDNS == "" {
+		return errors.New("未配置数据库")
+	}
+
+	if c.AuthSecretKey == "" {
+		return errors.New("未设置身份认证密钥")
+	}
+
+	if c.AuthAdminPassword == "" {
+		return errors.New("未设置身份认证密码")
+	}
+	return nil
+}
+
+func Init(config string) {
+
+	viper.SetEnvPrefix("BL")
+	viper.AutomaticEnv()
+
+	viper.SetConfigFile(config)
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(err)
+		logging.Logger().Fatal("读取配置失败", "err", err)
 	}
 
 	err = viper.Unmarshal(&Cfg)
 	if err != nil {
-		panic(err)
+		logging.Logger().Fatal("写入配置失败", "err", err)
 	}
-}
 
-func AllSettings() map[string]any {
-	return viper.AllSettings()
+	err = Cfg.Validate()
+	if err != nil {
+		logging.Logger().Fatal("初始化参数时发生错误", "err", err)
+	}
 }

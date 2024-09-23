@@ -4,35 +4,49 @@ import (
 	"database/sql"
 	"github.com/charmbracelet/log"
 	_ "github.com/lib/pq"
-	"github.com/qmstar0/shutdown"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"time"
 )
 
-var db *bun.DB
+var db *gorm.DB
 
-func GetDB() *bun.DB {
+func GetDB() *gorm.DB {
+	if db == nil {
+		log.Fatal("数据库未初始化或初始化失败")
+	}
 	return db
 }
 
-func Init(dsn string) (closeFn func() error) {
-	var err error
+func PostgresDSN(dsn string) gorm.Dialector {
+	return postgres.Open(dsn)
+}
 
-	sqlDB, err := sql.Open("postgres", dsn)
+func SqliteDNS(dsn string) gorm.Dialector {
+	return sqlite.Open(dsn)
+}
+
+func Init(dialector gorm.Dialector) (closeFn func() error) {
+	var err error
+	db, err = gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
-		log.Error(err)
-		shutdown.Exit(1)
+		log.Fatal("数据库连接失败，请检查数据库配置和网络连接")
 	}
+
+	var sqlDB *sql.DB
+	sqlDB, err = db.DB()
+	if err != nil {
+		log.Fatal("数据库连接错误，请检查启动配置")
+	}
+
 	sqlDB.SetConnMaxLifetime(time.Minute * 5)
 	sqlDB.SetMaxIdleConns(50)
 	sqlDB.SetMaxOpenConns(50)
 
-	db = bun.NewDB(sqlDB, pgdialect.New())
-
-	if err = db.Ping(); err != nil {
+	if err = sqlDB.Ping(); err != nil {
 		panic(err)
 	}
 
-	return db.Close
+	return sqlDB.Close
 }

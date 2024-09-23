@@ -7,7 +7,13 @@ import (
 
 var logger *log.Logger
 
-func Init(level log.Level) {
+func Init(debug bool) {
+	var level log.Level
+	if debug {
+		level = log.DebugLevel
+	} else {
+		level = log.WarnLevel
+	}
 	logger = log.NewWithOptions(os.Stdout, log.Options{
 		TimeFormat:      "2006/01/02 15:04:05",
 		ReportTimestamp: true,
