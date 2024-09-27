@@ -5,6 +5,7 @@ import (
 	"github.com/qmstar0/BlogLite-api/internal/articles/application"
 	"github.com/qmstar0/BlogLite-api/internal/articles/application/command"
 	"github.com/qmstar0/BlogLite-api/internal/articles/application/query"
+	"github.com/qmstar0/BlogLite-api/internal/common/auth"
 	"github.com/qmstar0/BlogLite-api/internal/common/server/httpresponse"
 	"github.com/qmstar0/BlogLite-api/pkg/utils"
 	"io"
@@ -19,11 +20,22 @@ func NewHttpServer(app *application.App) *HttpServer {
 }
 
 func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) {
+
+	var includeInvisible bool
+
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
+		if params.IncludeInvisible != nil {
+			includeInvisible = *params.IncludeInvisible
+		}
+	}
+
 	view, err := h.app.Query.ArticleList.Handle(c.Request.Context(), query.ArticleList{
-		Filter: params.Filter,
-		Page:   params.Page,
-		Limit:  params.Limit,
+		Filter:           params.Filter,
+		Page:             params.Page,
+		Limit:            params.Limit,
+		IncludeInvisible: includeInvisible,
 	})
+
 	if err != nil {
 		httpresponse.Error(c, err)
 		return
@@ -109,6 +121,11 @@ func (h HttpServer) ModifyArticleTags(c *gin.Context, uri string) {
 }
 
 func (h HttpServer) GetArticleVersion(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	view, err := h.app.Query.ArticleVersionList.Handle(c.Request.Context(), query.ArticleVersionList{Uri: uri})
 	if err != nil {
 		httpresponse.Error(c, err)

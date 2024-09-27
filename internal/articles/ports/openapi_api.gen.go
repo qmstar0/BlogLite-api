@@ -12,11 +12,16 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
+const (
+	BearerScopes = "bearer.Scopes"
+)
+
 // GetArticleListParams defines parameters for GetArticleList.
 type GetArticleListParams struct {
-	Page   *int    `form:"page,omitempty" json:"page,omitempty"`
-	Limit  *int    `form:"limit,omitempty" json:"limit,omitempty"`
-	Filter *string `form:"filter,omitempty" json:"filter,omitempty"`
+	Page             *int    `form:"page,omitempty" json:"page,omitempty"`
+	Limit            *int    `form:"limit,omitempty" json:"limit,omitempty"`
+	Filter           *string `form:"filter,omitempty" json:"filter,omitempty"`
+	IncludeInvisible *bool   `form:"includeInvisible,omitempty" json:"includeInvisible,omitempty"`
 }
 
 // InitializationArticleJSONBody defines parameters for InitializationArticle.
@@ -128,6 +133,8 @@ func (siw *ServerInterfaceWrapper) GetArticleList(c *gin.Context) {
 
 	var err error
 
+	c.Set(BearerScopes, []string{})
+
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetArticleListParams
 
@@ -155,6 +162,14 @@ func (siw *ServerInterfaceWrapper) GetArticleList(c *gin.Context) {
 		return
 	}
 
+	// ------------- Optional query parameter "includeInvisible" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "includeInvisible", c.Request.URL.Query(), &params.IncludeInvisible)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter includeInvisible: %w", err), http.StatusBadRequest)
+		return
+	}
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -167,6 +182,8 @@ func (siw *ServerInterfaceWrapper) GetArticleList(c *gin.Context) {
 
 // InitializationArticle operation middleware
 func (siw *ServerInterfaceWrapper) InitializationArticle(c *gin.Context) {
+
+	c.Set(BearerScopes, []string{})
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -192,6 +209,8 @@ func (siw *ServerInterfaceWrapper) DeleteArticle(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -215,6 +234,8 @@ func (siw *ServerInterfaceWrapper) GetArticleDetail(c *gin.Context) {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
 		return
 	}
+
+	c.Set(BearerScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params GetArticleDetailParams
@@ -251,6 +272,8 @@ func (siw *ServerInterfaceWrapper) SetArticleVersion(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -274,6 +297,8 @@ func (siw *ServerInterfaceWrapper) ChangeArticleCategory(c *gin.Context) {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
 		return
 	}
+
+	c.Set(BearerScopes, []string{})
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -299,6 +324,8 @@ func (siw *ServerInterfaceWrapper) ModifyArticleTags(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -323,6 +350,8 @@ func (siw *ServerInterfaceWrapper) GetArticleVersion(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -346,6 +375,8 @@ func (siw *ServerInterfaceWrapper) CreateNewArticleVersion(c *gin.Context) {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
 		return
 	}
+
+	c.Set(BearerScopes, []string{})
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
@@ -380,6 +411,8 @@ func (siw *ServerInterfaceWrapper) RemoveArticleVersion(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -404,6 +437,8 @@ func (siw *ServerInterfaceWrapper) ChangeArticleVisibility(c *gin.Context) {
 		return
 	}
 
+	c.Set(BearerScopes, []string{})
+
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -416,6 +451,8 @@ func (siw *ServerInterfaceWrapper) ChangeArticleVisibility(c *gin.Context) {
 
 // GetAllTags operation middleware
 func (siw *ServerInterfaceWrapper) GetAllTags(c *gin.Context) {
+
+	c.Set(BearerScopes, []string{})
 
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)

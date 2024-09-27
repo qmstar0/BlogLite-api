@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/qmstar0/BlogLite-api/internal/common/e"
 	"github.com/qmstar0/BlogLite-api/internal/common/server/httpresponse"
@@ -12,15 +11,9 @@ import (
 func FilterUnloggedUsersMiddleware() func(*gin.Context) {
 	return func(c *gin.Context) {
 		if c.Request.Method != "GET" {
-			user, err := GetUserFromContext(c.Request.Context())
+			err := FilterAuthWithUserType(c.Request.Context(), "admin")
 			if err != nil {
 				httpresponse.Error(c, err)
-				c.Abort()
-				return
-			}
-
-			if user.Type != "admin" {
-				httpresponse.Error(c, errors.New("没有权限"))
 				c.Abort()
 				return
 			}

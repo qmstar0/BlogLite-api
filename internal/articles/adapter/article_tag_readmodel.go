@@ -98,7 +98,10 @@ func (p PostgresArticleTagReadmodel) removeTagsByArticleURI(ctx context.Context,
 
 func (p PostgresArticleTagReadmodel) TagList(ctx context.Context) ([]string, error) {
 	var tags = make([]string, 0)
-	err := p.db.WithContext(ctx).Model(&ArticleTagRelation{}).
+	err := p.db.WithContext(ctx).
+		Model(&ArticleTagRelation{}).
+		Joins("LEFT JOIN article_detail ON article_detail.uri = article_tag.article_uri").
+		Where("article_detail.visitility = true").
 		Distinct("tag").
 		Pluck("tag", &tags).Error
 

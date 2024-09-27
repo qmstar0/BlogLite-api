@@ -179,14 +179,15 @@ func (p PostgresArticleDetailReadmodel) joinsQueryArticle(ctx context.Context) *
 		Joins("JOIN article_version ON article_version.uri = article_detail.uri").
 		Joins("LEFT JOIN article_tag ON article_detail.uri = article_tag.article_uri").
 		Joins("LEFT JOIN category ON article_detail.category_id = category.slug").
-		Group("article_detail.uri, category.slug, article_version.version").
-		Where("article_detail.visitility = true")
+		Group("article_detail.uri, category.slug, article_version.version")
+	//Where("article_detail.visitility = true")
 }
 
 func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri string, version *string) (query.ArticleView, error) {
 	tx := p.joinsQueryArticle(ctx).
 		Limit(1).
-		Where("article_detail.uri = ?", uri)
+		Where("article_detail.uri = ?", uri).
+		Where("article_detail.visitility = true")
 
 	if version != nil && *version != "" {
 		tx = tx.Where("article_version.version = ?", *version)
@@ -208,6 +209,7 @@ func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri s
 		Description: article.ArticleVersion.Description,
 		Note:        "",
 		Content:     article.Content,
+		Visibility:  article.Visitility,
 		CreatedAt:   article.CreatedAt.UnixMilli(),
 		Category: query.ArticleCategory{
 			Slug: article.Category.Slug,
@@ -217,7 +219,7 @@ func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri s
 	}, nil
 }
 
-func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string) ([]query.ArticleView, error) {
+func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, includeInvisible bool) ([]query.ArticleView, error) {
 	tx := p.joinsQueryArticle(ctx).Offset(offset).Limit(limit).Where("article_version.version = article_detail.current_version")
 	if len(tags) != 0 {
 		tx = tx.Having("array_agg(article_tag.tag) @> ?", pq.Array(tags))
@@ -226,7 +228,9 @@ func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset,
 	if categoryID != nil && *categoryID != "" {
 		tx = tx.Where("category.slug = ?", *categoryID)
 	}
-
+	if !includeInvisible {
+		tx = tx.Where("article_detail.visitility = true")
+	}
 	var articleList = make([]articleDetailWithVersion, 0)
 	err := tx.Find(&articleList).Error
 	if err != nil {
@@ -241,6 +245,7 @@ func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset,
 			Description: view.ArticleVersion.Description,
 			Note:        "",
 			Content:     "",
+			Visibility:  view.Visitility,
 			CreatedAt:   view.FirstVersionCreatedAt.UnixMilli(),
 			Category: query.ArticleCategory{
 				Slug: view.Category.Slug,

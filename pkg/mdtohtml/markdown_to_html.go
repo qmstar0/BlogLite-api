@@ -22,16 +22,12 @@ type ParsedDoc struct {
 var defaultMarkdownToHTMLTool = goldmark.New(
 	goldmark.WithExtensions(
 		extension.GFM,
-		extension.NewFootnote(
-			extension.WithFootnoteIDPrefix("footnote-"),
-		),
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("github"),
 		),
 		extension.CJK,
 	),
 	goldmark.WithParserOptions(
-		parser.WithAutoHeadingID(),
 		parser.WithAttribute(),
 	),
 

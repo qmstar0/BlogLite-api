@@ -9,13 +9,14 @@ import (
 )
 
 type ArticleList struct {
-	Filter *string
-	Page   *int
-	Limit  *int
+	Filter           *string
+	Page             *int
+	Limit            *int
+	IncludeInvisible bool
 }
 
 type ArticleListReadmodel interface {
-	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string) ([]ArticleView, error)
+	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, includeInvisible bool) ([]ArticleView, error)
 }
 
 type ArticleListHandler struct {
@@ -63,7 +64,7 @@ func (a *ArticleListHandler) Handle(ctx context.Context, query ArticleList) (Art
 		limit = *query.Limit
 	}
 
-	list, err := a.rm.ArticleList(ctx, utils.Offset(page, limit), limit+1, tags, categoryID)
+	list, err := a.rm.ArticleList(ctx, utils.Offset(page, limit), limit+1, tags, categoryID, query.IncludeInvisible)
 	if err != nil {
 		return ArticleListView{}, err
 	}

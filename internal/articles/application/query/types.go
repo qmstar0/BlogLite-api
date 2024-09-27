@@ -6,6 +6,7 @@ type ArticleView struct {
 	Description string          `json:"description"`
 	Note        string          `json:"note,omitempty"`
 	Content     string          `json:"content,omitempty"`
+	Visibility  bool            `json:"visibility"`
 	CreatedAt   int64           `json:"createdAt"`
 	Category    ArticleCategory `json:"category"`
 	Tags        []string        `json:"tags"`
@@ -36,6 +37,6 @@ type ArticleVersionListView struct {
 }
 
 type TagListView struct {
-	Count int
-	Items []string
+	Count int      `json:"count"`
+	Items []string `json:"items"`
 }

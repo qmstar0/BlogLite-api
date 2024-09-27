@@ -10,10 +10,7 @@ func (e ErrCode) Error() string {
 }
 
 func (e ErrCode) WithMessage(msg string) error {
-	return ErrCode{
-		Code:    e.Code,
-		Message: msg,
-	}
+	return ErrCode{Code: e.Code, Message: msg}
 }
 
 var (

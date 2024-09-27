@@ -2,7 +2,7 @@ package config
 
 import (
 	"errors"
-	"github.com/qmstar0/BlogLite-api/pkg/logging"
+	"github.com/charmbracelet/log"
 	"github.com/spf13/viper"
 )
 
@@ -47,16 +47,16 @@ func Init(config string) {
 	viper.SetConfigFile(config)
 	err := viper.ReadInConfig()
 	if err != nil {
-		logging.Logger().Fatal("读取配置失败", "err", err)
+		log.Fatal("读取配置失败", "err", err)
 	}
 
 	err = viper.Unmarshal(&Cfg)
 	if err != nil {
-		logging.Logger().Fatal("写入配置失败", "err", err)
+		log.Fatal("写入配置失败", "err", err)
 	}
 
 	err = Cfg.Validate()
 	if err != nil {
-		logging.Logger().Fatal("初始化参数时发生错误", "err", err)
+		log.Fatal("初始化参数时发生错误", "err", err)
 	}
 }
