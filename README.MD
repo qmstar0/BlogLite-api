@@ -15,4 +15,8 @@ BlogLite-api是一个基于 DDD（领域驱动设计）、 CQRS（命令查询�
 
 - golang 1.22+
 
+## TODO
+
+- [ ] 实现下载文章某一版本源文件（markdown源文件）的功能
+
 ---
