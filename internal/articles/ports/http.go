@@ -9,6 +9,7 @@ import (
 	"github.com/qmstar0/BlogLite-api/internal/common/server/httpresponse"
 	"github.com/qmstar0/BlogLite-api/pkg/utils"
 	"io"
+	"strings"
 )
 
 type HttpServer struct {
@@ -21,7 +22,10 @@ func NewHttpServer(app *application.App) *HttpServer {
 
 func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) {
 
-	var includeInvisible bool
+	var (
+		includeInvisible bool
+		tags             []string
+	)
 
 	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
 		if params.IncludeInvisible != nil {
@@ -29,8 +33,13 @@ func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) 
 		}
 	}
 
+	if params.Tags != nil && *params.Tags != "" {
+		tags = strings.Split(*params.Tags, ",")
+	}
+
 	view, err := h.app.Query.ArticleList.Handle(c.Request.Context(), query.ArticleList{
-		Filter:           params.Filter,
+		Category:         params.Category,
+		Tags:             tags,
 		Page:             params.Page,
 		Limit:            params.Limit,
 		IncludeInvisible: includeInvisible,

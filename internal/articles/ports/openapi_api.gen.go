@@ -20,8 +20,9 @@ const (
 type GetArticleListParams struct {
 	Page             *int    `form:"page,omitempty" json:"page,omitempty"`
 	Limit            *int    `form:"limit,omitempty" json:"limit,omitempty"`
-	Filter           *string `form:"filter,omitempty" json:"filter,omitempty"`
 	IncludeInvisible *bool   `form:"includeInvisible,omitempty" json:"includeInvisible,omitempty"`
+	Category         *string `form:"category,omitempty" json:"category,omitempty"`
+	Tags             *string `form:"tags,omitempty" json:"tags,omitempty"`
 }
 
 // InitializationArticleJSONBody defines parameters for InitializationArticle.
@@ -154,19 +155,27 @@ func (siw *ServerInterfaceWrapper) GetArticleList(c *gin.Context) {
 		return
 	}
 
-	// ------------- Optional query parameter "filter" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "filter", c.Request.URL.Query(), &params.Filter)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter filter: %w", err), http.StatusBadRequest)
-		return
-	}
-
 	// ------------- Optional query parameter "includeInvisible" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "includeInvisible", c.Request.URL.Query(), &params.IncludeInvisible)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter includeInvisible: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "category" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "category", c.Request.URL.Query(), &params.Category)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter category: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "tags" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "tags", c.Request.URL.Query(), &params.Tags)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter tags: %w", err), http.StatusBadRequest)
 		return
 	}
 
