@@ -21,16 +21,12 @@ func NewHttpServer(app *application.App) *HttpServer {
 }
 
 func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) {
-
 	var (
-		includeInvisible bool
-		tags             []string
+		tags  []string
+		extra bool
 	)
-
 	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
-		if params.IncludeInvisible != nil {
-			includeInvisible = *params.IncludeInvisible
-		}
+		extra = true
 	}
 
 	if params.Tags != nil && *params.Tags != "" {
@@ -38,11 +34,11 @@ func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) 
 	}
 
 	view, err := h.app.Query.ArticleList.Handle(c.Request.Context(), query.ArticleList{
-		Category:         params.Category,
-		Tags:             tags,
-		Page:             params.Page,
-		Limit:            params.Limit,
-		IncludeInvisible: includeInvisible,
+		Category: params.Category,
+		Tags:     tags,
+		Page:     params.Page,
+		Limit:    params.Limit,
+		Extra:    extra,
 	})
 
 	if err != nil {
@@ -75,9 +71,22 @@ func (h HttpServer) DeleteArticle(c *gin.Context, uri string) {
 }
 
 func (h HttpServer) GetArticleDetail(c *gin.Context, uri string, params GetArticleDetailParams) {
+	var (
+		extra   bool
+		version *string
+	)
+
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
+		if params.Version != nil && *params.Version != "" {
+			version = params.Version
+		}
+		extra = true
+	}
+
 	view, err := h.app.Query.ArticleDetail.Handle(c.Request.Context(), query.ArticleDetail{
 		URI:     uri,
-		Version: params.Version,
+		Version: version,
+		Extra:   extra,
 	})
 	if err != nil {
 		httpresponse.Error(c, err)

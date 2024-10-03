@@ -3,10 +3,11 @@ package query
 type ArticleView struct {
 	Uri         string          `json:"uri"`
 	Title       string          `json:"title"`
+	Version     string          `json:"version,omitempty"`
 	Description string          `json:"description"`
 	Note        string          `json:"note,omitempty"`
 	Content     string          `json:"content,omitempty"`
-	Visibility  bool            `json:"visibility"`
+	Visibility  bool            `json:"visibility,omitempty"`
 	CreatedAt   int64           `json:"createdAt"`
 	Category    ArticleCategory `json:"category"`
 	Tags        []string        `json:"tags"`

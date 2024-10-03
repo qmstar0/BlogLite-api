@@ -19,7 +19,7 @@ import (
 type ArticleDetail struct {
 	URI                   string `gorm:"primaryKey"`
 	CurrentVersion        string
-	Visitility            bool
+	Visibility            bool
 	FirstVersionCreatedAt time.Time
 	CategoryID            string
 }
@@ -149,7 +149,7 @@ func (p PostgresArticleDetailReadmodel) handleArticleInitializedSuccessfullyEven
 	err := p.db.WithContext(msg.Context()).Where("uri = ?", event.URI).Save(&ArticleDetail{
 		URI:            event.URI,
 		CurrentVersion: "",
-		Visitility:     false,
+		Visibility:     false,
 		CategoryID:     event.CategoryID,
 	}).Error
 	if err != nil {
@@ -165,29 +165,33 @@ func (p PostgresArticleDetailReadmodel) handleArticleVisibilityChangedEvent(msg 
 	}
 
 	err := p.db.WithContext(msg.Context()).Model(&ArticleDetail{}).
-		Where("uri = ?", event.URI).Update("visitility", event.Visibility).Error
+		Where("uri = ?", event.URI).Update("visibility", event.Visibility).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p PostgresArticleDetailReadmodel) joinsQueryArticle(ctx context.Context) *gorm.DB {
-	return p.db.WithContext(ctx).
-		Model(&ArticleDetail{}).
-		Select("article_detail.*, category.slug, category.name, article_version.*, array_remove(array_agg(article_tag.tag), null) AS tags").
-		Joins("JOIN article_version ON article_version.uri = article_detail.uri").
+func (p PostgresArticleDetailReadmodel) joinsTable(db *gorm.DB) *gorm.DB {
+	return db.Joins("JOIN article_version ON article_version.uri = article_detail.uri").
 		Joins("LEFT JOIN article_tag ON article_detail.uri = article_tag.article_uri").
 		Joins("LEFT JOIN category ON article_detail.category_id = category.slug").
 		Group("article_detail.uri, category.slug, article_version.version")
-	//Where("article_detail.visitility = true")
 }
 
-func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri string, version *string) (query.ArticleView, error) {
-	tx := p.joinsQueryArticle(ctx).
+func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri string, version *string, extra bool) (query.ArticleView, error) {
+	queryFields := defaultSelectFields + fieldsArticleVersionContent
+
+	if extra {
+		queryFields += extraFields
+	}
+
+	tx := p.joinsTable(p.db.WithContext(ctx).
+		Model(&ArticleDetail{}).
+		Select(queryFields)).
 		Limit(1).
 		Where("article_detail.uri = ?", uri).
-		Where("article_detail.visitility = true")
+		Where("article_detail.visibility = true")
 
 	if version != nil && *version != "" {
 		tx = tx.Where("article_version.version = ?", *version)
@@ -197,6 +201,7 @@ func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri s
 
 	var article articleDetailWithVersion
 	result := tx.Find(&article)
+
 	if result.Error != nil {
 		return query.ArticleView{}, e.InternalServiceError(result.Error.Error())
 	} else if result.RowsAffected != 1 {
@@ -205,12 +210,13 @@ func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri s
 
 	return query.ArticleView{
 		Uri:         article.ArticleDetail.URI,
-		Title:       article.Title,
+		Title:       article.ArticleVersion.Title,
+		Version:     article.ArticleDetail.CurrentVersion,
 		Description: article.ArticleVersion.Description,
-		Note:        "",
-		Content:     article.Content,
-		Visibility:  article.Visitility,
-		CreatedAt:   article.CreatedAt.UnixMilli(),
+		Note:        article.ArticleVersion.Note,
+		Content:     article.ArticleVersion.Content,
+		Visibility:  article.ArticleDetail.Visibility,
+		CreatedAt:   article.ArticleDetail.FirstVersionCreatedAt.UnixMilli(),
 		Category: query.ArticleCategory{
 			Slug: article.Category.Slug,
 			Name: article.Category.Name,
@@ -219,19 +225,39 @@ func (p PostgresArticleDetailReadmodel) ArticleDetail(ctx context.Context, uri s
 	}, nil
 }
 
-func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, includeInvisible bool) ([]query.ArticleView, error) {
-	tx := p.joinsQueryArticle(ctx).Offset(offset).Limit(limit).Where("article_version.version = article_detail.current_version")
+func (p PostgresArticleDetailReadmodel) ArticleList(
+	ctx context.Context,
+	offset, limit int,
+	tags []string,
+	categoryID *string,
+	extra bool,
+) ([]query.ArticleView, error) {
+
+	var queryFields = defaultSelectFields
+	if extra {
+		queryFields += extraFields
+	}
+	tx := p.joinsTable(p.db.WithContext(ctx).
+		Model(&ArticleDetail{}).
+		Select(string(queryFields))).
+		Offset(offset).
+		Limit(limit).
+		Where("article_version.version = article_detail.current_version")
 	if len(tags) != 0 {
 		tx = tx.Having("array_agg(article_tag.tag) @> ?", pq.Array(tags))
 	}
+	tx = tx.Omit("article_version.content, article_version.note")
 
 	if categoryID != nil && *categoryID != "" {
 		tx = tx.Where("category.slug = ?", *categoryID)
 	}
-	if !includeInvisible {
-		tx = tx.Where("article_detail.visitility = true")
+
+	if !extra {
+		tx = tx.Where("article_detail.visibility = true")
 	}
+
 	var articleList = make([]articleDetailWithVersion, 0)
+
 	err := tx.Find(&articleList).Error
 	if err != nil {
 		return nil, e.InternalServiceError(err.Error())
@@ -242,10 +268,11 @@ func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset,
 		views[i] = query.ArticleView{
 			Uri:         view.ArticleDetail.URI,
 			Title:       view.ArticleVersion.Title,
+			Version:     view.ArticleDetail.CurrentVersion,
 			Description: view.ArticleVersion.Description,
-			Note:        "",
-			Content:     "",
-			Visibility:  view.Visitility,
+			Note:        view.ArticleVersion.Note,
+			Content:     view.ArticleVersion.Content,
+			Visibility:  view.ArticleDetail.Visibility,
 			CreatedAt:   view.FirstVersionCreatedAt.UnixMilli(),
 			Category: query.ArticleCategory{
 				Slug: view.Category.Slug,
@@ -256,3 +283,14 @@ func (p PostgresArticleDetailReadmodel) ArticleList(ctx context.Context, offset,
 	}
 	return views, nil
 }
+
+const defaultSelectFields = "article_detail.uri, " +
+	"article_detail.first_version_created_at, " +
+	"article_detail.current_version, " +
+	"category.slug, " +
+	"category.name, " +
+	"article_version.title, " +
+	"article_version.description, " +
+	"array_remove(array_agg(article_tag.tag), null) AS tags"
+const fieldsArticleVersionContent = ", article_version.content"
+const extraFields = ", article_version.note, article_detail.visibility"

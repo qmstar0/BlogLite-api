@@ -7,15 +7,15 @@ import (
 )
 
 type ArticleList struct {
-	Category         *string
-	Tags             []string
-	Page             *int
-	Limit            *int
-	IncludeInvisible bool
+	Category *string
+	Tags     []string
+	Page     *int
+	Limit    *int
+	Extra    bool
 }
 
 type ArticleListReadmodel interface {
-	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, includeInvisible bool) ([]ArticleView, error)
+	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, extra bool) ([]ArticleView, error)
 }
 
 type ArticleListHandler struct {
@@ -40,7 +40,15 @@ func (a *ArticleListHandler) Handle(ctx context.Context, query ArticleList) (Art
 		limit = *query.Limit
 	}
 
-	list, err := a.rm.ArticleList(ctx, utils.Offset(page, limit), limit+1, query.Tags, query.Category, query.IncludeInvisible)
+	list, err := a.rm.ArticleList(
+		ctx,
+		utils.Offset(page, limit),
+		limit+1,
+		query.Tags,
+		query.Category,
+		query.Extra,
+	)
+
 	if err != nil {
 		return ArticleListView{}, err
 	}
