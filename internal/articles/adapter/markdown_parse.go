@@ -26,17 +26,17 @@ func (m MarkdownParser) ParseToArticleVersion(content string) (articles.Version,
 		return articles.Version{}, e.InternalServiceError(err.Error())
 	}
 
-	description, err := mdtohtml.Convert(strings.TrimSpace(parse.Metadata["description"]))
+	description, err := mdtohtml.Convert(strings.TrimSpace(parse.Metadata.Description))
 	if err != nil {
 		return articles.Version{}, e.InternalServiceError(err.Error())
 	}
 
 	return articles.NewVersion(
-		parse.Metadata["title"],
+		parse.Metadata.Title,
 		description,
 		text,
 		utils.ShortHash(content),
 		content,
-		parse.Metadata["note"],
+		parse.Metadata.Note,
 	)
 }

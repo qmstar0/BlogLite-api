@@ -3,6 +3,7 @@ package mdtohtml
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
@@ -12,7 +13,11 @@ import (
 	"strings"
 )
 
-type Metadata map[string]string
+type Metadata struct {
+	Title       string `yaml:"title"`
+	Note        string `yaml:"note"`
+	Description string `yaml:"description"`
+}
 
 type ParsedDoc struct {
 	Metadata Metadata
@@ -47,22 +52,26 @@ func Convert(mdcontent string) (string, error) {
 }
 
 func Parse(mdcontent string) (*ParsedDoc, error) {
-	var err error
-	m := make(map[string]string)
+	var (
+		err      error
+		metadata Metadata
+	)
+
 	parts := strings.SplitN(mdcontent, "---", 3)
 
 	if len(parts) == 3 {
-		err = yaml.Unmarshal([]byte(parts[1]), m)
+		// yaml解析遇到`\t`字符会报错，替换为空格即可
+		err = yaml.Unmarshal([]byte(parts[1]), &metadata)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error parsing Markdown YAML front matter: (%w)", err)
 		}
 		return &ParsedDoc{
-			Metadata: m,
+			Metadata: metadata,
 			Content:  parts[2],
 		}, nil
 	} else {
 		return &ParsedDoc{
-			Metadata: m,
+			Metadata: metadata,
 			Content:  parts[0],
 		}, nil
 	}
