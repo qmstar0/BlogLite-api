@@ -100,8 +100,8 @@ func (p PostgresArticleTagReadmodel) TagList(ctx context.Context) ([]string, err
 	var tags = make([]string, 0)
 	err := p.db.WithContext(ctx).
 		Model(&ArticleTagRelation{}).
-		Joins("LEFT JOIN article_detail ON article_detail.uri = article_tag.article_uri").
-		Where("article_detail.visitility = true").
+		Joins("LEFT JOIN article_metadata ON article_metadata.uri = article_tag.article_uri").
+		Where("article_metadata.visibility = true").
 		Distinct("tag").
 		Pluck("tag", &tags).Error
 

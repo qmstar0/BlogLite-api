@@ -2,6 +2,8 @@ package auth
 
 import "github.com/golang-jwt/jwt/v5"
 
+const ADMIN = "admin"
+
 type UserClaims struct {
 	ID   uint32
 	Type string

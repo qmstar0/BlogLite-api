@@ -37,19 +37,19 @@ package service_test
 //	app := service.NewComponentTestApplication(ctx)
 //	// 使用已有版本号查询
 //	version := "d1c120bc"
-//	view, err := app.Query.ArticleDetail.Handle(ctx, query.ArticleDetail{
+//	view, err := app.Query.ArticleMetadata.Handle(ctx, query.ArticleMetadata{
 //		URI:     "test",
 //		Version: &version,
 //	})
 //	assert.NoError(t, err)
-//	assert.Equal(t, view.Uri, "test")
+//	assert.Equal(t, view.URI, "test")
 //	fmt.Printf("%+v\n", view)
 //
-//	view, err = app.Query.ArticleDetail.Handle(ctx, query.ArticleDetail{
+//	view, err = app.Query.ArticleMetadata.Handle(ctx, query.ArticleMetadata{
 //		URI: "test",
 //	})
 //	assert.NoError(t, err)
-//	assert.Equal(t, view.Uri, "test")
+//	assert.Equal(t, view.URI, "test")
 //	fmt.Printf("%+v\n", view)
 //}
 //
@@ -86,7 +86,7 @@ package service_test
 //	assert.Equal(t, view.Count, 0)
 //	fmt.Printf("%+v\n", view)
 //
-//	versionListView, err := app.Query.ArticleVersionList.Handle(ctx, query.ArticleVersionList{Uri: "test"})
+//	versionListView, err := app.Query.ArticleVersionList.Handle(ctx, query.ArticleVersionList{URI: "test"})
 //	assert.NoError(t, err)
 //	assert.Equal(t, versionListView.Count, 1)
 //	fmt.Printf("%+v\n", versionListView)
@@ -99,55 +99,55 @@ package service_test
 //
 //func testDeleteArticle(t *testing.T, app *application.App, ctx context.Context) {
 //	assert.NoError(t, app.Command.DeleteArticle.Handle(ctx, command.DeleteArticle{
-//		Uri: "test",
+//		URI: "test",
 //	}))
 //}
 //
 //func testRemoveVersion(t *testing.T, app *application.App, ctx context.Context, version string) {
 //	assert.NoError(t, app.Command.RemoveVersion.Handle(ctx, command.RemoveVersion{
-//		Uri:     "test",
+//		URI:     "test",
 //		Version: version,
 //	}))
 //}
 //
 //func testSetArticleVersion(t *testing.T, app *application.App, ctx context.Context, version string) {
 //	assert.NoError(t, app.Command.SetArticleVersion.Handle(ctx, command.SetArticleVersion{
-//		Uri:     "test",
+//		URI:     "test",
 //		Version: version,
 //	}))
 //}
 //
 //func testAddNewVersion(t *testing.T, app *application.App, ctx context.Context) {
 //	assert.NoError(t, app.Command.AddNewVersion.Handle(ctx, command.AddNewVersion{
-//		Uri:    "test",
+//		URI:    "test",
 //		Source: markdownFileContent,
 //	}))
 //}
 //
 //func testModifyArticleTags(t *testing.T, app *application.App, ctx context.Context) {
 //	assert.NoError(t, app.Command.ModifyArticleTags.Handle(ctx, command.ModifyArticleTags{
-//		Uri:  "test",
+//		URI:  "test",
 //		Tags: []string{"tag1", "game", "code"},
 //	}))
 //}
 //
 //func testChangeArticleCategory(t *testing.T, app *application.App, ctx context.Context) {
 //	assert.NoError(t, app.Command.ChangeArticleCategory.Handle(ctx, command.ChangeArticleCategory{
-//		Uri:        "test",
+//		URI:        "test",
 //		CategoryID: "new-categoryID",
 //	}))
 //}
 //
 //func testChangeArticleVisibility(t *testing.T, app *application.App, ctx context.Context) {
 //	assert.NoError(t, app.Command.ChangeArticleVisibility.Handle(ctx, command.ChangeArticleVisibility{
-//		Uri:        "test",
+//		URI:        "test",
 //		Visibility: true,
 //	}))
 //}
 //
 //func testInitializationArticle(t *testing.T, app *application.App, ctx context.Context) {
 //	err := app.Command.InitializationArticle.Handle(ctx, command.InitializationArticle{
-//		Uri:        "test",
+//		URI:        "test",
 //		CategoryID: "categoryID",
 //	})
 //	if err != nil {

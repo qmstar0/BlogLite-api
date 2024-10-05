@@ -11,11 +11,10 @@ type ArticleList struct {
 	Tags     []string
 	Page     *int
 	Limit    *int
-	Extra    bool
 }
 
 type ArticleListReadmodel interface {
-	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string, extra bool) ([]ArticleView, error)
+	ArticleList(ctx context.Context, offset, limit int, tags []string, categoryID *string) ([]ArticleView, error)
 }
 
 type ArticleListHandler struct {
@@ -46,7 +45,6 @@ func (a *ArticleListHandler) Handle(ctx context.Context, query ArticleList) (Art
 		limit+1,
 		query.Tags,
 		query.Category,
-		query.Extra,
 	)
 
 	if err != nil {

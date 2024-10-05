@@ -4,23 +4,8 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/qmstar0/BlogLite-api/internal/common/e"
-	"github.com/qmstar0/BlogLite-api/internal/common/server/httpresponse"
 	"strings"
 )
-
-func FilterUnloggedUsersMiddleware() func(*gin.Context) {
-	return func(c *gin.Context) {
-		if c.Request.Method != "GET" {
-			err := FilterAuthWithUserType(c.Request.Context(), "admin")
-			if err != nil {
-				httpresponse.Error(c, err)
-				c.Abort()
-				return
-			}
-		}
-		c.Next()
-	}
-}
 
 func AuthMiddleware() func(*gin.Context) {
 	return func(c *gin.Context) {

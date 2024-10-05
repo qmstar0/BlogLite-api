@@ -60,6 +60,14 @@ func ErrorOrOK(c *gin.Context, err error) {
 	OK(c)
 }
 
+func ErrorOrData(c *gin.Context, err error, data any) {
+	if err != nil {
+		Response(c, err, nil)
+		return
+	}
+	Data(c, data)
+}
+
 func OK(c *gin.Context) {
 	c.JSON(http.StatusOK, response{
 		Code:    "OK",

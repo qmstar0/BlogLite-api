@@ -41,11 +41,11 @@ func newApplication(ctx context.Context, categoryService command.CategoryValidit
 
 	repo := adapter.NewPostgresArticleRepository(db, bus)
 
-	articleDetailReadmodel := adapter.NewPostgresArticleDetailReadmodel(db)
+	articleMetadataReadmodel := adapter.NewPostgresArticleMetadataReadmodel(db)
 	articleTagReadmodel := adapter.NewPostgresArticleTagReadmodel(db)
 	articleVersionReadmodel := adapter.NewPostgresArticleVersionReadmodel(db)
 
-	bus.Register("article-detail-readmodel", articleDetailReadmodel)
+	bus.Register("article-detail-readmodel", articleMetadataReadmodel)
 	bus.Register("article-tag-readmodel", articleTagReadmodel)
 	bus.Register("article-version-readmodel", articleVersionReadmodel)
 
@@ -61,10 +61,12 @@ func newApplication(ctx context.Context, categoryService command.CategoryValidit
 			ChangeArticleCategory:   command.NewChangeArticleCategoryHandler(repo, categoryService),
 		},
 		Query: application.Query{
-			TagList:            query.NewTagListHandler(articleTagReadmodel),
-			ArticleList:        query.NewArticleListHandler(articleDetailReadmodel),
-			ArticleDetail:      query.NewArticleDetailhandler(articleDetailReadmodel),
-			ArticleVersionList: query.NewArticleVersionListHandler(articleVersionReadmodel),
+			TagList:             query.NewTagListHandler(articleTagReadmodel),
+			ArticleContent:      query.NewArticleContentHandler(articleMetadataReadmodel),
+			ArticleList:         query.NewArticleListHandler(articleMetadataReadmodel),
+			ArticleVersionList:  query.NewArticleVersionListHandler(articleVersionReadmodel),
+			ArticleMetadataList: query.NewArticleMetadataListHandler(articleMetadataReadmodel),
+			ArticleMetadata:     query.NewArticleMetadatahandler(articleMetadataReadmodel),
 		},
 	}
 }

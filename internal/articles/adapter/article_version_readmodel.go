@@ -127,6 +127,7 @@ func (p PostgresArticleVersionReadmodel) ArticleVersionList(ctx context.Context,
 		view[i] = query.ArticleVersionView{
 			Version:   model.Version,
 			Note:      model.Note,
+			Title:     model.Title,
 			CreatedAt: model.CreatedAt.UnixMilli(),
 		}
 	}

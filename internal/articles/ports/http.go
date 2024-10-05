@@ -9,7 +9,6 @@ import (
 	"github.com/qmstar0/BlogLite-api/internal/common/server/httpresponse"
 	"github.com/qmstar0/BlogLite-api/pkg/utils"
 	"io"
-	"strings"
 )
 
 type HttpServer struct {
@@ -21,35 +20,22 @@ func NewHttpServer(app *application.App) *HttpServer {
 }
 
 func (h HttpServer) GetArticleList(c *gin.Context, params GetArticleListParams) {
-	var (
-		tags  []string
-		extra bool
-	)
-	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
-		extra = true
-	}
-
-	if params.Tags != nil && *params.Tags != "" {
-		tags = strings.Split(*params.Tags, ",")
-	}
-
 	view, err := h.app.Query.ArticleList.Handle(c.Request.Context(), query.ArticleList{
 		Category: params.Category,
-		Tags:     tags,
+		Tags:     parseTagsFromTagParams(params.Tags),
 		Page:     params.Page,
 		Limit:    params.Limit,
-		Extra:    extra,
 	})
 
-	if err != nil {
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) InitializationArticle(c *gin.Context) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
 		httpresponse.Error(c, err)
 		return
 	}
 
-	httpresponse.Data(c, view)
-}
-
-func (h HttpServer) InitializationArticle(c *gin.Context) {
 	req, err := utils.BindJSON[InitializationArticleJSONRequestBody](c)
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -65,37 +51,22 @@ func (h HttpServer) InitializationArticle(c *gin.Context) {
 }
 
 func (h HttpServer) DeleteArticle(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	err := h.app.Command.DeleteArticle.Handle(c.Request.Context(), command.DeleteArticle{Uri: uri})
 
 	httpresponse.ErrorOrOK(c, err)
 }
 
-func (h HttpServer) GetArticleDetail(c *gin.Context, uri string, params GetArticleDetailParams) {
-	var (
-		extra   bool
-		version *string
-	)
-
-	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err == nil {
-		if params.Version != nil && *params.Version != "" {
-			version = params.Version
-		}
-		extra = true
-	}
-
-	view, err := h.app.Query.ArticleDetail.Handle(c.Request.Context(), query.ArticleDetail{
-		URI:     uri,
-		Version: version,
-		Extra:   extra,
-	})
-	if err != nil {
+func (h HttpServer) SetArticleVersion(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
 		httpresponse.Error(c, err)
 		return
 	}
-	httpresponse.Data(c, view)
-}
 
-func (h HttpServer) SetArticleVersion(c *gin.Context, uri string) {
 	req, err := utils.BindJSON[SetArticleVersionJSONRequestBody](c)
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -111,6 +82,11 @@ func (h HttpServer) SetArticleVersion(c *gin.Context, uri string) {
 }
 
 func (h HttpServer) ChangeArticleCategory(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	req, err := utils.BindJSON[ChangeArticleCategoryJSONRequestBody](c)
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -125,6 +101,11 @@ func (h HttpServer) ChangeArticleCategory(c *gin.Context, uri string) {
 }
 
 func (h HttpServer) ModifyArticleTags(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	req, err := utils.BindJSON[ModifyArticleTagsJSONRequestBody](c)
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -138,22 +119,12 @@ func (h HttpServer) ModifyArticleTags(c *gin.Context, uri string) {
 	httpresponse.ErrorOrOK(c, err)
 }
 
-func (h HttpServer) GetArticleVersion(c *gin.Context, uri string) {
-	if err := auth.FilterAuthWithUserType(c.Request.Context(), "admin"); err != nil {
-		httpresponse.Error(c, err)
-		return
-	}
-
-	view, err := h.app.Query.ArticleVersionList.Handle(c.Request.Context(), query.ArticleVersionList{Uri: uri})
-	if err != nil {
-		httpresponse.Error(c, err)
-		return
-	}
-
-	httpresponse.Data(c, view)
-}
-
 func (h HttpServer) CreateNewArticleVersion(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	formFile, err := c.FormFile("content")
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -180,6 +151,11 @@ func (h HttpServer) CreateNewArticleVersion(c *gin.Context, uri string) {
 }
 
 func (h HttpServer) RemoveArticleVersion(c *gin.Context, uri string, version string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	err := h.app.Command.RemoveVersion.Handle(c.Request.Context(), command.RemoveVersion{
 		Uri:     uri,
 		Version: version,
@@ -189,6 +165,11 @@ func (h HttpServer) RemoveArticleVersion(c *gin.Context, uri string, version str
 }
 
 func (h HttpServer) ChangeArticleVisibility(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
 	req, err := utils.BindJSON[ChangeArticleVisibilityJSONRequestBody](c)
 	if err != nil {
 		httpresponse.Error(c, err)
@@ -205,9 +186,69 @@ func (h HttpServer) ChangeArticleVisibility(c *gin.Context, uri string) {
 
 func (h HttpServer) GetAllTags(c *gin.Context) {
 	view, err := h.app.Query.TagList.Handle(c)
-	if err != nil {
+
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) GetArticleContent(c *gin.Context, uri string) {
+	view, err := h.app.Query.ArticleContent.Handle(c.Request.Context(), query.ArticleContent{
+		URI:     uri,
+		Version: nil,
+	})
+
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) GetAuthorArticleList(c *gin.Context, params GetAuthorArticleListParams) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
 		httpresponse.Error(c, err)
 		return
 	}
-	httpresponse.Data(c, view)
+
+	view, err := h.app.Query.ArticleMetadataList.Handle(c.Request.Context(), query.ArticleMetadataList{
+		Category: params.Category,
+		Tags:     parseTagsFromTagParams(params.Tags),
+		Page:     params.Page,
+		Limit:    params.Limit,
+	})
+
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) GetArticleMetadata(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
+	view, err := h.app.Query.ArticleMetadata.Handle(c.Request.Context(), query.ArticleMetadata{URI: uri})
+
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) GeArticleAllVersion(c *gin.Context, uri string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
+	view, err := h.app.Query.ArticleVersionList.Handle(c.Request.Context(), query.ArticleVersionList{
+		Uri: uri,
+	})
+
+	httpresponse.ErrorOrData(c, err, view)
+}
+
+func (h HttpServer) GetArticleContentByVersion(c *gin.Context, uri string, version string) {
+	if err := auth.FilterAuthWithUserType(c.Request.Context(), auth.ADMIN); err != nil {
+		httpresponse.Error(c, err)
+		return
+	}
+
+	view, err := h.app.Query.ArticleContent.Handle(c.Request.Context(), query.ArticleContent{
+		URI:     uri,
+		Version: &version,
+	})
+
+	httpresponse.ErrorOrData(c, err, view)
 }

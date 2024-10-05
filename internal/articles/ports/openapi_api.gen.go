@@ -18,11 +18,10 @@ const (
 
 // GetArticleListParams defines parameters for GetArticleList.
 type GetArticleListParams struct {
-	Page             *int    `form:"page,omitempty" json:"page,omitempty"`
-	Limit            *int    `form:"limit,omitempty" json:"limit,omitempty"`
-	IncludeInvisible *bool   `form:"includeInvisible,omitempty" json:"includeInvisible,omitempty"`
-	Category         *string `form:"category,omitempty" json:"category,omitempty"`
-	Tags             *string `form:"tags,omitempty" json:"tags,omitempty"`
+	Page     *int    `form:"page,omitempty" json:"page,omitempty"`
+	Limit    *int    `form:"limit,omitempty" json:"limit,omitempty"`
+	Category *string `form:"category,omitempty" json:"category,omitempty"`
+	Tags     *string `form:"tags,omitempty" json:"tags,omitempty"`
 }
 
 // InitializationArticleJSONBody defines parameters for InitializationArticle.
@@ -30,11 +29,6 @@ type InitializationArticleJSONBody struct {
 	// Category 分组
 	Category string `json:"category"`
 	Uri      string `json:"uri"`
-}
-
-// GetArticleDetailParams defines parameters for GetArticleDetail.
-type GetArticleDetailParams struct {
-	Version *string `form:"version,omitempty" json:"version,omitempty"`
 }
 
 // SetArticleVersionJSONBody defines parameters for SetArticleVersion.
@@ -60,6 +54,14 @@ type CreateNewArticleVersionMultipartBody struct {
 // ChangeArticleVisibilityJSONBody defines parameters for ChangeArticleVisibility.
 type ChangeArticleVisibilityJSONBody struct {
 	Visibility bool `json:"visibility"`
+}
+
+// GetAuthorArticleListParams defines parameters for GetAuthorArticleList.
+type GetAuthorArticleListParams struct {
+	Page     *int    `form:"page,omitempty" json:"page,omitempty"`
+	Limit    *int    `form:"limit,omitempty" json:"limit,omitempty"`
+	Category *string `form:"category,omitempty" json:"category,omitempty"`
+	Tags     *string `form:"tags,omitempty" json:"tags,omitempty"`
 }
 
 // InitializationArticleJSONRequestBody defines body for InitializationArticle for application/json ContentType.
@@ -91,30 +93,39 @@ type ServerInterface interface {
 	// 删除文章
 	// (DELETE /articles/{uri})
 	DeleteArticle(c *gin.Context, uri string)
-	// 获取文章详情
+	// 获取文章内容
 	// (GET /articles/{uri})
-	GetArticleDetail(c *gin.Context, uri string, params GetArticleDetailParams)
+	GetArticleContent(c *gin.Context, uri string)
 	// 设置文章当前版本
 	// (PUT /articles/{uri}/)
 	SetArticleVersion(c *gin.Context, uri string)
 	// 更改文章分类
 	// (PATCH /articles/{uri}/category)
 	ChangeArticleCategory(c *gin.Context, uri string)
+	// 获取文章元数据
+	// (GET /articles/{uri}/metadata)
+	GetArticleMetadata(c *gin.Context, uri string)
 	// 修改文章标签
 	// (PATCH /articles/{uri}/tags)
 	ModifyArticleTags(c *gin.Context, uri string)
 	// 获取文章全部版本
 	// (GET /articles/{uri}/versions)
-	GetArticleVersion(c *gin.Context, uri string)
+	GeArticleAllVersion(c *gin.Context, uri string)
 	// 创建新版本
 	// (POST /articles/{uri}/versions)
 	CreateNewArticleVersion(c *gin.Context, uri string)
 	// 移除文章某版本
 	// (DELETE /articles/{uri}/versions/{version})
 	RemoveArticleVersion(c *gin.Context, uri string, version string)
+	// 获取文章某版本的内容
+	// (GET /articles/{uri}/versions/{version})
+	GetArticleContentByVersion(c *gin.Context, uri string, version string)
 	// 修改文章可见性
 	// (PATCH /articles/{uri}/visibility)
 	ChangeArticleVisibility(c *gin.Context, uri string)
+	// 获取作者的所有文章
+	// (GET /author/articles)
+	GetAuthorArticleList(c *gin.Context, params GetAuthorArticleListParams)
 	// 获取所有标签
 	// (GET /tags)
 	GetAllTags(c *gin.Context)
@@ -152,14 +163,6 @@ func (siw *ServerInterfaceWrapper) GetArticleList(c *gin.Context) {
 	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
 	if err != nil {
 		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
-		return
-	}
-
-	// ------------- Optional query parameter "includeInvisible" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "includeInvisible", c.Request.URL.Query(), &params.IncludeInvisible)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter includeInvisible: %w", err), http.StatusBadRequest)
 		return
 	}
 
@@ -230,8 +233,8 @@ func (siw *ServerInterfaceWrapper) DeleteArticle(c *gin.Context) {
 	siw.Handler.DeleteArticle(c, uri)
 }
 
-// GetArticleDetail operation middleware
-func (siw *ServerInterfaceWrapper) GetArticleDetail(c *gin.Context) {
+// GetArticleContent operation middleware
+func (siw *ServerInterfaceWrapper) GetArticleContent(c *gin.Context) {
 
 	var err error
 
@@ -246,17 +249,6 @@ func (siw *ServerInterfaceWrapper) GetArticleDetail(c *gin.Context) {
 
 	c.Set(BearerScopes, []string{})
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetArticleDetailParams
-
-	// ------------- Optional query parameter "version" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "version", c.Request.URL.Query(), &params.Version)
-	if err != nil {
-		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter version: %w", err), http.StatusBadRequest)
-		return
-	}
-
 	for _, middleware := range siw.HandlerMiddlewares {
 		middleware(c)
 		if c.IsAborted() {
@@ -264,7 +256,7 @@ func (siw *ServerInterfaceWrapper) GetArticleDetail(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetArticleDetail(c, uri, params)
+	siw.Handler.GetArticleContent(c, uri)
 }
 
 // SetArticleVersion operation middleware
@@ -319,6 +311,32 @@ func (siw *ServerInterfaceWrapper) ChangeArticleCategory(c *gin.Context) {
 	siw.Handler.ChangeArticleCategory(c, uri)
 }
 
+// GetArticleMetadata operation middleware
+func (siw *ServerInterfaceWrapper) GetArticleMetadata(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "uri" -------------
+	var uri string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uri", c.Param("uri"), &uri, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(BearerScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetArticleMetadata(c, uri)
+}
+
 // ModifyArticleTags operation middleware
 func (siw *ServerInterfaceWrapper) ModifyArticleTags(c *gin.Context) {
 
@@ -345,8 +363,8 @@ func (siw *ServerInterfaceWrapper) ModifyArticleTags(c *gin.Context) {
 	siw.Handler.ModifyArticleTags(c, uri)
 }
 
-// GetArticleVersion operation middleware
-func (siw *ServerInterfaceWrapper) GetArticleVersion(c *gin.Context) {
+// GeArticleAllVersion operation middleware
+func (siw *ServerInterfaceWrapper) GeArticleAllVersion(c *gin.Context) {
 
 	var err error
 
@@ -368,7 +386,7 @@ func (siw *ServerInterfaceWrapper) GetArticleVersion(c *gin.Context) {
 		}
 	}
 
-	siw.Handler.GetArticleVersion(c, uri)
+	siw.Handler.GeArticleAllVersion(c, uri)
 }
 
 // CreateNewArticleVersion operation middleware
@@ -432,6 +450,41 @@ func (siw *ServerInterfaceWrapper) RemoveArticleVersion(c *gin.Context) {
 	siw.Handler.RemoveArticleVersion(c, uri, version)
 }
 
+// GetArticleContentByVersion operation middleware
+func (siw *ServerInterfaceWrapper) GetArticleContentByVersion(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "uri" -------------
+	var uri string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "uri", c.Param("uri"), &uri, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter uri: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Path parameter "version" -------------
+	var version string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "version", c.Param("version"), &version, runtime.BindStyledParameterOptions{Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter version: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	c.Set(BearerScopes, []string{})
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetArticleContentByVersion(c, uri, version)
+}
+
 // ChangeArticleVisibility operation middleware
 func (siw *ServerInterfaceWrapper) ChangeArticleVisibility(c *gin.Context) {
 
@@ -456,6 +509,58 @@ func (siw *ServerInterfaceWrapper) ChangeArticleVisibility(c *gin.Context) {
 	}
 
 	siw.Handler.ChangeArticleVisibility(c, uri)
+}
+
+// GetAuthorArticleList operation middleware
+func (siw *ServerInterfaceWrapper) GetAuthorArticleList(c *gin.Context) {
+
+	var err error
+
+	c.Set(BearerScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GetAuthorArticleListParams
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", c.Request.URL.Query(), &params.Page)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter page: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", c.Request.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter limit: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "category" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "category", c.Request.URL.Query(), &params.Category)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter category: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	// ------------- Optional query parameter "tags" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "tags", c.Request.URL.Query(), &params.Tags)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter tags: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetAuthorArticleList(c, params)
 }
 
 // GetAllTags operation middleware
@@ -503,13 +608,16 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.GET(options.BaseURL+"/articles", wrapper.GetArticleList)
 	router.POST(options.BaseURL+"/articles", wrapper.InitializationArticle)
 	router.DELETE(options.BaseURL+"/articles/:uri", wrapper.DeleteArticle)
-	router.GET(options.BaseURL+"/articles/:uri", wrapper.GetArticleDetail)
+	router.GET(options.BaseURL+"/articles/:uri", wrapper.GetArticleContent)
 	router.PUT(options.BaseURL+"/articles/:uri/", wrapper.SetArticleVersion)
 	router.PATCH(options.BaseURL+"/articles/:uri/category", wrapper.ChangeArticleCategory)
+	router.GET(options.BaseURL+"/articles/:uri/metadata", wrapper.GetArticleMetadata)
 	router.PATCH(options.BaseURL+"/articles/:uri/tags", wrapper.ModifyArticleTags)
-	router.GET(options.BaseURL+"/articles/:uri/versions", wrapper.GetArticleVersion)
+	router.GET(options.BaseURL+"/articles/:uri/versions", wrapper.GeArticleAllVersion)
 	router.POST(options.BaseURL+"/articles/:uri/versions", wrapper.CreateNewArticleVersion)
 	router.DELETE(options.BaseURL+"/articles/:uri/versions/:version", wrapper.RemoveArticleVersion)
+	router.GET(options.BaseURL+"/articles/:uri/versions/:version", wrapper.GetArticleContentByVersion)
 	router.PATCH(options.BaseURL+"/articles/:uri/visibility", wrapper.ChangeArticleVisibility)
+	router.GET(options.BaseURL+"/author/articles", wrapper.GetAuthorArticleList)
 	router.GET(options.BaseURL+"/tags", wrapper.GetAllTags)
 }

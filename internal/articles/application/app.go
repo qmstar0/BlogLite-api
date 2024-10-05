@@ -22,8 +22,10 @@ type Command struct {
 }
 
 type Query struct {
-	TagList            *query.TagListHandler
-	ArticleList        *query.ArticleListHandler
-	ArticleDetail      *query.ArticleDetailhandler
-	ArticleVersionList *query.ArticleVersionListHandler
+	TagList             *query.TagListHandler
+	ArticleContent      *query.ArticleContentHandler
+	ArticleList         *query.ArticleListHandler
+	ArticleVersionList  *query.ArticleVersionListHandler
+	ArticleMetadataList *query.ArticleMetadataListHandler
+	ArticleMetadata     *query.ArticleMetadatahandler
 }
