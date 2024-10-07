@@ -211,7 +211,8 @@ func (p PostgresArticleMetadataReadmodel) ArticleList(
 			Offset(offset).
 			Limit(limit).
 			Order("article_metadata.first_version_created_at desc").
-			Joins("JOIN article_version ON article_version.uri = article_metadata.uri").Group("article_version.version"),
+			Joins("JOIN article_version ON article_version.uri = article_metadata.uri").
+			Group("article_version.version"),
 	).Where("article_version.version = article_metadata.current_version").
 		Where("article_metadata.visibility = true")
 
@@ -320,7 +321,8 @@ func (p PostgresArticleMetadataReadmodel) ArticleContent(ctx context.Context, ur
 			"article_version.content",
 			"array_remove(array_agg(article_tag.tag), null) AS tags",
 		).Limit(1).
-		Joins("JOIN article_version ON article_version.uri = article_metadata.uri").Group("article_version.version"),
+		Joins("JOIN article_version ON article_version.uri = article_metadata.uri").
+		Group("article_version.version"),
 	).Where("article_metadata.uri = ?", uri).
 		Where("article_metadata.visibility = true")
 

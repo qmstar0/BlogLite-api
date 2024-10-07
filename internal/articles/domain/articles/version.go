@@ -125,4 +125,4 @@ func (a *Article) setCurrentVersion(versionHash string) {
 	a.currentVersion = versionHash
 }
 
-var versionNotExist = e.InvalidActionError("该文章版本不存在或已删除")
+var versionNotExist = e.ResourceDoesNotExist.WithMessage("该文章版本不存在或已删除")
