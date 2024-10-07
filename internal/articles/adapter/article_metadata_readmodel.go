@@ -210,6 +210,7 @@ func (p PostgresArticleMetadataReadmodel) ArticleList(
 			).
 			Offset(offset).
 			Limit(limit).
+			Order("article_metadata.first_version_created_at desc").
 			Joins("JOIN article_version ON article_version.uri = article_metadata.uri").Group("article_version.version"),
 	).Where("article_version.version = article_metadata.current_version").
 		Where("article_metadata.visibility = true")
@@ -251,7 +252,8 @@ func (p PostgresArticleMetadataReadmodel) ArticleMetadataList(ctx context.Contex
 			Model(&ArticleMetadata{}).
 			Select("article_metadata.*", "category.slug", "category.name", "array_remove(array_agg(article_tag.tag), null) AS tags").
 			Offset(offset).
-			Limit(limit),
+			Limit(limit).
+			Order("article_metadata.first_version_created_at desc"),
 	)
 
 	tx = p.filterByTagsAndCategory(tx, tags, categoryID)
