@@ -21,7 +21,7 @@ func GetAuth(c *gin.Context) {
 	}
 
 	if req.Password != config.Cfg.AuthAdminPassword {
-		httpresponse.Error(c, e.InvalidActionError("密码错误，请重新输入"))
+		httpresponse.Error(c, e.PWDError)
 		return
 	}
 

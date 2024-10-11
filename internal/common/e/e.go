@@ -20,6 +20,7 @@ var (
 	InvalidParameters    = ErrCode{"INVALID_PARAMETERS", ""}
 	InvalidAction        = ErrCode{"INVALID_ACTION", ""}
 	ResourceDoesNotExist = ErrCode{"RESOURCE_NOT_EXIST", "资源不存在或已删除"}
+	PWDError             = ErrCode{"PWD_ERROR", "密码错误，请重新输入"}
 )
 
 func InvalidParametersError(info string) error {
